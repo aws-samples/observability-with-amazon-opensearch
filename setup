@@ -8,3 +8,8 @@ openssl genrsa -out mydomain.key 2048
 openssl req -new -key mydomain.key -passin pass:password -subj /C=US/ST=Kansas/L=Lawrence/O=OrgName/OU=OuName/CN=CnName/emailAddress=aos@mydomain.com -out mydomain.csr
 openssl x509 -req -days 365 -in mydomain.csr -signkey mydomain.key -out mydomain.crt
 cat mydomain.key mydomain.crt >> /etc/ssl/certs/mydomain.pem
+
+yum -y install docker
+service docker start
+
+yum -y install haproxy
