@@ -12,4 +12,10 @@ cat mydomain.key mydomain.crt >> /etc/ssl/certs/mydomain.pem
 yum -y install docker
 service docker start
 
+wget https://github.com/muthup/traceanalytics/raw/main/ant403.tar
+tar -xvf ant403
+cd ant403
+grep -RIl 'OSS_DOMAIN' | xargs sed -i -e "s/OSS_DOMAIN/opensearch-main.muthup.com/g" -e "s/OSSDOMAIN_USERNAME/admin/g" -e "s/OSSDOMAIN_PASSWORD/password/g"
+/usr/bin/docker-compose up -d
+
 yum -y install haproxy
