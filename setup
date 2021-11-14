@@ -13,3 +13,4 @@ yum -y install docker
 service docker start
 
 yum -y install haproxy
+service haproxy start
