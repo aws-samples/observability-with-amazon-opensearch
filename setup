@@ -3,3 +3,8 @@ echo `date`
 echo `hostname`
 curl -s -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose >> /dev/null
 chmod a+x /usr/bin/docker-compose
+
+openssl genrsa -out mydomain.key 2048
+openssl req -new -key mydomain.key -passin pass:password -subj /C=US/ST=Kansas/L=Lawrence/O=OrgName/OU=OuName/CN=CnName/emailAddress=aos@mydomain.com -out mydomain.csr
+openssl x509 -req -days 365 -in mydomain.csr -signkey mydomain.key -out mydomain.crt
+cat mydomain.key mydomain.crt >> /etc/ssl/certs/mydomain.pem
