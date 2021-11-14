@@ -1,5 +1,5 @@
 #!/bin/bash
-echo date
-echo hostname
-curl -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
+echo `date`
+echo `hostname`
+curl -s -L "https://github.com/docker/compose/releases/download/1.29.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/bin/docker-compose
 chmod a+x /usr/bin/docker-compose
