@@ -1,6 +1,6 @@
 # Instructions
-- CloudFormation templates needs rest of the resources in this repository.
-- Launch template either in CloudFormation Desginer or console.
+- CloudFormation template `ant403/cf-templates/root_stack.json` needs rest of the resources in this repository.
+- Launch it either in CloudFormation desginer or console.
 - You will need a key pair to the account you are launching this workshop in.
 - On successful completion goto CloudFormation console > Stack name> Outputs
 - Login to OpenSearch at `OpenSearchProxyURL` by accepting self signed certificate presented with 
