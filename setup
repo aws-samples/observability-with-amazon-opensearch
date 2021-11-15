@@ -19,6 +19,7 @@ tar -xvf ant403.tar
 cd ant403
 grep -RIl 'OSS_DOMAIN' | xargs sed -i -e "s/OSS_DOMAIN/opensearch-main.muthup.com/g" -e "s/OSSDOMAIN_USERNAME/aosadmin/g" -e "s/OSSDOMAIN_PASSWORD/Passw0rd1!/g"
 /bin/cp haproxy.conf /etc/haproxy/
+service haproxy start
 
 /usr/bin/docker-compose up -d
 
