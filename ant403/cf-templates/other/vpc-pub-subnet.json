@@ -585,9 +585,9 @@
                             [
                                 "#!/bin/bash -xe\n",
                                 "yum install -y aws-cfn-bootstrap\n",
-                                "wget https://raw.githubusercontent.com/muthup/traceanalytics/main/setup\n",
-                                "chmod a+x ./setup\n",
-                                "./setup ",
+                                "wget https://raw.githubusercontent.com/muthup/traceanalytics/main/ant403/scripts/aoss-slr\n",
+                                "chmod a+x ./aoss-slr\n",
+                                "./aoss-slr 2>&1 >> script.log",
                                 {
                                     "Fn::GetAtt": [
                                         "VPC",
@@ -668,7 +668,8 @@
                 }
             },
             "DependsOn": [
-                "PublicRoute"
+                "PublicRoute",
+                "OpenSearchSLR"
             ]
         },
         "WebServerSecurityGroup": {
@@ -809,6 +810,12 @@
                 "AWS::CloudFormation::Designer": {
                     "id": "7189800a-d6ab-4126-9b96-36311541f345"
                 }
+            }
+        },
+        "OpenSearchSLR": {
+            "Type": "AWS::IAM::ServiceLinkedRole",
+            "Properties": {
+                "AWSServiceName": "es.amazonaws.com"
             }
         }
     },
@@ -1095,6 +1102,11 @@
                 ]
             },
             "Description": "Newly created application URL"
+        },
+        "SLRId": {
+            "Value": {
+                "Ref": "OpenSearchSLR"
+            }
         }
     }
 }

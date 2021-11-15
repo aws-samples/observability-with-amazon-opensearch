@@ -1394,8 +1394,17 @@
                 }
             }
         },
+        "OpenSearchServiceLinkedRole": {
+            "Type": "AWS::IAM::ServiceLinkedRole",
+            "Properties": {
+                "AWSServiceName": "es.amazonaws.com"
+            }
+        },
         "OpenSearchServiceDomain": {
             "Type": "AWS::OpenSearchService::Domain",
+            "DependsOn": [
+                "OpenSearchServiceLinkedRole"
+            ],
             "Properties": {
                 "DomainName": "aosstraceanalytics",
                 "AccessPolicies": {
@@ -1796,6 +1805,12 @@
                 ]
             },
             "Description": "This URL is accessible only inside VPC"
+        },
+        "OpenSearchServiceLinkedRole": {
+            "Value": {
+                "Ref": "OpenSearchServiceLinkedRole"
+            },
+            "Description": "This Role gives OpenSearch Service necessary permissions to create associated resources like Elastic Network Interfaces"
         }
     }
 }
