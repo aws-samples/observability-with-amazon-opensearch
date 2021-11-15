@@ -1765,9 +1765,9 @@
                                 "AppContainersHostInstance",
                                 "PublicIp"
                             ]
-                        }
-                    ],
-                    "/_dashboards"
+                        },
+                        "/_dashboards"
+                    ]
                 ]
             },
             "Description": "Proxy URL to access OpenSearch service dashboards"
@@ -1783,9 +1783,9 @@
                                 "AppContainersHostInstance",
                                 "PublicIp"
                             ]
-                        }
-                    ],
-                    ":8089"
+                        },
+                        ":8089"
+                    ]
                 ]
             },
             "Description": "URL to access trace analytics sample shopping application"
@@ -1801,9 +1801,9 @@
                                 "OpenSearchServiceDomain",
                                 "DomainEndpoint"
                             ]
-                        }
-                    ],
-                    "/_dashboards"
+                        },
+                        "/_dashboards"
+                    ]
                 ]
             },
             "Description": "This URL is accessible only inside VPC"
