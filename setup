@@ -15,6 +15,7 @@ yum -y install docker
 service docker start
 
 yum -y install haproxy
+yum -y install git
 
 wget https://github.com/muthup/traceanalytics/raw/main/ant403.tar
 tar -xvf ant403.tar

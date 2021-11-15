@@ -1,0 +1,35 @@
+entry-pipeline:
+  delay: "100"
+  source:
+    otel_trace_source:
+      ssl: false
+  sink:
+    - pipeline:
+        name: "raw-pipeline"
+    - pipeline:
+        name: "service-map-pipeline"
+raw-pipeline:
+  source:
+    pipeline:
+      name: "entry-pipeline"
+  prepper:
+    - otel_trace_raw_prepper:
+  sink:
+    - opensearch:
+        hosts: [ "https://OSS_DOMAIN:443" ]
+        username: "OSSDOMAIN_USERNAME"
+        password: "OSSDOMAIN_PASSWORD"
+        trace_analytics_raw: true
+service-map-pipeline:
+  delay: "100"
+  source:
+    pipeline:
+      name: "entry-pipeline"
+  prepper:
+    - service_map_stateful:
+  sink:
+    - opensearch:
+        hosts: [ "https://OSS_DOMAIN:443" ]
+        username: "OSSDOMAIN_USERNAME"
+        password: "OSSDOMAIN_PASSWORD"
+        trace_analytics_service_map: true
