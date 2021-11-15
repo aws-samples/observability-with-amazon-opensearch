@@ -852,7 +852,7 @@
                 }
             }
         },
-        "WebServerInstance": {
+        "AppContainersHostInstance": {
             "Type": "AWS::EC2::Instance",
             "Properties": {
                 "InstanceType": {
@@ -882,7 +882,7 @@
                     {
                         "GroupSet": [
                             {
-                                "Ref": "WebServerSecurityGroup"
+                                "Ref": "MicroServicesSecurityGroup"
                             }
                         ],
                         "AssociatePublicIpAddress": "true",
@@ -916,7 +916,7 @@
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                "         --resource WebServerInstance ",
+                                "         --resource AppContainersHostInstance ",
                                 "         --configsets All ",
                                 "         --region ",
                                 {
@@ -929,7 +929,7 @@
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                "         --resource WebServerInstance ",
+                                "         --resource AppContainersHostInstance ",
                                 "         --region ",
                                 {
                                     "Ref": "AWS::Region"
@@ -987,7 +987,7 @@
                 "OpenSearchServiceDomain"
             ]
         },
-        "WebServerSecurityGroup": {
+        "MicroServicesSecurityGroup": {
             "Type": "AWS::EC2::SecurityGroup",
             "Properties": {
                 "VpcId": {
@@ -1251,7 +1251,7 @@
                     {
                         "GroupSet": [
                             {
-                                "Ref": "WebServerSecurityGroup"
+                                "Ref": "MicroServicesSecurityGroup"
                             }
                         ],
                         "DeleteOnTermination": "true",
@@ -1274,7 +1274,7 @@
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                "         --resource WebServerInstance ",
+                                "         --resource AppContainersHostInstance ",
                                 "         --configsets All ",
                                 "         --region ",
                                 {
@@ -1287,7 +1287,7 @@
                                 {
                                     "Ref": "AWS::StackName"
                                 },
-                                "         --resource WebServerInstance ",
+                                "         --resource AppContainersHostInstance ",
                                 "         --region ",
                                 {
                                     "Ref": "AWS::Region"
@@ -1457,7 +1457,7 @@
                 "VPCOptions": {
                     "SecurityGroupIds": [
                         {
-                            "Ref": "WebServerSecurityGroup"
+                            "Ref": "MicroServicesSecurityGroup"
                         }
                     ],
                     "SubnetIds": [
@@ -1492,7 +1492,7 @@
     },
     "Parameters": {
         "InstanceType": {
-            "Description": "WebServer EC2 instance type",
+            "Description": "Application Containers host EC2 instance type",
             "Type": "String",
             "Default": "m4.2xlarge",
             "AllowedValues": [
@@ -1754,33 +1754,25 @@
         }
     },
     "Outputs": {
-        "URL": {
+        "OpenSearchProxyURL": {
             "Value": {
                 "Fn::Join": [
                     "",
                     [
-                        "http://",
+                        "https://",
                         {
                             "Fn::GetAtt": [
-                                "WebServerInstance",
+                                "AppContainersHostInstance",
                                 "PublicIp"
                             ]
                         }
-                    ]
+                    ],
+                    "/_dashboards"
                 ]
             },
-            "Description": "Newly created application URL"
+            "Description": "Proxy URL to access OpenSearch service dashboards"
         },
-        "NatGatewayIP": {
-            "Value": {
-                "Fn::GetAtt": [
-                    "NatGatewayEIP",
-                    "AllocationId"
-                ]
-            },
-            "Description": "EIP allocated to Nat Gateway"
-        },
-        "PingTesterUrl": {
+        "SampleAppURL": {
             "Value": {
                 "Fn::Join": [
                     "",
@@ -1788,22 +1780,33 @@
                         "http://",
                         {
                             "Fn::GetAtt": [
-                                "PingTesterInstance",
-                                "PrivateIp"
+                                "AppContainersHostInstance",
+                                "PublicIp"
                             ]
                         }
-                    ]
+                    ],
+                    ":8089"
                 ]
             },
-            "Description": "Newly created application URL"
+            "Description": "URL to access trace analytics sample shopping application"
         },
-        "OpenSearchServiceDomainEndpoint": {
+        "OpenSearchServiceDomainURL": {
             "Value": {
-                "Fn::GetAtt": [
-                    "OpenSearchServiceDomain",
-                    "DomainEndpoint"
+                "Fn::Join": [
+                    "",
+                    [
+                        "https://",
+                        {
+                            "Fn::GetAtt": [
+                                "OpenSearchServiceDomain",
+                                "DomainEndpoint"
+                            ]
+                        }
+                    ],
+                    "/_dashboards"
                 ]
-            }
+            },
+            "Description": "This URL is accessible only inside VPC"
         }
     }
 }
