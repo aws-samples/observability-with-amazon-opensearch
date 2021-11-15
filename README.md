@@ -9,3 +9,5 @@
 - Go to the sample app console at SampleAppURL (takes ~10 mins after stack CREATE_COMPLETE) and click the buttons to mimick interaction in a shopping application
 - Goto Trace Analytics app in OpenSearch Dashboard sidebar, explore options
 - Create index pattern called sample_app_logs under Stack Management in the sidebar and observe logs as they come in
+# Architecture
+![architecture](/assets/arch.jpg)
