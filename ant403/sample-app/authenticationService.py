@@ -1,12 +1,15 @@
 # AuthenticationService running on port 8085
 
 from flask import Flask, jsonify, request
+import logging
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
     SimpleSpanProcessor,
@@ -16,7 +19,9 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import flask, os, pkg_resources, socket, random, requests, json
 
-LOGIN_ERROR_RATE_THRESHOLD = 10
+logger = logging.getLogger(__name__)
+
+LOGIN_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
@@ -49,6 +54,7 @@ tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
@@ -70,6 +76,7 @@ def server_request_login():
     with tracer.start_as_current_span("verify_login"):
         if errorRate < LOGIN_ERROR_RATE_THRESHOLD:
             logs('Authentication', 'Customer failed login - Unauthenticated: 401')
+            logger.error('Authentication - Customer failed login - Unauthenticated: 401')
             raise Error('Failed Login', status_code=401.1)
 
     # Successfully logged in @ this point, return product recommendations to client.
@@ -82,6 +89,7 @@ def server_request_login():
 
     assert getRecommendationAPIResponse.status_code == 200
     logs('Authentication', 'Customer successful login')
+    logger.info('Authentication - Customer successful login')
     return getRecommendationAPIResponse.json()
 
 def logs(serv=None, mes=None):
