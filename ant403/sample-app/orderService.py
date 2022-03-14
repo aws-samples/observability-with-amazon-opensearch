@@ -1,7 +1,9 @@
 # OrderService running on port 8088
 
 from flask import Flask, jsonify, request, Response
+import logging
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.wsgi import collect_request_attributes
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -16,9 +18,11 @@ from Error import Error
 from requests import delete, get, post, put
 import flask, os, pkg_resources, socket, random, requests, json
 
-READ_ERROR_RATE_THRESHOLD = 10
-UPDATE_ERROR_RATE_THRESHOLD = 10
-DELETE_ERROR_RATE_THRESHOLD = 10
+logger = logging.getLogger(__name__)
+
+READ_ERROR_RATE_THRESHOLD = 0
+UPDATE_ERROR_RATE_THRESHOLD = 0
+DELETE_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
@@ -51,6 +55,7 @@ tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
@@ -65,6 +70,7 @@ def update_order():
     errorRate = random.randint(0,99)
     if errorRate < UPDATE_ERROR_RATE_THRESHOLD:
         logs('Order', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Order - Update operation failed - Service Unavailable: 503')
         raise Error('Update Order Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("update_order"):
@@ -96,6 +102,7 @@ def update_order():
                 return response
             else:
                 logs('Order', 'Update operations successful')
+                logger.info('Order - Update operations successful')
                 return jsonify({"failed_items": []})
 
 @app.route("/get_order")
@@ -103,6 +110,7 @@ def get_order():
     errorRate = random.randint(0,99)
     if errorRate < READ_ERROR_RATE_THRESHOLD:
         logs('Order', 'Read operation failed - Service Unavailable: 503')
+        logger.error('Order - Read operation failed - Service Unavailable: 503')
         raise Error('getOrder Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("get_order"):
@@ -110,6 +118,7 @@ def get_order():
                 "http://{}:8083/get_cart".format(DATABASE))
             assert databaseResponse.status_code == 200
             logs('Order', 'Read operation successful')
+            logger.info('Order - Read operation successful')
             return databaseResponse.json()
 
 @app.route("/clear_order", methods=["DELETE"])
@@ -117,6 +126,7 @@ def clear_order():
     errorRate = random.randint(0,99)
     if errorRate < DELETE_ERROR_RATE_THRESHOLD:
         logs('Order', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Order - Update operation failed - Service Unavailable: 503')
         raise Error('clearOrder Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("clear_order"):
@@ -126,6 +136,7 @@ def clear_order():
             assert databaseResponse.status_code == 200
 
             logs('Order', 'Delete operation successful')
+            logger.info('Order - Delete operation successful')
             return "success"
 
 @app.route("/pay_order", methods=["POST", "GET"])
@@ -137,6 +148,7 @@ def pay_order():
         assert databaseResponse.status_code == 200
 
         logs('Order', 'Update operation successful')
+        logger.info('Order - Update operation successful')
         return "success"
 
 def logs(serv=None, mes=None):
@@ -150,4 +162,4 @@ def logs(serv=None, mes=None):
     return "success"
 
 if __name__ == "__main__":
-    app.run(port=8088, host="0.0.0.0")
+    app.run(port=8088, host="0.0.0.0"
