@@ -1,7 +1,9 @@
 # RecommendationService running on port 8086
 
 from flask import Flask, jsonify, request
+import logging
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -16,7 +18,9 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import os, pkg_resources, socket, random, requests, json
 
-RECOMMEND_ERROR_RATE_THRESHOLD = 10
+logger = logging.getLogger(__name__)
+
+RECOMMEND_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
@@ -49,6 +53,7 @@ tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
@@ -69,6 +74,7 @@ def recommend():
     errorRate = random.randint(0,99)
     if errorRate < RECOMMEND_ERROR_RATE_THRESHOLD:
         logs('Recommendation', 'Service is overwhelmed with TooManyRequests: 429')
+        logger.error('Recommendation - Service is overwhelmed with TooManyRequests: 429')
         raise Error('Recommendation Retrieval Failed; TooManyRequests', status_code=429)
     else:
         with tracer.start_as_current_span("recommend"):
@@ -87,6 +93,7 @@ def recommend():
 
             if num is not None:
                 logs('Recommendation', 'Successfully returning specified number of items to customer')
+                logger.info('Recommendation - Successfully returning specified number of items to customer')
                 return jsonify(
                     {
                         availItems[i][0]: availItems[i][1]
@@ -95,6 +102,7 @@ def recommend():
                 )
             else:
                 logs('Recommendation', 'Successfully returning all items to customer')
+                logger.info('Recommendation - Successfully returning all items to customer')
                 return jsonify({itemId: count for itemId, count in availItems})
 
 def logs(serv=None, mes=None):
