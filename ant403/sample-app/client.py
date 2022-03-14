@@ -14,8 +14,10 @@ from opentelemetry.sdk.trace.export import (
     SimpleSpanProcessor,
 )
 from opentelemetry.sdk.resources import Resource
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from urllib3.util.retry import Retry
+
 import os, pkg_resources, socket, requests
 
 OTLP = os.getenv("OTLP") if os.getenv("OTLP") is not None else "localhost"
@@ -37,17 +39,6 @@ app.title = 'ANT403 Sample App'
 app.layout = html.Div(id="main", children=[
     html.H1("ANT403 Sample App", style={'textAlign': 'left'}),
     html.Div(style={'padding': 25}),
-
-    # html.Div([
-    #         html.A("Trace Analytics Dashboard", href="http://localhost:5601/app/trace-analytics-dashboards#/",
-    #                style={'justify': 'center'})
-    #     ], style={'horizontalAlign': 'middle','verticalAlign': 'middle'}),
-    # html.Div(style={'padding': 10}),
-    # html.Div([
-    #         html.A("Trace Analytics Services View", href="http://localhost:5601/app/trace-analytics-dashboards#/services",
-    #                style={'justify': 'center'})
-    #     ], style={'horizontalAlign': 'middle','verticalAlign': 'middle'}),
-
 
     html.Div(style={'padding': 25}),
     html.Div([html.Button('Checkout', id='btn-nclicks-1', n_clicks=0, style={'background-color': '#729bb7'})],
@@ -116,6 +107,7 @@ otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
+LoggingInstrumentor().instrument(set_logging_format=True)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
 retry_strategy = Retry(
@@ -136,7 +128,7 @@ def closeCursorAndDBCnx(cursor, cnx):
 
 
 def setupDB():
-    INSERT_ROWS_CMD = """INSERT INTO Inventory_Items (ItemId, TotalQty) 
+    INSERT_ROWS_CMD = """INSERT INTO Inventory_Items (ItemId, TotalQty)
                            VALUES (%(ItemId)s, %(Qty)s) ON DUPLICATE KEY UPDATE TotalQty = TotalQty + %(Qty)s"""
     data = [
         {"ItemId": "apple", "Qty": 4},
@@ -253,8 +245,7 @@ def load_main_screen():
 
 
 def get_ref_link(operation, status, trace_id):
-    return [html.Div([html.A("{} {}. {}".format(operation, status, trace_id),
-                  href="http://localhost:5601/app/trace-analytics-dashboards#/traces/{}".format(trace_id))])]
+    return [html.Div([html.H5("{} {}. {}".format(operation, "", trace_id))])]
 
 def get_hexadecimal_trace_id(trace_id: int) -> str:
     return bytes(bytearray.fromhex("{:032x}".format(trace_id))).hex()
