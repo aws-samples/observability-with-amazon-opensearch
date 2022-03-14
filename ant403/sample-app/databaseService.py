@@ -4,6 +4,7 @@ import mysql.connector
 from flask import Flask, jsonify, request
 from mysql.connector import errorcode
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.instrumentation.mysql import MySQLInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -12,6 +13,7 @@ from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExport
 import opentelemetry.instrumentation.requests
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.sdk.trace.export import (
     ConsoleSpanExporter,
     SimpleSpanProcessor,
@@ -115,6 +117,7 @@ def createTables(cursor):
         else:
             print("OK")
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 MySQLInstrumentor().instrument()
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
@@ -131,7 +134,7 @@ UPDATE_INVENTORY_ITEM_CMD = ("INSERT INTO Inventory_Items (ItemId, TotalQty) VAL
 def updateItem():
     with tracer.start_as_current_span("update_item"):
         data = request.form.to_dict()
-        
+
         qty = int(data.get("Qty"))
 
         cnx = getDBCnx()
@@ -150,13 +153,13 @@ def updateItem():
 
             if cursor.rowcount > 0:
                 cnx.commit()
-                
+
                 closeCursorAndDBCnx(cursor, cnx)
 
                 return "success"
             else:
                 cnx.rollback()
-                
+
                 closeCursorAndDBCnx(cursor, cnx)
 
                 raise InvalidItemUpdate("Not enough storage for itemId {}".format(data["ItemId"]))
@@ -277,7 +280,7 @@ def removeItemFromCart():
     with tracer.start_as_current_span("remove_item_from_cart"):
         # (ItemId, Qty)
         data = request.form.to_dict()
-        
+
         cnx = getDBCnx()
         cursor = cnx.cursor()
 
