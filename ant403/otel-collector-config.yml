@@ -3,11 +3,12 @@ receivers:
     protocols:
       grpc:
         endpoint: 0.0.0.0:55680
-
-exporters:
+        
+  exporters:
   otlp/2:
     endpoint: data-prepper:21890
-    insecure: true
+    tls:
+      insecure: true
   logging:
 
 service:
