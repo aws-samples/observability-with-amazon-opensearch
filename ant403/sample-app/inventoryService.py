@@ -1,7 +1,9 @@
 # InventoryService running on port 8082
 
 from flask import Flask, jsonify, request, Response
+import logging
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.wsgi import collect_request_attributes
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
@@ -16,9 +18,11 @@ from Error import Error
 from requests import get, post
 import flask, os, pkg_resources, socket, random, requests, json
 
-READ_ERROR_RATE_THRESHOLD = 10
-UPDATE_ERROR_RATE_THRESHOLD = 10
-DELETE_ERROR_RATE_THRESHOLD = 10
+logger = logging.getLogger(__name__)
+
+READ_ERROR_RATE_THRESHOLD = 0
+UPDATE_ERROR_RATE_THRESHOLD = 0
+DELETE_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
@@ -51,6 +55,7 @@ tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
@@ -65,6 +70,7 @@ def read_inventory():
     errorRate = random.randint(0,99)
     if errorRate < READ_ERROR_RATE_THRESHOLD:
         logs('Inventory', 'Read operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Read operation failed - Service Unavailable: 503')
         raise Error('Read Inventory Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("read_inventory"):
@@ -72,6 +78,7 @@ def read_inventory():
                 "http://{}:8083/get_inventory".format(DATABASE))
             assert databaseResponse.status_code == 200
             logs('Inventory', 'Read operation successful')
+            logger.info('Inventory - Read operation successful')
             return databaseResponse.json()
 
 @app.route("/update_inventory", methods=["POST", "PUT"])
@@ -79,6 +86,7 @@ def update_inventory():
     errorRate = random.randint(0,99)
     if errorRate < UPDATE_ERROR_RATE_THRESHOLD:
         logs('Inventory', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Update operation failed - Service Unavailable: 503')
         raise Error('Update Inventory Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("update_inventory"):
@@ -105,6 +113,7 @@ def update_inventory():
                 return response
             else:
                 logs('Inventory', 'Update operations successful')
+                logger.info('Inventory - Update operations successful')
                 return jsonify({"failed_items": []})
 
 @app.route("/delete_inventory", methods=["DELETE"])
@@ -112,6 +121,7 @@ def delete_inventory():
     errorRate = random.randint(0,99)
     if errorRate < DELETE_ERROR_RATE_THRESHOLD:
         logs('Inventory', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Update operation failed - Service Unavailable: 503')
         raise Error('Delete Inventory Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("delete_inventory"):
@@ -128,6 +138,7 @@ def delete_inventory():
                 assert updateItemResponse.status_code == 200
 
             logs('Inventory', 'Delete operation successful')
+            logger.info('Inventory - Delete operation successful')
             return "success"
 
 def logs(serv=None, mes=None):
