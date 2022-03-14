@@ -1,7 +1,9 @@
 # PaymentService running on port 8084
 
 from flask import Flask, jsonify, request, make_response
+import logging
 from opentelemetry import trace
+from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.flask import FlaskInstrumentor
 from opentelemetry.exporter.otlp.proto.grpc.trace_exporter import OTLPSpanExporter
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
@@ -16,7 +18,9 @@ from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
 import os, pkg_resources, socket, requests, random, json
 
-ERROR_RATE_THRESHOLD = 10
+logger = logging.getLogger(__name__)
+
+ERROR_RATE_THRESHOLD = 60
 
 app = Flask(__name__)
 
@@ -49,6 +53,7 @@ tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
 
+LoggingInstrumentor().instrument(set_logging_format=True)
 FlaskInstrumentor().instrument_app(app)
 RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 
@@ -69,6 +74,7 @@ def payment():
     errorRate = random.randint(0,99)
     if errorRate < ERROR_RATE_THRESHOLD:
         logs('Payment', 'Checkout operation failed - Service Unavailable: 503')
+        logger.error('Payment - Checkout operation failed - Service Unavailable: 503')
         raise Error('Checkout Failed - Service Unavailable', status_code=503)
     else:
         with tracer.start_as_current_span("checkout"):
@@ -86,11 +92,12 @@ def payment():
             soldInventorySession.close()
             if soldInventoryUpdateResponse.status_code == 200:
                 logs('Payment', 'Customer successfully checked out cart')
+                logger.info('Payment - Customer successfully checked out cart')
                 return "success"
             else:
                 failedItems = soldInventoryUpdateResponse.json().get("failed_items")
                 return make_response(
-                    "Failed to checkout following items: {}".format(','.join(failedItems)), 
+                    "Failed to checkout following items: {}".format(','.join(failedItems)),
                     soldInventoryUpdateResponse.status_code)
 
 def logs(serv=None, mes=None):
