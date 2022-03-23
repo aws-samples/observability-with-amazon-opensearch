@@ -335,4 +335,4 @@ if __name__ == "__main__":
     cursor = cnx.cursor()
     createTables(cursor)
     closeCursorAndDBCnx(cursor, cnx)
-    app.run(port=8083, host="0.0.0.0")
+    app.run(port=5000, host="0.0.0.0")

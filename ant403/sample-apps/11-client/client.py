@@ -252,4 +252,4 @@ def get_hexadecimal_trace_id(trace_id: int) -> str:
 
 
 if __name__ == '__main__':
-    app.run_server(debug=True, host="0.0.0.0", port=8089)
+    app.run_server(debug=True, host="0.0.0.0", port=5000)

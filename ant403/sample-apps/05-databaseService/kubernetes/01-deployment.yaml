@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: database-service
+  name: database-service
+  namespace: database-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database-service
+  template:
+    metadata:
+      labels:
+        app: database-service
+    spec:
+      containers:
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/database-service:latest
+        name: database-service
+        ports:
+        - containerPort: 5000
+        resources: # Verify the amount of requests
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        env:
+        - name: OTLP
+          value: ""
+        - name: MYSQL_HOST
+          value: "mysql.mysql.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: database-service
+  namespace: database-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: database-service

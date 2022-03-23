@@ -1,4 +1,4 @@
-# OrderService running on port 8088
+# InventoryService running on port 8082
 
 from flask import Flask, jsonify, request, Response
 import logging
@@ -15,7 +15,7 @@ from opentelemetry.sdk.trace.export import (
     SimpleSpanProcessor,
 )
 from Error import Error
-from requests import delete, get, post, put
+from requests import get, post
 import flask, os, pkg_resources, socket, random, requests, json
 
 logger = logging.getLogger(__name__)
@@ -34,7 +34,7 @@ trace.set_tracer_provider(
     TracerProvider(
         resource=Resource.create(
             {
-                "service.name": "order",
+                "service.name": "inventory",
                 "service.instance.id": str(id(app)),
                 "telemetry.sdk.name": "opentelemetry",
                 "telemetry.sdk.language": "python",
@@ -65,28 +65,39 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-@app.route("/update_order", methods=["POST", "PUT"])
-def update_order():
+@app.route("/read_inventory")
+def read_inventory():
+    errorRate = random.randint(0,99)
+    if errorRate < READ_ERROR_RATE_THRESHOLD:
+        logs('Inventory', 'Read operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Read operation failed - Service Unavailable: 503')
+        raise Error('Read Inventory Failed - Service Unavailable', status_code=503)
+    else:
+        with tracer.start_as_current_span("read_inventory"):
+            databaseResponse = get(
+                "http://{}:8083/get_inventory".format(DATABASE))
+            assert databaseResponse.status_code == 200
+            logs('Inventory', 'Read operation successful')
+            logger.info('Inventory - Read operation successful')
+            return databaseResponse.json()
+
+@app.route("/update_inventory", methods=["POST", "PUT"])
+def update_inventory():
     errorRate = random.randint(0,99)
     if errorRate < UPDATE_ERROR_RATE_THRESHOLD:
-        logs('Order', 'Update operation failed - Service Unavailable: 503')
-        logger.error('Order - Update operation failed - Service Unavailable: 503')
-        raise Error('Update Order Failed - Service Unavailable', status_code=503)
+        logs('Inventory', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Update operation failed - Service Unavailable: 503')
+        raise Error('Update Inventory Failed - Service Unavailable', status_code=503)
     else:
-        with tracer.start_as_current_span("update_order"):
+        with tracer.start_as_current_span("update_inventory"):
             rawData = request.form
             failedItems = []
             for itemId in rawData.keys():
                 qty = sum([val for val in rawData.getlist(itemId, type=int)])
 
-                if qty >= 0:
-                    databaseResponse = post(
-                        "http://{}:8083/add_item_to_cart".format(DATABASE),
-                        data={"ItemId": itemId, "Qty": qty})
-                else:
-                    databaseResponse = post(
-                        "http://{}:8083/remove_item_from_cart".format(DATABASE),
-                        data={"ItemId": itemId, "Qty": -qty})
+                databaseResponse = post(
+                    "http://{}:8083/update_item".format(DATABASE),
+                    data={"ItemId": itemId, "Qty": qty})
 
                 if databaseResponse.status_code != 200:
                     failedItems.append(itemId)
@@ -97,59 +108,38 @@ def update_order():
                 )
                 response.status_code = 206
                 response.status = "{} {}".format(
-                    response.status_code, "Update order response contains failed items."
+                    response.status_code, "Update inventory response contains failed items."
                 )
                 return response
             else:
-                logs('Order', 'Update operations successful')
-                logger.info('Order - Update operations successful')
+                logs('Inventory', 'Update operations successful')
+                logger.info('Inventory - Update operations successful')
                 return jsonify({"failed_items": []})
 
-@app.route("/get_order")
-def get_order():
-    errorRate = random.randint(0,99)
-    if errorRate < READ_ERROR_RATE_THRESHOLD:
-        logs('Order', 'Read operation failed - Service Unavailable: 503')
-        logger.error('Order - Read operation failed - Service Unavailable: 503')
-        raise Error('getOrder Failed - Service Unavailable', status_code=503)
-    else:
-        with tracer.start_as_current_span("get_order"):
-            databaseResponse = get(
-                "http://{}:8083/get_cart".format(DATABASE))
-            assert databaseResponse.status_code == 200
-            logs('Order', 'Read operation successful')
-            logger.info('Order - Read operation successful')
-            return databaseResponse.json()
-
-@app.route("/clear_order", methods=["DELETE"])
-def clear_order():
+@app.route("/delete_inventory", methods=["DELETE"])
+def delete_inventory():
     errorRate = random.randint(0,99)
     if errorRate < DELETE_ERROR_RATE_THRESHOLD:
-        logs('Order', 'Update operation failed - Service Unavailable: 503')
-        logger.error('Order - Update operation failed - Service Unavailable: 503')
-        raise Error('clearOrder Failed - Service Unavailable', status_code=503)
+        logs('Inventory', 'Update operation failed - Service Unavailable: 503')
+        logger.error('Inventory - Update operation failed - Service Unavailable: 503')
+        raise Error('Delete Inventory Failed - Service Unavailable', status_code=503)
     else:
-        with tracer.start_as_current_span("clear_order"):
-            databaseResponse = put(
-                "http://{}:8083/cart_empty".format(DATABASE),
+        with tracer.start_as_current_span("delete_inventory"):
+            databaseResponse = get(
+                "http://{}:8083/get_inventory".format(DATABASE),
             )
             assert databaseResponse.status_code == 200
 
-            logs('Order', 'Delete operation successful')
-            logger.info('Order - Delete operation successful')
+            for itemId, qty in databaseResponse.json().items():
+                updateItemResponse = post(
+                    "http://{}:8083/update_item".format(DATABASE),
+                    data={"ItemId": itemId, "Qty": -int(qty)},
+                )
+                assert updateItemResponse.status_code == 200
+
+            logs('Inventory', 'Delete operation successful')
+            logger.info('Inventory - Delete operation successful')
             return "success"
-
-@app.route("/pay_order", methods=["POST", "GET"])
-def pay_order():
-    with tracer.start_as_current_span("pay_order"):
-        databaseResponse = delete(
-            "http://{}:8083/cart_sold".format(DATABASE),
-        )
-        assert databaseResponse.status_code == 200
-
-        logs('Order', 'Update operation successful')
-        logger.info('Order - Update operation successful')
-        return "success"
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
@@ -162,4 +152,4 @@ def logs(serv=None, mes=None):
     return "success"
 
 if __name__ == "__main__":
-    app.run(port=8088, host="0.0.0.0")
+    app.run(port=5000, host="0.0.0.0")

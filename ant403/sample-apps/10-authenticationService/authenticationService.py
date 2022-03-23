@@ -1,4 +1,4 @@
-# RecommendationService running on port 8086
+# AuthenticationService running on port 8085
 
 from flask import Flask, jsonify, request
 import logging
@@ -16,23 +16,23 @@ from opentelemetry.sdk.trace.export import (
 from Error import Error
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import os, pkg_resources, socket, random, requests, json
+import flask, os, pkg_resources, socket, random, requests, json
 
 logger = logging.getLogger(__name__)
 
-RECOMMEND_ERROR_RATE_THRESHOLD = 0
+LOGIN_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
 OTLP = os.getenv("OTLP") if os.getenv("OTLP") is not None else "localhost"
-INVENTORY = os.getenv("INVENTORY") if os.getenv("INVENTORY") is not None else "localhost"
+RECOMMEND = os.getenv("RECOMMEND") if os.getenv("RECOMMEND") is not None else "localhost"
 LOGS = os.getenv("LOGS") if os.getenv("LOGS") is not None else "localhost"
 
 trace.set_tracer_provider(
     TracerProvider(
         resource=Resource.create(
             {
-                "service.name": "recommendation",
+                "service.name": "authentication",
                 "service.instance.id": str(id(app)),
                 "telemetry.sdk.name": "opentelemetry",
                 "telemetry.sdk.language": "python",
@@ -69,41 +69,27 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-@app.route("/recommend")
-def recommend():
+@app.route("/server_request_login")
+def server_request_login():
     errorRate = random.randint(0,99)
-    if errorRate < RECOMMEND_ERROR_RATE_THRESHOLD:
-        logs('Recommendation', 'Service is overwhelmed with TooManyRequests: 429')
-        logger.error('Recommendation - Service is overwhelmed with TooManyRequests: 429')
-        raise Error('Recommendation Retrieval Failed; TooManyRequests', status_code=429)
-    else:
-        with tracer.start_as_current_span("recommend"):
-            num = request.args.get("num", type=int)
+    with tracer.start_as_current_span("verify_login"):
+        if errorRate < LOGIN_ERROR_RATE_THRESHOLD:
+            logs('Authentication', 'Customer failed login - Unauthenticated: 401')
+            logger.error('Authentication - Customer failed login - Unauthenticated: 401')
+            raise Error('Failed Login', status_code=401.1)
 
-            readSession = requests.Session()
-            readSession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
-            readInventoryResponse = readSession.get(
-                "http://{}:8082/read_inventory".format(INVENTORY)
-            )
+    # Successfully logged in @ this point, return product recommendations to client.
+    recommendationSession = requests.Session()
+    recommendationSession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
+    getRecommendationAPIResponse = recommendationSession.get(
+        "http://{}:8086/recommend".format(RECOMMEND)
+    )
+    recommendationSession.close()
 
-            assert readInventoryResponse.status_code == 200
-            readSession.close()
-
-            availItems = [(itemId, count) for itemId, count in readInventoryResponse.json().items() if count>0]
-
-            if num is not None:
-                logs('Recommendation', 'Successfully returning specified number of items to customer')
-                logger.info('Recommendation - Successfully returning specified number of items to customer')
-                return jsonify(
-                    {
-                        availItems[i][0]: availItems[i][1]
-                        for i in range(min(num, len(availItems)))
-                    }
-                )
-            else:
-                logs('Recommendation', 'Successfully returning all items to customer')
-                logger.info('Recommendation - Successfully returning all items to customer')
-                return jsonify({itemId: count for itemId, count in availItems})
+    assert getRecommendationAPIResponse.status_code == 200
+    logs('Authentication', 'Customer successful login')
+    logger.info('Authentication - Customer successful login')
+    return getRecommendationAPIResponse.json()
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
@@ -116,4 +102,4 @@ def logs(serv=None, mes=None):
     return "success"
 
 if __name__ == "__main__":
-    app.run(port=8086, host="0.0.0.0")
+    app.run(port=5000, host="0.0.0.0")

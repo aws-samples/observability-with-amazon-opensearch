@@ -1,6 +1,6 @@
-# PaymentService running on port 8084
+# RecommendationService running on port 8086
 
-from flask import Flask, jsonify, request, make_response
+from flask import Flask, jsonify, request
 import logging
 from opentelemetry import trace
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
@@ -16,11 +16,11 @@ from opentelemetry.sdk.trace.export import (
 from Error import Error
 from requests.adapters import HTTPAdapter
 from urllib3.util.retry import Retry
-import os, pkg_resources, socket, requests, random, json
+import os, pkg_resources, socket, random, requests, json
 
 logger = logging.getLogger(__name__)
 
-ERROR_RATE_THRESHOLD = 60
+RECOMMEND_ERROR_RATE_THRESHOLD = 0
 
 app = Flask(__name__)
 
@@ -32,7 +32,7 @@ trace.set_tracer_provider(
     TracerProvider(
         resource=Resource.create(
             {
-                "service.name": "payment",
+                "service.name": "recommendation",
                 "service.instance.id": str(id(app)),
                 "telemetry.sdk.name": "opentelemetry",
                 "telemetry.sdk.language": "python",
@@ -69,36 +69,41 @@ def handle_invalid_usage(error):
     response.status_code = error.status_code
     return response
 
-@app.route("/checkout", methods=["POST", "GET"])
-def payment():
+@app.route("/recommend")
+def recommend():
     errorRate = random.randint(0,99)
-    if errorRate < ERROR_RATE_THRESHOLD:
-        logs('Payment', 'Checkout operation failed - Service Unavailable: 503')
-        logger.error('Payment - Checkout operation failed - Service Unavailable: 503')
-        raise Error('Checkout Failed - Service Unavailable', status_code=503)
+    if errorRate < RECOMMEND_ERROR_RATE_THRESHOLD:
+        logs('Recommendation', 'Service is overwhelmed with TooManyRequests: 429')
+        logger.error('Recommendation - Service is overwhelmed with TooManyRequests: 429')
+        raise Error('Recommendation Retrieval Failed; TooManyRequests', status_code=429)
     else:
-        with tracer.start_as_current_span("checkout"):
-            rawData = request.form
-            data = {}
-            for itemId in rawData.keys():
-                data[itemId] = sum([-val for val in rawData.getlist(itemId, type=int)])
+        with tracer.start_as_current_span("recommend"):
+            num = request.args.get("num", type=int)
 
-            soldInventorySession = requests.Session()
-            soldInventorySession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
-            soldInventoryUpdateResponse = soldInventorySession.post(
-                "http://{}:8082/update_inventory".format(INVENTORY),
-                data=data,
+            readSession = requests.Session()
+            readSession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
+            readInventoryResponse = readSession.get(
+                "http://{}:8082/read_inventory".format(INVENTORY)
             )
-            soldInventorySession.close()
-            if soldInventoryUpdateResponse.status_code == 200:
-                logs('Payment', 'Customer successfully checked out cart')
-                logger.info('Payment - Customer successfully checked out cart')
-                return "success"
+
+            assert readInventoryResponse.status_code == 200
+            readSession.close()
+
+            availItems = [(itemId, count) for itemId, count in readInventoryResponse.json().items() if count>0]
+
+            if num is not None:
+                logs('Recommendation', 'Successfully returning specified number of items to customer')
+                logger.info('Recommendation - Successfully returning specified number of items to customer')
+                return jsonify(
+                    {
+                        availItems[i][0]: availItems[i][1]
+                        for i in range(min(num, len(availItems)))
+                    }
+                )
             else:
-                failedItems = soldInventoryUpdateResponse.json().get("failed_items")
-                return make_response(
-                    "Failed to checkout following items: {}".format(','.join(failedItems)),
-                    soldInventoryUpdateResponse.status_code)
+                logs('Recommendation', 'Successfully returning all items to customer')
+                logger.info('Recommendation - Successfully returning all items to customer')
+                return jsonify({itemId: count for itemId, count in availItems})
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
@@ -111,4 +116,4 @@ def logs(serv=None, mes=None):
     return "success"
 
 if __name__ == "__main__":
-    app.run(port=8084, host="0.0.0.0")
+    app.run(port=5000, host="0.0.0.0")
