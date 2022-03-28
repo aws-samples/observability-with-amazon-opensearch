@@ -50,7 +50,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -75,7 +75,7 @@ def read_inventory():
     else:
         with tracer.start_as_current_span("read_inventory"):
             databaseResponse = get(
-                "http://{}:8083/get_inventory".format(DATABASE))
+                "http://{}:80/get_inventory".format(DATABASE))
             assert databaseResponse.status_code == 200
             logs('Inventory', 'Read operation successful')
             logger.info('Inventory - Read operation successful')
@@ -96,7 +96,7 @@ def update_inventory():
                 qty = sum([val for val in rawData.getlist(itemId, type=int)])
 
                 databaseResponse = post(
-                    "http://{}:8083/update_item".format(DATABASE),
+                    "http://{}:80/update_item".format(DATABASE),
                     data={"ItemId": itemId, "Qty": qty})
 
                 if databaseResponse.status_code != 200:
@@ -126,13 +126,13 @@ def delete_inventory():
     else:
         with tracer.start_as_current_span("delete_inventory"):
             databaseResponse = get(
-                "http://{}:8083/get_inventory".format(DATABASE),
+                "http://{}:80/get_inventory".format(DATABASE),
             )
             assert databaseResponse.status_code == 200
 
             for itemId, qty in databaseResponse.json().items():
                 updateItemResponse = post(
-                    "http://{}:8083/update_item".format(DATABASE),
+                    "http://{}:80/update_item".format(DATABASE),
                     data={"ItemId": itemId, "Qty": -int(qty)},
                 )
                 assert updateItemResponse.status_code == 200
@@ -143,7 +143,7 @@ def delete_inventory():
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
-    url = "http://{}:8087/logs".format(LOGS)
+    url = "http://{}:80/logs".format(LOGS)
     response = requests.post(
         url, data=json.dumps(create_log_data),
         headers={'Content-Type': 'application/json'}

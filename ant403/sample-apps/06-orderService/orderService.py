@@ -50,7 +50,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -81,11 +81,11 @@ def update_order():
 
                 if qty >= 0:
                     databaseResponse = post(
-                        "http://{}:8083/add_item_to_cart".format(DATABASE),
+                        "http://{}:80/add_item_to_cart".format(DATABASE),
                         data={"ItemId": itemId, "Qty": qty})
                 else:
                     databaseResponse = post(
-                        "http://{}:8083/remove_item_from_cart".format(DATABASE),
+                        "http://{}:80/remove_item_from_cart".format(DATABASE),
                         data={"ItemId": itemId, "Qty": -qty})
 
                 if databaseResponse.status_code != 200:
@@ -115,7 +115,7 @@ def get_order():
     else:
         with tracer.start_as_current_span("get_order"):
             databaseResponse = get(
-                "http://{}:8083/get_cart".format(DATABASE))
+                "http://{}:80/get_cart".format(DATABASE))
             assert databaseResponse.status_code == 200
             logs('Order', 'Read operation successful')
             logger.info('Order - Read operation successful')
@@ -131,7 +131,7 @@ def clear_order():
     else:
         with tracer.start_as_current_span("clear_order"):
             databaseResponse = put(
-                "http://{}:8083/cart_empty".format(DATABASE),
+                "http://{}:80/cart_empty".format(DATABASE),
             )
             assert databaseResponse.status_code == 200
 
@@ -143,7 +143,7 @@ def clear_order():
 def pay_order():
     with tracer.start_as_current_span("pay_order"):
         databaseResponse = delete(
-            "http://{}:8083/cart_sold".format(DATABASE),
+            "http://{}:80/cart_sold".format(DATABASE),
         )
         assert databaseResponse.status_code == 200
 
@@ -153,7 +153,7 @@ def pay_order():
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
-    url = "http://{}:8087/logs".format(LOGS)
+    url = "http://{}:80/logs".format(LOGS)
     response = requests.post(
         url, data=json.dumps(create_log_data),
         headers={'Content-Type': 'application/json'}

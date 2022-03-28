@@ -48,7 +48,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -86,7 +86,7 @@ def payment():
             soldInventorySession = requests.Session()
             soldInventorySession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
             soldInventoryUpdateResponse = soldInventorySession.post(
-                "http://{}:8082/update_inventory".format(INVENTORY),
+                "http://{}:80/update_inventory".format(INVENTORY),
                 data=data,
             )
             soldInventorySession.close()
@@ -102,7 +102,7 @@ def payment():
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
-    url = "http://{}:8087/logs".format(LOGS)
+    url = "http://{}:80/logs".format(LOGS)
     response = requests.post(
         url, data=json.dumps(create_log_data),
         headers={'Content-Type': 'application/json'}

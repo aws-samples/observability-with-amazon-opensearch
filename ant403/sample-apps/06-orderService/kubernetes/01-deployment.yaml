@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: database-service
-  name: database-service
-  namespace: database-service
+    app: order-service
+  name: order-service
+  namespace: order-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: database-service
+      app: order-service
   template:
     metadata:
       labels:
-        app: database-service
+        app: order-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/database-service:latest
-        name: database-service
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+        name: order-service
         ports:
         - containerPort: 5000
         resources: # Verify the amount of requests
@@ -30,19 +30,19 @@ spec:
         env:
         - name: OTLP
           value: "otel-collector.otel-collector.svc.cluster.local"
-        - name: MYSQL_HOST
-          value: "mysql.mysql.svc.cluster.local"
-        - name: MYSQL_PORT
-          value: "3306"
+        - name: DATABASE
+          value: "database-service.database-service.svc.cluster.local"
+        - name: LOGS
+          value: "analytics-service.analytics-service.svc.cluster.local" # Analytics Service
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: database-service
-  namespace: database-service
+  name: order-service
+  namespace: order-service
 spec:
   ports:
   - port: 80
     targetPort: 5000
   selector:
-    app: database-service
+    app: order-service

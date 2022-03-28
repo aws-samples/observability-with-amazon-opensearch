@@ -63,10 +63,10 @@ services:
       - '8088:8088' # order
       - '8089:8089' # client-dashboard
     environment:
-      - OTEL_EXPORTER=otlp
-      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:55680
-      - OTEL_RESOURCE_ATTRIBUTES=service.name=analytics-service
-      - OTLP=otel-collector
+      - OTEL_EXPORTER=otlp # protocolo
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:55680 # DNS
+      - OTEL_RESOURCE_ATTRIBUTES=service.name=analytics-service # Service Name
+      - OTLP=otel-collector # Using in Pyhton
       - MYSQL_HOST=mysql
       - MYSQL_PORT=3306
       - WAIT_HOSTS=otel-collector:55680, mysql:3306

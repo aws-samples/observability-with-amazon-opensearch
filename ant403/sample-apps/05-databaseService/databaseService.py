@@ -44,7 +44,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
