@@ -103,7 +103,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -164,7 +164,7 @@ def checkout():
         with tracer.start_as_current_span("client_checkout") as checkout_trace_group:
             trace_id = get_hexadecimal_trace_id(checkout_trace_group.get_span_context().trace_id)
             checkoutAPIRequest = post(
-                "http://{}:8084/checkout".format(PAYMENT),
+                "http://{}:80/checkout".format(PAYMENT),
                 data=[
                     ("banana", 2),
                     ("orange", 3),
@@ -183,7 +183,7 @@ def createOrder():
         with tracer.start_as_current_span("client_create_order") as create_order_trace_group:
             trace_id = get_hexadecimal_trace_id(create_order_trace_group.get_span_context().trace_id)
             updateOrderAPIRequest = post(
-                "http://{}:8088/update_order".format(ORDER),
+                "http://{}:80/update_order".format(ORDER),
                 data=[
                     ("apple", 1),
                     ("orange", 3),
@@ -200,7 +200,7 @@ def cancelOrder():
     try:
         with tracer.start_as_current_span("client_cancel_order") as cancel_order_trace_group:
             trace_id=get_hexadecimal_trace_id(cancel_order_trace_group.get_span_context().trace_id)
-            cancelOrderAPIRequest = delete("http://{}:8088/clear_order".format(ORDER))
+            cancelOrderAPIRequest = delete("http://{}:80/clear_order".format(ORDER))
             assert cancelOrderAPIRequest.status_code == 200
             return get_ref_link("Cancel", "success", trace_id)
     except:
@@ -212,7 +212,7 @@ def deliveryStatus():
     try:
         with tracer.start_as_current_span("client_delivery_status") as delivery_status_trace_group:
             trace_id = get_hexadecimal_trace_id(delivery_status_trace_group.get_span_context().trace_id)
-            getOrderAPIRequest = get("http://{}:8088/get_order".format(ORDER))
+            getOrderAPIRequest = get("http://{}:80/get_order".format(ORDER))
             assert getOrderAPIRequest.status_code == 200
             return get_ref_link("Status", "success", trace_id)
     except:
@@ -224,7 +224,7 @@ def payOrder():
     try:
         with tracer.start_as_current_span("client_pay_order") as pay_order_trace_group:
             trace_id = get_hexadecimal_trace_id(pay_order_trace_group.get_span_context().trace_id)
-            payOrderAPIRequest = post("http://{}:8088/pay_order".format(ORDER))
+            payOrderAPIRequest = post("http://{}:80/pay_order".format(ORDER))
             assert payOrderAPIRequest.status_code == 200
             return get_ref_link("Pay", "success", trace_id)
     except:
@@ -237,7 +237,7 @@ def load_main_screen():
         # No retry because if error occurs we want to throw it to Kibana.
         loginSession = requests.Session()
         loginAPIResponse = loginSession.get(
-            "http://{}:8085/server_request_login".format(AUTH)
+            "http://{}:80/server_request_login".format(AUTH)
         )
         loginSession.close()
         if loginAPIResponse.status_code != 200:

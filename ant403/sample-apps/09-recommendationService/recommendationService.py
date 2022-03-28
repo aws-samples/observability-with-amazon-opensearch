@@ -48,7 +48,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -83,7 +83,7 @@ def recommend():
             readSession = requests.Session()
             readSession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
             readInventoryResponse = readSession.get(
-                "http://{}:8082/read_inventory".format(INVENTORY)
+                "http://{}:80/read_inventory".format(INVENTORY)
             )
 
             assert readInventoryResponse.status_code == 200
@@ -107,7 +107,7 @@ def recommend():
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
-    url = "http://{}:8087/logs".format(LOGS)
+    url = "http://{}:80/logs".format(LOGS)
     response = requests.post(
         url, data=json.dumps(create_log_data),
         headers={'Content-Type': 'application/json'}

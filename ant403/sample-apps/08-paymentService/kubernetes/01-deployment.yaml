@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: inventory-service
-  name: inventory-service
-  namespace: inventory-service
+    app: payment-service
+  name: payment-service
+  namespace: payment-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: inventory-service
+      app: payment-service
   template:
     metadata:
       labels:
-        app: inventory-service
+        app: payment-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/inventory-service:latest
-        name: inventory-service
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/payment-service:latest
+        name: payment-service
         ports:
         - containerPort: 5000
         resources: # Verify the amount of requests
@@ -38,11 +38,11 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: inventory-service
-  namespace: inventory-service
+  name: payment-service
+  namespace: payment-service
 spec:
   ports:
   - port: 80
     targetPort: 5000
   selector:
-    app: inventory-service
+    app: payment-service

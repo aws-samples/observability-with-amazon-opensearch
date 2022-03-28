@@ -48,7 +48,7 @@ tracer = tracerProvider.get_tracer(__name__)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(ConsoleSpanExporter())
 )
-otlp_exporter = OTLPSpanExporter(endpoint="{}:55680".format(OTLP), insecure=True)
+otlp_exporter = OTLPSpanExporter(endpoint="{}:80".format(OTLP), insecure=True)
 tracerProvider.add_span_processor(
     SimpleSpanProcessor(otlp_exporter)
 )
@@ -82,7 +82,7 @@ def server_request_login():
     recommendationSession = requests.Session()
     recommendationSession.mount("http://", HTTPAdapter(max_retries=retry_strategy))
     getRecommendationAPIResponse = recommendationSession.get(
-        "http://{}:8086/recommend".format(RECOMMEND)
+        "http://{}:80/recommend".format(RECOMMEND)
     )
     recommendationSession.close()
 
@@ -93,7 +93,7 @@ def server_request_login():
 
 def logs(serv=None, mes=None):
     create_log_data = {'service': serv, 'message': mes}
-    url = "http://{}:8087/logs".format(LOGS)
+    url = "http://{}:80/logs".format(LOGS)
     response = requests.post(
         url, data=json.dumps(create_log_data),
         headers={'Content-Type': 'application/json'}

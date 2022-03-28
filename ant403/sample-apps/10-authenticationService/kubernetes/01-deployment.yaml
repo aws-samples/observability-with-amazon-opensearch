@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: inventory-service
-  name: inventory-service
-  namespace: inventory-service
+    app: authentication-service
+  name: authentication-service
+  namespace: authentication-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: inventory-service
+      app: authentication-service
   template:
     metadata:
       labels:
-        app: inventory-service
+        app: authentication-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/inventory-service:latest
-        name: inventory-service
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/authentication-service:latest
+        name: authentication-service
         ports:
         - containerPort: 5000
         resources: # Verify the amount of requests
@@ -30,19 +30,20 @@ spec:
         env:
         - name: OTLP
           value: "otel-collector.otel-collector.svc.cluster.local"
-        - name: DATABASE
-          value: "database-service.database-service.svc.cluster.local"
+        - name: RECOMMEND
+          value: "recommendation-service.recommendation-service.svc.cluster.local"
         - name: LOGS
           value: "analytics-service.analytics-service.svc.cluster.local" # Analytics Service
+        
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: inventory-service
-  namespace: inventory-service
+  name: authentication-service
+  namespace: authentication-service
 spec:
   ports:
   - port: 80
     targetPort: 5000
   selector:
-    app: inventory-service
+    app: authentication-service
