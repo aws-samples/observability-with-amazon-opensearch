@@ -16,7 +16,7 @@ spec:
         app: client-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/client-service:latest
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/client-service:1
         name: client-service
         ports:
         - containerPort: 5000

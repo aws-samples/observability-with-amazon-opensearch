@@ -16,7 +16,7 @@ spec:
         app: order-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/order-service:latest
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/order-service:1
         name: order-service
         ports:
         - containerPort: 5000

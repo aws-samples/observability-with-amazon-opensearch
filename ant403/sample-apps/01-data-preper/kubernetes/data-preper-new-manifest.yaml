@@ -1,0 +1,125 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    app: data-prepper
+  name: data-prepper-config
+  namespace: data-prepper
+data:
+  pipelines.yaml: |
+    entry-pipeline:
+      delay: "100"
+      source:
+        otel_trace_source:
+          ssl: false
+      sink:
+        - pipeline:
+            name: "raw-pipeline"
+        - pipeline:
+            name: "service-map-pipeline"
+    raw-pipeline:
+      source:
+        pipeline:
+          name: "entry-pipeline"
+      prepper:
+        - otel_trace_raw_prepper:
+      sink:
+        - opensearch:
+            hosts: [ "https://vpc-aosstraceanalytics-iimypnfcvmlcyzcmjo7yzn34rq.us-east-1.es.amazonaws.com" ]
+            username: "aosadmin"
+            password: "Passw0rd1!"
+            trace_analytics_raw: true
+    service-map-pipeline:
+      delay: "100"
+      source:
+        pipeline:
+          name: "entry-pipeline"
+      prepper:
+        - service_map_stateful:
+      sink:
+        - opensearch:
+            hosts: [ "https://vpc-aosstraceanalytics-iimypnfcvmlcyzcmjo7yzn34rq.us-east-1.es.amazonaws.com" ]
+            username: "aosadmin"
+            password: "Passw0rd1!"
+            trace_analytics_service_map: true
+  data-prepper-config.yaml: |
+    ssl: false
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: data-prepper
+  name: data-prepper
+  namespace: data-prepper
+spec:
+  clusterIP: None
+  ports:
+    - name: "21890"
+      port: 21890
+      targetPort: 21890
+  selector:
+    app: data-prepper
+status:
+  loadBalancer: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: data-prepper
+  name: data-prepper-metrics
+  namespace: data-prepper
+spec:
+  type: NodePort
+  ports:
+    - name: "4900"
+      port: 4900
+      targetPort: 4900
+  selector:
+    app: data-prepper
+status:
+  loadBalancer: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: data-prepper
+  name: data-prepper
+  namespace: data-prepper
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: data-prepper
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: data-prepper
+    spec:
+      containers:
+        - args:
+            - java
+            - -jar
+            - /usr/share/data-prepper/data-prepper.jar
+            - /etc/data-prepper/pipelines.yaml
+            - /etc/data-prepper/data-prepper-config.yaml
+          image: opensearchproject/data-prepper:latest
+          name: data-prepper
+          ports:
+            - containerPort: 21890
+          resources: {}
+          volumeMounts:
+            - mountPath: /etc/data-prepper
+              name: prepper-configmap-claim0
+      restartPolicy: Always
+      serviceAccountName: ""
+      volumes:
+        - name: prepper-configmap-claim0
+          configMap:
+            name: data-prepper-config
+status: {}
+---

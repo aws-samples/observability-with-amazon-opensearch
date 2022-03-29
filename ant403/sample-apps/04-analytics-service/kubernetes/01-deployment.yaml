@@ -29,7 +29,7 @@ spec:
           #   cpu: "500m"
         env:
         - name: OTLP
-          value: "otel-collector.otel-collector.svc.cluster.local"
+          value: "otel-collector.otel-collector.svc.cluster.local:55680"
         - name: MYSQL_HOST
           value: "mysql.mysql.svc.cluster.local"
         - name: MYSQL_PORT
@@ -37,7 +37,7 @@ spec:
         - name: OTEL_EXPORTER
           value: "otlp"
         - name: OTEL_EXPORTER_OTLP_ENDPOINT
-          value: "http://otel-collector.otel-collector.svc.cluster.local"
+          value: "http://otel-collector.otel-collector.svc.cluster.local:55680"
         - name: OTEL_RESOURCE_ATTRIBUTES
           value: "service.name=analytics-service"
 ---

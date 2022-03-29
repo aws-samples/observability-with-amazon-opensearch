@@ -16,7 +16,7 @@ spec:
         app: authentication-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/authentication-service:latest
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/authentication-service:1
         name: authentication-service
         ports:
         - containerPort: 5000

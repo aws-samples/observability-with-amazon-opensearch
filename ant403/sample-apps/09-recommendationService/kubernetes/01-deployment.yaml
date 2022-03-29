@@ -16,7 +16,7 @@ spec:
         app: recommendation-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/recommendation-service:latest
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/recommendation-service:1
         name: recommendation-service
         ports:
         - containerPort: 5000

@@ -12,8 +12,8 @@ data:
             endpoint: 0.0.0.0:55680
             
     exporters:
-      otlp/2:
-        endpoint: data-preper.data-preper.svc.cluster.local:80
+      otlp/data-prepper:
+        endpoint: data-prepper.data-prepper.svc.cluster.local:21890
         tls:
           insecure: true
       
@@ -22,7 +22,7 @@ data:
       pipelines:
         traces:
           receivers: [otlp]
-          exporters: [otlp/2]
+          exporters: [otlp/data-prepper]
 
   demo-data-prepper.crt: | 
     -----BEGIN CERTIFICATE-----
