@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3.8"
 services:
   fluent-bit:
     image: fluent/fluent-bit:latest
@@ -24,7 +24,7 @@ services:
       driver: fluentd
   otel-collector:
     restart: unless-stopped
-    image: otel/opentelemetry-collector:0.24.0
+    image: otel/opentelemetry-collector:0.46.0
     command: ["--config=/etc/otel-collector-config.yml"]
     volumes:
       - ./otel-collector-config.yml:/etc/otel-collector-config.yml
