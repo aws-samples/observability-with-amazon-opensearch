@@ -1,53 +1,35 @@
-#!/bin/sh
+#!/bin/bash
 
-ECR_ID=$1
+# Env Vars
+export ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
+export AWS_REGION=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r '.region')
+export AZS=($(aws ec2 describe-availability-zones --query 'AvailabilityZones[].ZoneName' --output text --region $AWS_REGION))
 
-aws ecr-public get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin public.ecr.aws/${ECR_ID}
+aws ecr get-login-password --region us-east-1 | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
+# Changing directory to build inside the application folders
 cd ..
-cd sample-apps/04-analytics-service/
-docker build -t analytics-service .
-docker tag analytics-service:latest public.ecr.aws/${ECR_ID}/analytics-service:latest
-docker push public.ecr.aws/${ECR_ID}/analytics-service:latest
-cd ../..
 
-cd sample-apps/05-databaseService/
-docker build -t database-service .
-docker tag database-service:latest public.ecr.aws/${ECR_ID}/database-service:latest
-docker push public.ecr.aws/${ECR_ID}/database-service:latest
-cd ../..
+push_images_ecr() {
+    echo "Building ${2} ..."
+    service_folder=$1
+    repo_name=$2
+    cd sample-apps/$service_folder/
+    echo $PWD # Check Directory
+    docker build -t $repo_name .
+    docker tag $repo_name:latest ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$repo_name:latest
+    docker push ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com/$repo_name:latest
+    sed -i -e "s/__ACCOUNT_ID__/${ACCOUNT_ID}/g" kubernetes/01-deployment.yaml
+    sed -i -e "s/__AWS_REGION__/${AWS_REGION}/g" kubernetes/01-deployment.yaml
+    rm -rf kubernetes/01-deployment.yaml-e
+    cd ../..
+}
 
-cd sample-apps/06-orderService/
-docker build -t order-service .
-docker tag order-service:latest public.ecr.aws/${ECR_ID}/order-service:latest
-docker push public.ecr.aws/${ECR_ID}/order-service:latest
-cd ../..
-
-cd sample-apps/07-inventoryService/
-docker build -t inventory-service .
-docker tag inventory-service:latest public.ecr.aws/${ECR_ID}/inventory-service:latest
-docker push public.ecr.aws/${ECR_ID}/inventory-service:latest
-cd ../..
-
-cd sample-apps/08-paymentService/
-docker build -t payment-service .
-docker tag payment-service:latest public.ecr.aws/${ECR_ID}/payment-service:latest
-docker push public.ecr.aws/${ECR_ID}/payment-service:latest
-cd ../..
-
-cd sample-apps/09-recommendationService/
-docker build -t recommendation-service .
-docker tag recommendation-service:latest public.ecr.aws/${ECR_ID}/recommendation-service:latest
-docker push public.ecr.aws/${ECR_ID}/recommendation-service:latest
-cd ../..
-
-cd sample-apps/10-authenticationService/
-docker build -t authentication-service .
-docker tag authentication-service:latest public.ecr.aws/${ECR_ID}/authentication-service:latest
-docker push public.ecr.aws/${ECR_ID}/authentication-service:latest
-cd ../..
-
-cd sample-apps/11-client/
-docker build -t client-service .
-docker tag client-service:latest public.ecr.aws/${ECR_ID}/client-service:latest
-docker push public.ecr.aws/${ECR_ID}/client-service:latest
+push_images_ecr '04-analytics-service' 'analytics-service'
+push_images_ecr '05-databaseService' 'database-service'
+push_images_ecr '06-orderService' 'order-service'
+push_images_ecr '07-inventoryService' 'inventory-service'
+push_images_ecr '08-paymentService' 'payment-service'
+push_images_ecr '09-recommendationService' 'recommendation-service'
+push_images_ecr '10-authenticationService' 'authentication-service'
+push_images_ecr '11-client' 'client-service'

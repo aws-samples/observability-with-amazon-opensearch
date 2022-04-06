@@ -16,7 +16,7 @@ spec:
         app: payment-service
     spec:
       containers:
-      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/payment-service:1
+      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/payment-service
         name: payment-service
         ports:
         - containerPort: 5000
