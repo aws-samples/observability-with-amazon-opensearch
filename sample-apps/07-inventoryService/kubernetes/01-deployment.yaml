@@ -16,7 +16,7 @@ spec:
         app: inventory-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/inventory-service
+      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/inventory-service
         name: inventory-service
         ports:
         - containerPort: 5000

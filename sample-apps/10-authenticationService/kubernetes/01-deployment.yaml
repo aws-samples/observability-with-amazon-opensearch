@@ -16,7 +16,7 @@ spec:
         app: authentication-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/authentication-service
+      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/authentication-service
         name: authentication-service
         ports:
         - containerPort: 5000

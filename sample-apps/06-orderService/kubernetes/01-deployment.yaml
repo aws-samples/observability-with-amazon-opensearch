@@ -16,7 +16,7 @@ spec:
         app: order-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/order-service
+      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/order-service
         name: order-service
         ports:
         - containerPort: 5000

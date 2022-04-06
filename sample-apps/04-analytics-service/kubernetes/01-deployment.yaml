@@ -16,7 +16,7 @@ spec:
         app: analytics-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/analytics-service
+      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/analytics-service
         name: analytics-service
         ports:
         - containerPort: 8087

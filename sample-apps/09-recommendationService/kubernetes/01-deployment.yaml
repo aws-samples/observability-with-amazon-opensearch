@@ -16,7 +16,7 @@ spec:
         app: recommendation-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__AWS_REGION__.amazonaws.com/recommendation-service
+      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/recommendation-service
         name: recommendation-service
         ports:
         - containerPort: 5000
