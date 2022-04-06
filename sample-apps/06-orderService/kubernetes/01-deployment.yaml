@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: order-service
+  name: order-service
+  namespace: order-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: order-service
+  template:
+    metadata:
+      labels:
+        app: order-service
+    spec:
+      containers:
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/order-service:1
+        name: order-service
+        ports:
+        - containerPort: 5000
+        resources: # Verify the amount of requests
+          requests:
+            memory: "64Mi"
+            cpu: "250m"
+          limits:
+            memory: "128Mi"
+            cpu: "500m"
+        env:
+        - name: OTLP
+          value: "otel-collector.otel-collector.svc.cluster.local"
+        - name: DATABASE
+          value: "database-service.database-service.svc.cluster.local"
+        - name: LOGS
+          value: "analytics-service.analytics-service.svc.cluster.local" # Analytics Service
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: order-service
+  namespace: order-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 5000
+  selector:
+    app: order-service

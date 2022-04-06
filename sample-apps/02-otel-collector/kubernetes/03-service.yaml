@@ -1,0 +1,13 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otel-collector
+  namespace: otel-collector
+spec:
+  type: NodePort
+  ports:
+  - port: 55680
+    targetPort: 55680
+  selector:
+    app: otel-collector

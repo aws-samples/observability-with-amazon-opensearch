@@ -1,0 +1,50 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: otel-collector
+  name: otel-collector
+  namespace: otel-collector
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otel-collector
+  template:
+    metadata:
+      labels:
+        app: otel-collector
+    spec:
+      containers:
+      - image: otel/opentelemetry-collector:0.46.0
+        name: otel-collector
+        ports:
+        - containerPort: 55680
+        resources: # Verify the amount of requests
+          requests:
+            memory: "128Mi"
+            cpu: "250m"
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+        command: ["/otelcol"]
+        args: ["--config=/etc/otel-collector-config.yml"]
+        volumeMounts:
+        - name: config-volume
+          mountPath: /etc/otel-collector-config.yml
+          subPath: otel-collector-config.yml
+        - name: config-volume
+          mountPath: /etc/demo-data-prepper.crt
+          subPath: demo-data-prepper.crt
+        # env:
+        # - name: OTLP
+        #   value: ""
+        # - name: MYSQL_HOST
+        #   value: "mysql.mysql.svc.cluster.local"
+        # - name: MYSQL_PORT
+        #   value: "3306"
+      volumes:
+      - name: config-volume
+        configMap:
+          name: otel-collector-config

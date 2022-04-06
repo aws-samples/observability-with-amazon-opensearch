@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: analytics-service
+  name: analytics-service
+  namespace: analytics-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: analytics-service
+  template:
+    metadata:
+      labels:
+        app: analytics-service
+    spec:
+      containers:
+      - image: 936068047509.dkr.ecr.us-east-1.amazonaws.com/analytics-service:2
+        name: analytics-service
+        ports:
+        - containerPort: 8087
+        resources: {} # Verify the amount of requests
+          # requests:
+          #   memory: "64Mi"
+          #   cpu: "250m"
+          # limits:
+          #   memory: "128Mi"
+          #   cpu: "500m"
+        env:
+        - name: OTLP
+          value: "otel-collector.otel-collector.svc.cluster.local:55680"
+        - name: MYSQL_HOST
+          value: "mysql.mysql.svc.cluster.local"
+        - name: MYSQL_PORT
+          value: "3306"
+        - name: OTEL_EXPORTER
+          value: "otlp"
+        - name: OTEL_EXPORTER_OTLP_ENDPOINT
+          value: "http://otel-collector.otel-collector.svc.cluster.local:55680"
+        - name: OTEL_RESOURCE_ATTRIBUTES
+          value: "service.name=analytics-service"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: analytics-service
+  namespace: analytics-service
+spec:
+  ports:
+  - port: 80
+    targetPort: 8087
+  selector:
+    app: analytics-service

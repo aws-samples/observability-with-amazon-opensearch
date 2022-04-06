@@ -1,4 +1,0 @@
-#!/bin/bash
-echo `date`
-echo `hostname`
-echo "all my positional parameters $@"
