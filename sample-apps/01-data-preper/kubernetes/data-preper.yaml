@@ -30,9 +30,9 @@ data:
         - otel_trace_raw_prepper:
       sink:
         - opensearch:
-            hosts: [ "https://vpc-aosstraceanalytics-iimypnfcvmlcyzcmjo7yzn34rq.us-east-1.es.amazonaws.com" ]
-            username: "aosadmin"
-            password: "Passw0rd1!"
+            hosts: [ "https://__AOS_ENDPOINT__" ]
+            username: "__AOS_USERNAME__"
+            password: "__AOS_PASSWORD__"
             trace_analytics_raw: true
     service-map-pipeline:
       delay: "100"
@@ -43,9 +43,9 @@ data:
         - service_map_stateful:
       sink:
         - opensearch:
-            hosts: [ "https://vpc-aosstraceanalytics-iimypnfcvmlcyzcmjo7yzn34rq.us-east-1.es.amazonaws.com" ]
-            username: "aosadmin"
-            password: "Passw0rd1!"
+            hosts: [ "https://__AOS_ENDPOINT__" ]
+            username: "__AOS_USERNAME__"
+            password: "__AOS_PASSWORD__"
             trace_analytics_service_map: true
   data-prepper-config.yaml: |
     ssl: false

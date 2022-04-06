@@ -75,7 +75,7 @@ data:
     [OUTPUT]
         Name  es
         Match *
-        Host  vpc-aosstraceanalytics-iimypnfcvmlcyzcmjo7yzn34rq.us-east-1.es.amazonaws.com
+        Host  __AOS_ENDPOINT__
         Port  443
         Index sample_app_logs
         Type  docker
