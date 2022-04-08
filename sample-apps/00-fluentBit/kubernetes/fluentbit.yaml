@@ -81,10 +81,10 @@ data:
         Match *
         Host  __AOS_ENDPOINT__
         Port  443
-        Index sample_app_logs
+        Index observability_app_logs
         Type  docker
-        HTTP_User aosadmin
-        HTTP_Passwd Passw0rd1!
+        HTTP_User __AOS_USERNAME__
+        HTTP_Passwd __AOS_USERNAME__
         tls On
         tls.verify Off
 
