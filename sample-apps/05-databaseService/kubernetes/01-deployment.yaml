@@ -16,7 +16,7 @@ spec:
         app: database-service
     spec:
       containers:
-      - image: __AWS_REGION__.dkr.ecr.__ACCOUNT_ID__.amazonaws.com/database-service
+      - image: __ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/database-service
         name: database-service
         ports:
         - containerPort: 5000
