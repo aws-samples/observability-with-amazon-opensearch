@@ -84,7 +84,7 @@ data:
         Index observability_app_logs
         Type  docker
         HTTP_User __AOS_USERNAME__
-        HTTP_Passwd __AOS_USERNAME__
+        HTTP_Passwd __AOS_PASSWORD__
         tls On
         tls.verify Off
 
