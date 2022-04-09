@@ -1,0 +1,364 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Template creates a Network Load Balancer in 2 AZs with EIPs listening on a TCP port 
+Metadata:
+  'AWS::CloudFormation::Interface':
+    ParameterGroups:
+      - Label:
+          default: Networking Configuration
+        Parameters:
+          - VPC
+          - CentralLoggingAccountPublicSubnet1
+          - CentralLoggingAccountPublicSubnet2
+          - CentralLoggingAccountPrivateSubnet1
+          - CentralLoggingAccountPrivateSubnet2
+      - Label:
+          default: Reverse Proxy Target Configurations
+        Parameters:
+          - ReverseProxyInstanceType          
+          - ReverseProxySSHLocation
+          - ElasticSearchDomainName
+
+Parameters:
+  VPC:
+    Type: 'AWS::EC2::VPC::Id'
+  CentralLoggingAccountPublicSubnet1:
+    Description: Provide Private Subnets associated. Select atleast one subnet in each AZ.
+    Type: 'AWS::EC2::Subnet::Id'
+  CentralLoggingAccountPublicSubnet2:
+    Description: Provide Private Subnets associated. Select atleast one subnet in each AZ.
+    Type: 'AWS::EC2::Subnet::Id'
+  CentralLoggingAccountPrivateSubnet1:
+    Description: Provide Private Subnets associated. Select atleast one subnet in each AZ.
+    Type: 'AWS::EC2::Subnet::Id'
+  CentralLoggingAccountPrivateSubnet2:
+    Description: Provide Private Subnets associated. Select atleast one subnet in each AZ.
+    Type: 'AWS::EC2::Subnet::Id'
+  ReverseProxyInstanceType:
+   Description: Reverse Proxy EC2 instance type
+   Type: String
+   Default: t2.small
+   AllowedValues:
+    - t2.micro
+    - t2.small
+   ConstraintDescription: must be a valid EC2 instance type.
+  ReverseProxySSHLocation:
+   Description: The IP address range that can be used to SSH to the reverse proxy instances
+   Type: String
+   MinLength: '9'
+   MaxLength: '18'
+   Default: 10.192.0.0/16
+   AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
+   ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
+  ElasticSearchDomainName:
+    Type: String
+    Default: vpc-opensearch.us-east-1.es.amazonaws.com
+
+Mappings:
+  AWSInstanceType2Arch:
+    t1.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    t2.large:
+      Arch: HVM64
+    m1.small:
+      Arch: HVM64
+    m1.medium:
+      Arch: HVM64
+    c1.medium:
+      Arch: HVM64
+    c3.large:
+      Arch: HVM64
+    c3.xlarge:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVM64: ami-04d29b6f966df1537
+
+Resources:
+
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub Linux-SSMRoletoEC2-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - 
+          Ref: IAMRole
+
+##---> Private NLB
+
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internal
+      Subnets:
+        - !Ref CentralLoggingAccountPrivateSubnet1
+        - !Ref CentralLoggingAccountPrivateSubnet2
+      Type: network
+      IpAddressType: ipv4
+  NlbTargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: TGNLBESInternal
+      Port: 443
+      Protocol: TCP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '20'
+      VpcId: !Ref VPC
+  NlbTargetGroup2:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: TGNLBMSKInternal
+      Port: 9094
+      Protocol: TCP
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '20'
+      TargetType: ip
+      Targets:
+        - Id: 10.192.3.45
+        - Id: 10.192.3.126
+      VpcId: !Ref VPC
+  NlbListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    DependsOn: NlbTargetGroup
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NlbTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: '443'
+      Protocol: TCP
+  NlbListener2:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    DependsOn: NlbTargetGroup2
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref NlbTargetGroup2
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: '9094'
+      Protocol: TCP
+
+##---> Public ALB
+
+  ApplicationLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    DependsOn: ALBSecurityGroup
+    Properties:
+      Scheme: internet-facing
+      Subnets:
+        - !Ref CentralLoggingAccountPublicSubnet1
+        - !Ref CentralLoggingAccountPublicSubnet2
+      SecurityGroups:
+        - !Ref ALBSecurityGroup
+      Type: application
+      IpAddressType: ipv4
+
+  ReverseProxyTargetGroup:
+    Type: 'AWS::ElasticLoadBalancingV2::TargetGroup'
+    Properties:
+      Name: TGNLBESExternal
+      Port: 443
+      Protocol: HTTPS
+      TargetGroupAttributes:
+        - Key: deregistration_delay.timeout_seconds
+          Value: '20'
+      VpcId: !Ref VPC
+
+  ReverseProxyListener:
+    Type: 'AWS::ElasticLoadBalancingV2::Listener'
+    DependsOn: ReverseProxyTargetGroup
+    Properties:
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ReverseProxyTargetGroup
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: '443'
+      Protocol: HTTPS
+
+  ReverseProxyListenerHttp:
+    Type: "AWS::ElasticLoadBalancingV2::Listener"
+    Properties:
+      DefaultActions:
+        - Type: "redirect"
+          RedirectConfig:
+            Protocol: "HTTPS"
+            Port: 443
+            Host: "#{host}"
+            Path: "/#{path}"
+            Query: "#{query}"
+            StatusCode: "HTTP_301"
+      LoadBalancerArn: !Ref ApplicationLoadBalancer
+      Port: 80
+      Protocol: "HTTP"
+
+  ReverseProxyASG:
+    Type: 'AWS::AutoScaling::AutoScalingGroup'
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref CentralLoggingAccountPrivateSubnet1
+        - !Ref CentralLoggingAccountPrivateSubnet2
+      LaunchConfigurationName: !Ref ReverseProxyLaunchConfig
+      MinSize: '2'
+      MaxSize: '2'
+      TargetGroupARNs: 
+        - !Ref ReverseProxyTargetGroup
+  ReverseProxyLaunchConfig:
+    Type: 'AWS::AutoScaling::LaunchConfiguration'
+    Properties:
+      IamInstanceProfile: !Ref InstanceProfile
+      ImageId: !FindInMap 
+        - AWSRegionArch2AMI
+        - !Ref 'AWS::Region'
+        - !FindInMap 
+          - AWSInstanceType2Arch
+          - !Ref ReverseProxyInstanceType
+          - Arch
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          amazon-linux-extras install nginx1.12 -y
+          rm /etc/nginx/nginx.conf
+          touch /etc/nginx/nginx.conf
+          mkdir /etc/ssl/private
+          chmod 700 /etc/ssl/private
+          openssl req -new -newkey rsa:4096 -days 365 -nodes -x509 -subj "/C=US/ST=WA/L=Seattle/O=AWS/CN=/" -keyout /etc/ssl/private/nginx-selfsigned.key -out /etc/ssl/certs/nginx-selfsigned.crt
+          cat << 'EOF' | tee /etc/nginx/nginx.conf
+          user nginx;
+          worker_processes auto;
+          error_log /var/log/nginx/error.log;
+          pid /run/nginx.pid;
+          include /usr/share/nginx/modules/*.conf;
+          events {
+            worker_connections 1024;
+          }
+          http {
+              log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+                                '$status $body_bytes_sent "$http_referer" '
+                                '"$http_user_agent" "$http_x_forwarded_for"';
+              access_log  /var/log/nginx/access.log  main;
+              sendfile            on;
+              tcp_nopush          on;
+              tcp_nodelay         on;
+              keepalive_timeout   65;
+              types_hash_max_size 2048;
+              include             /etc/nginx/mime.types;
+              default_type        application/octet-stream;
+              include /etc/nginx/conf.d/*.conf;
+              server {
+                  listen       443 ssl;
+                  listen       [::]:443 ssl;
+                  listen       80;
+                  listen       [::]:80;
+                  server_name  _;
+                  ssl_certificate /etc/ssl/certs/nginx-selfsigned.crt;
+                  ssl_certificate_key /etc/ssl/private/nginx-selfsigned.key;
+                  root         /usr/share/nginx/html;
+                  include /etc/nginx/default.d/*.conf;
+
+                  location / {
+                    proxy_pass https://${ElasticSearchDomainName}/_plugin/kibana/;
+                    proxy_set_header X-Real-IP '$remote_addr';
+                    proxy_set_header X-Forwarded-For '$proxy_add_x_forwarded_for';
+                    proxy_set_header X-Forwarded-Proto '$scheme';
+                    proxy_set_header X-Forwarded-Host '$host:443';
+                    
+                  }
+                  location /_plugin/kibana/ {
+                    proxy_pass https://${ElasticSearchDomainName}/_plugin/kibana/;
+                    proxy_set_header X-Real-IP '$remote_addr';
+                    proxy_set_header X-Forwarded-For '$proxy_add_x_forwarded_for';
+                    proxy_set_header X-Forwarded-Proto '$scheme';
+                    proxy_set_header X-Forwarded-Host '$host:443';
+                    
+                  }
+                  error_page 404 /404.html;
+                    location = /40x.html {
+                  }
+                  error_page 500 502 503 504 /50x.html;
+                    location = /50x.html {
+                  }
+                }
+            }
+          EOF
+          systemctl start nginx
+      SecurityGroups:
+        - !Ref ReverseProxyInstanceSecurityGroup
+      InstanceType: !Ref ReverseProxyInstanceType    
+
+  ALBSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Application Load Balancer Security Group
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: '80'
+          ToPort: '80'
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+
+  ReverseProxyInstanceSecurityGroup:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Enable SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: !Ref ReverseProxySSHLocation
+        - IpProtocol: tcp
+          FromPort: '443'
+          ToPort: '443'
+          CidrIp: !Ref ReverseProxySSHLocation
+      VpcId: !Ref VPC
+
+  EndpointService:
+    Type: 'AWS::EC2::VPCEndpointService'
+    Properties:
+      NetworkLoadBalancerArns: 
+        - !Ref NetworkLoadBalancer
+      AcceptanceRequired: false
+Outputs:
+  NLB:
+    Description: ARN for the NLB
+    Value: !Ref NetworkLoadBalancer
+  ALB:
+    Description: ARN for the ALB
+    Value: !Ref ApplicationLoadBalancer
+  ALBDnsName:
+    Description: ALB DnsName
+    Value: !GetAtt ApplicationLoadBalancer.DNSName
+  ServiceEndpoint:
+    Description: Endpoint service details
+    Value: !Ref EndpointService
+  ServiceEndpointName:
+    Description: Endpoint service name
+    Value: !Join
+      - ''
+      - - 'com.amazonaws.vpce.'
+        - !Ref "AWS::Region"
+        - '.'
+        - !Ref 'EndpointService'
