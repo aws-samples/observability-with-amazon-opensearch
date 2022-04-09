@@ -1,0 +1,107 @@
+AWSTemplateFormatVersion: "2010-09-09"
+
+Description:  This template creates a single-node Amazon OpenSearch cluster with basic authentication enabled.
+
+Parameters:
+  DomainName:
+    Type: String
+
+  EngineVersion:
+    Description: Amazon OpenSearch Service - Version
+    Type: String
+    Default: "OpenSearch_1.2"
+
+  InstanceType:
+    Description: Amazon OpenSearch Service - Instance Type
+    Type: String
+    Default: "r6g.large.search"
+
+  VpcId:
+    Description: VPC Id
+    Type: 'AWS::EC2::VPC::Id'
+
+  SubnetId:
+    Description: Private Subnet Id
+    Type: 'AWS::EC2::Subnet::Id'
+
+  MasterUserName:
+    Description: Amazon OpenSearch Service - Username
+    Type: String
+
+  MasterUserPassword:
+    Description: Amazon OpenSearch Service - Password
+    Type: String
+
+Resources:
+  OpenSearchServiceDomain:
+    Type: 'AWS::OpenSearchService::Domain'
+    DependsOn: 
+      - OpenSearchIngressSecurityGroup
+      - AWSServiceRoleForAmazonOpenSearchService
+    Properties:
+      DomainName:
+        Ref: DomainName
+      EngineVersion:
+        Ref: EngineVersion
+      ClusterConfig:
+        InstanceCount: '1'
+        InstanceType:
+          Ref: InstanceType
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      EncryptionAtRestOptions:
+        Enabled: true
+      EBSOptions:
+        EBSEnabled: true
+        Iops: '0'
+        VolumeSize: '100'
+        VolumeType: 'gp2'
+      AccessPolicies:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: '*'
+            Action: 'es:*'
+            Resource: '*'
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: !Ref MasterUserName
+          MasterUserPassword: !Ref MasterUserPassword
+      VPCOptions:
+        SubnetIds:
+          - !Ref SubnetId
+        SecurityGroupIds:
+          - !Ref OpenSearchIngressSecurityGroup
+    UpdatePolicy:
+      EnableVersionUpgrade: true
+
+  AWSServiceRoleForAmazonOpenSearchService:
+    Type: 'AWS::IAM::ServiceLinkedRole'
+    Properties:
+      AWSServiceName: es.amazonaws.com
+
+  OpenSearchIngressSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "opensearch-ingress-sg"
+      GroupDescription: "Security group for opensearch ingress rule"
+      VpcId: !Ref VpcId
+      SecurityGroupIngress:
+        - FromPort: '443'
+          IpProtocol: tcp
+          ToPort: '443'
+          CidrIp: 0.0.0.0/0
+
+Outputs:
+  DomainArn:
+    Value:
+      'Fn::GetAtt':
+        - OpenSearchServiceDomain
+        - Arn
