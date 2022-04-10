@@ -20,8 +20,8 @@
   - Navigate to the terminal at the bottom of the screen. (If you do not see a terminal, click Window from the top menu, then New Terminal)
 
 ### Cloud9 (Terminal):
-  - Remove existing temporary credentials: rm -vf ${HOME}/.aws/credentials
-  - Run the 00-setup.sh script (curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable) via Cloud9 Workspace;
+  - Remove existing temporary credentials: ```rm -vf ${HOME}/.aws/credentials```
+  - Run the 00-setup.sh script (```curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable```) via Cloud9 Workspace;
   - You must create the EKS Cluster -> Manifest!
 ```
 cat << EOF > observability-workshop.yaml
@@ -67,11 +67,11 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
-  - Run the: "eksctl create cluster -f observability-workshop.yaml"
-  - Run the: "observability-aos/scripts/01-build-push.sh", responsible for building and pushing the images to the ECR;
+  - Run the: ```eksctl create cluster -f observability-workshop.yaml
+  - Run the: ```observability-aos/scripts/01-build-push.sh```, responsible for building and pushing the images to the ECR;
   - You must change credentials and endpoint in Fluentbit (/sample-apps/00-fluentBit/kubernetes/fluentbit.yaml);
   - You must change credentials and endpoint in DataPrepper (/sample-apps/01-data-preper/kubernetes/data-preper.yaml)
-  - Run the: "observability-aos/scripts/02-apply-k8s-manifests.sh", responsible for applying the Kubernetes manifests;
+  - Run the: ```observability-aos/scripts/02-apply-k8s-manifests.sh```, responsible for applying the Kubernetes manifests;
 
 ### Browser
   - Access Sample APP (URL);
