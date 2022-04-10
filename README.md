@@ -23,6 +23,7 @@
   - Remove existing temporary credentials: rm -vf ${HOME}/.aws/credentials
   - Run the 00-setup.sh script (curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable) via Cloud9 Workspace;
   - You must create the EKS Cluster -> Manifest!
+```
 cat << EOF > observability-workshop.yaml
 --- 
 apiVersion: eksctl.io/v1alpha5
