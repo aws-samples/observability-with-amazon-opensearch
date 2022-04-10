@@ -40,5 +40,8 @@ aws kms create-alias --alias-name alias/observability-workshop --target-key-id $
 export MASTER_ARN=$(aws kms describe-key --key-id alias/observability-workshop --query KeyMetadata.Arn --output text)
 echo "export MASTER_ARN=${MASTER_ARN}" | tee -a ~/.bash_profile
 
+# Reload bash_profile
+source ~/.bash_profile
+
 # Download lab repository
 git clone https://github.com/rafael-gumiero/observability-aos
