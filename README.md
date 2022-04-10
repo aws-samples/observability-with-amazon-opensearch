@@ -67,7 +67,7 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
-  - Run the: ```eksctl create cluster -f observability-workshop.yaml
+  - Run the: ```eksctl create cluster -f observability-workshop.yaml```
   - Run the: ```observability-aos/scripts/01-build-push.sh```, responsible for building and pushing the images to the ECR;
   - You must change credentials and endpoint in Fluentbit (/sample-apps/00-fluentBit/kubernetes/fluentbit.yaml);
   - You must change credentials and endpoint in DataPrepper (/sample-apps/01-data-preper/kubernetes/data-preper.yaml)
