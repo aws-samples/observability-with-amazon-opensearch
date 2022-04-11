@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# Disable Cloud9 AWS Manage Temporary Credentials
+aws cloud9 update-environment  --environment-id $C9_PID --managed-credentials-action DISABLE
+rm -vf ${HOME}/.aws/credentials
+
 # Install jq
 sudo yum -y -q install jq
 

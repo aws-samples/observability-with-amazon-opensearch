@@ -58,7 +58,7 @@ metadata:
   name: data-prepper
   namespace: data-prepper
 spec:
-  clusterIP: None
+  type: NodePort
   ports:
     - name: "21890"
       port: 21890
