@@ -1,27 +1,26 @@
-FROM python:3.8-slim as base
+FROM alpine:3.8.5
 
-# ---- compile image -----------------------------------------------
-FROM base AS compile-image
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-  build-essential \
-  gcc
+RUN apk update \
+&& apk upgrade \
+# add for grpcio
+&& apk add --no-cache g++ \
+# add for grpcio
+&& apk add --no-cache linux-headers \
+&& apk add --no-cache bash \
+&& apk add --no-cache --virtual=build-dependencies unzip \
+&& apk add --no-cache curl \
+&& apk add --no-cache openjdk8-jre \
+# add python3-dev for grpcio
+&& apk add --no-cache python3 python3-dev
 
-RUN python -m venv /app/env
-ENV PATH="/app/env/bin:$PATH"
+RUN mkdir /app
+COPY . /app/
 
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# ---- build image -----------------------------------------------
-FROM base AS build-image
-COPY --from=compile-image /app/env /app/env
-
-# Make sure we use the virtualenv:
-ENV PATH="/app/env/bin:$PATH"
-COPY . /app
+RUN pip3 install --upgrade pip
+RUN pip3 install -r /app/requirements.txt
 WORKDIR /app
 
+ADD https://github.com/ufoscout/docker-compose-wait/releases/download/2.2.1/wait /app/wait
+RUN chmod +x /app/wait
 EXPOSE 5000
 ENTRYPOINT [ "python3", "client.py" ]
