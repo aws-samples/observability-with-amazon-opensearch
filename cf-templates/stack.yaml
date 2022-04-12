@@ -575,57 +575,52 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           yum update -y
-          openssl genrsa -out mydomain.key 2048
-          openssl req -new -key mydomain.key -passin pass:password -subj /C=US/ST=Kansas/L=Lawrence/O=OrgName/OU=OuName/CN=CnName/emailAddress=aos@mydomain.com -out mydomain.csr
-          openssl x509 -req -days 365 -in mydomain.csr -signkey mydomain.key -out mydomain.crt
-          cat mydomain.key mydomain.crt >> /etc/ssl/certs/mydomain.pem
+          yum install jq -y
+          amazon-linux-extras install nginx1.12
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+          
+          cat << EOF > /etc/nginx/conf.d/nginx_opensearch.conf
+          server {
+              listen 443;
+              server_name $host;
+              rewrite ^/$ https://$host/_dashboards redirect;
 
-          yum -y install haproxy
+              # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+              ssl_certificate           /etc/nginx/cert.crt;
+              ssl_certificate_key       /etc/nginx/cert.key;
 
-          cat << EOF > /etc/haproxy/haproxy.cfg
-          global
-          log         127.0.0.1 local2
-          chroot      /var/lib/haproxy
-          pidfile     /var/run/haproxy.pid
-          maxconn     4000
-          user        haproxy
-          group       haproxy
-          daemon
-          stats socket /var/lib/haproxy/stats
-          defaults
-          mode                    http
-          log                     global
-          option                  httplog
-          option                  dontlognull
-          option http-server-close
-          option forwardfor       except 127.0.0.0/8
-          option                  redispatch
-          retries                 3
-          timeout http-request    10s
-          timeout queue           1m
-          timeout connect         10s
-          timeout client          1m
-          timeout server          1m
-          timeout http-keep-alive 10s
-          timeout check           10s
-          maxconn                 3000
+              ssl on;
+              ssl_session_cache  builtin:1000  shared:SSL:10m;
+              ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+              ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+              ssl_prefer_server_ciphers on;
 
-          # LDAP frontend
-          frontend fe
-          bind 0.0.0.0:443 ssl crt /etc/ssl/certs/mydomain.pem
-          http-request redirect scheme https unless { ssl_fc }
-          default_backend web_servers
 
-          backend web_servers
-          server server1 OSS_DOMAIN:443 ssl verify none
+              location ^~ /_dashboards {
+                  # Forward requests to OpenSearch Dashboards
+                  proxy_pass https://DOMAIN_ENDPOINT/_dashboards;
+
+                  # Update cookie domain and path
+                  proxy_cookie_domain DOMAIN_ENDPOINT $host;
+
+                  proxy_set_header Accept-Encoding "";
+                  sub_filter_types *;
+                  sub_filter DOMAIN_ENDPOINT $host;
+                  sub_filter_once off;
+
+                  # Response buffer settings
+                  proxy_buffer_size 128k;
+                  proxy_buffers 4 256k;
+                  proxy_busy_buffers_size 256k;
+              }
+          }          
           EOF
-
-          sed -i -e "s/OSS_DOMAIN/${OpenSearchServiceDomain.DomainEndpoint}/g" /etc/haproxy/haproxy.cfg
-          service haproxy start
+          sed -i -e "s/DOMAIN_ENDPOINT/${OpenSearchServiceDomain.DomainEndpoint}/g" /etc/nginx/conf.d/nginx_opensearch.conf
+          systemctl restart nginx.service
+          systemctl enable nginx.service
       SecurityGroups:
         - !Ref ReverseProxyInstanceSecurityGroup
-      InstanceType: !Ref ReverseProxyInstanceType
-  
+      InstanceType: !Ref ReverseProxyInstanceType  
   ReverseProxyInstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
