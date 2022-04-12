@@ -1079,19 +1079,19 @@ Outputs:
         - Ref: C9Instance
         - "?region="
         - Ref: AWS::Region
-  AOS_DomainArn:
+  AOSDomainArn:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - Arn
-  AOS_DomainEndpoint:
+  AOSDomainEndpoint:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - DomainEndpoint
 
-  AOS_DomainUserName:
+  AOSDomainUserName:
     Value: !Ref MasterUserName
 
-  AOS_DomainPassword:
+  AOSDomainPassword:
     Value: !Ref MasterUserPassword
