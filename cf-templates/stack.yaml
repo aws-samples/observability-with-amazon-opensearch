@@ -1,16 +1,18 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description:  This template deploys a VPC, with a pair of public and private subnets spread
+Description: This template deploys a VPC, with a pair of public and private subnets spread
   across three Availability Zones. It deploys an internet gateway, with a default
   route on the public subnets. It deploys a pair of NAT gateways (one in each AZ),
-  and default routes for them in the private subnets.
+  and default routes for them in the private subnets. 
+  In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
+
 
 Parameters:
   # VPC Variables
   EnvironmentName:
     Description: An environment name that is prefixed to resource names
     Type: String
-    Default: VPCNetwork
+    Default: VPC-Observability
 
   VpcCIDR:
     Description: Please enter the IP range (CIDR notation) for this VPC
@@ -57,7 +59,7 @@ Parameters:
   # Amazon OpenSearch Variables
   DomainName:
     Type: String
-    Default: "aosworkshop"
+    Default: "observability-aos"
   
   EngineVersion:
     Description: Amazon OpenSearch Service - Version
@@ -101,7 +103,7 @@ Parameters:
     Type: String
     Default: "observability"
   C9InstanceType:
-    Description: Example Cloud9 instance type
+    Description: AWS Cloud9 instance type
     Type: String
     Default: t3.medium
     AllowedValues:
@@ -1077,19 +1079,19 @@ Outputs:
         - Ref: C9Instance
         - "?region="
         - Ref: AWS::Region
-  DomainArn:
+  AOS_DomainArn:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - Arn
-  OSDomainEndpoint:
+  AOS_DomainEndpoint:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - DomainEndpoint
 
-  OSDomainUserName:
+  AOS_DomainUserName:
     Value: !Ref MasterUserName
 
-  OSDomainPassword:
+  AOS_DomainPassword:
     Value: !Ref MasterUserPassword
