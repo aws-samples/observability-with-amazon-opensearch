@@ -1,5 +1,5 @@
 # Instructions:
-
+--
 ### CloudFormation
 - CloudFormation temples are in the /cf-templates directory;
 - Launch them from the CloudFormation console:
