@@ -548,7 +548,7 @@ Resources:
       Roles:
         - 
           Ref: IAMRole
-  
+
   ReverseProxyASG:
     Type: 'AWS::AutoScaling::AutoScalingGroup'
     Properties:
@@ -620,7 +620,8 @@ Resources:
           systemctl enable nginx.service
       SecurityGroups:
         - !Ref ReverseProxyInstanceSecurityGroup
-      InstanceType: !Ref ReverseProxyInstanceType  
+      InstanceType: !Ref ReverseProxyInstanceType 
+
   ReverseProxyInstanceSecurityGroup:
     Type: 'AWS::EC2::SecurityGroup'
     Properties:
