@@ -64,13 +64,25 @@ EOF
  
  ```cd observability-aos/scripts/; bash 01-build-push.sh```
  
-  - You must change credentials and endpoint in Fluentbit:
+  - You must change credentials and endpoint in Fluentbit (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
   
-  ```vim /sample-apps/00-fluentBit/kubernetes/fluentbit.yaml```
+  ```
+  Host  __AOS_ENDPOINT__
+  HTTP_User __AOS_USERNAME__
+  HTTP_Passwd __AOS_PASSWORD__
+
+  vim /sample-apps/00-fluentBit/kubernetes/fluentbit.yaml
+  ```
   
-  - You must change credentials and endpoint in DataPrepper:
+  - You must change credentials and endpoint in DataPrepper (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
   
-  ```vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml```
+  ```
+  hosts: [ "https://__AOS_ENDPOINT__" ]
+  username: "__AOS_USERNAME__"
+  password: "__AOS_PASSWORD__"
+            
+  vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml
+  ```
   
   - Run the (responsible for applying the Kubernetes manifests):
   
