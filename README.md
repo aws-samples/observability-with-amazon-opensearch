@@ -56,17 +56,28 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
-  - Run the (responsible for creating the EKS Cluster): 
+  - Run the (responsible for creating the EKS Cluster):
+   
  ```eksctl create cluster -f observability-workshop.yaml```
+ 
   - Run the (responsible for building and pushing the images to the ECR): 
+ 
  ```cd observability-aos/scripts/; bash 01-build-push.sh```
+ 
   - You must change credentials and endpoint in Fluentbit:
+  
   ```vim /sample-apps/00-fluentBit/kubernetes/fluentbit.yaml```
+  
   - You must change credentials and endpoint in DataPrepper:
+  
   ```vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml```
+  
   - Run the (responsible for applying the Kubernetes manifests):
+  
   ```bash 02-apply-k8s-manifests.sh```
+  
   - Run the (to get the Sample APP DNS endpoint):
+  
   ```kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
 
 ### Browser
