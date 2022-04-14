@@ -1,11 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: This template deploys a VPC, with a pair of public and private subnets spread
-  across three Availability Zones. It deploys an internet gateway, with a default
-  route on the public subnets. It deploys a pair of NAT gateways (one in each AZ),
-  and default routes for them in the private subnets. 
-  In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
-
+  across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
 
 Parameters:
   # VPC Variables
@@ -410,11 +406,11 @@ Resources:
         - FromPort: 443
           IpProtocol: tcp
           ToPort: 443
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref VpcCIDR
         - FromPort: 80
           IpProtocol: tcp
           ToPort: 80
-          CidrIp: 0.0.0.0/0
+          CidrIp: !Ref VpcCIDR
       
   CreateVpcEndpointSSM:
     Type: AWS::EC2::VPCEndpoint
@@ -685,13 +681,6 @@ Resources:
 ######## Cloud9 ########
   C9Role:
     Type: AWS::IAM::Role
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: W43
-            reason: "C9 Instance will be used to deploy Infrastructure in the workshop"
-          - id: W28
-            reason: "Needed in order to check the proper role is attached to the instance before running CDK"
     Properties:
       RoleName: observabilityworkshop-admin
       Tags:
@@ -726,11 +715,6 @@ Resources:
 
   C9LambdaExecutionRole:
     Type: AWS::IAM::Role
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: W11
-            reason: "Describe Action doesn't support any resource condition"    
     Properties:
       AssumeRolePolicyDocument:
         Version: '2012-10-17'
@@ -883,11 +867,6 @@ Resources:
 ################## SSM BOOTSRAP HANDLER ###############
   C9OutputBucket:
     Type: AWS::S3::Bucket
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: W35
-            reason: "Access Logs aren't needed for this bucket"
     DeletionPolicy: Retain
     Properties:
       AccessControl: Private
