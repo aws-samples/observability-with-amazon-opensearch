@@ -554,6 +554,13 @@ Resources:
       LaunchConfigurationName: !Ref ReverseProxyLaunchConfig
       MinSize: '1'
       MaxSize: '1'
+      Tags:
+        - Key: Environment
+          Value: Poc
+          PropagateAtLaunch: "true"
+        - Key: Name
+          Value: ProxyInstance
+          PropagateAtLaunch: "true"
 
   ReverseProxyLaunchConfig:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
