@@ -126,6 +126,11 @@ Parameters:
     Description: The Size in GB of the Cloud9 Instance Volume. 
     Default: 30
 
+  EKSClusterName:
+    Description: 'Please enter the EKS Cluster Name'
+    Type: String
+    Default: "clustereks01"
+
 Mappings:
   AWSInstanceType2Arch:
     t1.micro:
@@ -148,7 +153,59 @@ Mappings:
       Arch: HVM64
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-04d29b6f966df1537
+      HVM64: ami-03ededff12e34e59e
+    us-east-2:
+      HVM64: ami-0c7478fd229861c57
+    us-west-1:
+      HVM64: ami-06542a822d33e2e40
+    us-west-2:
+      HVM64: ami-0b36cd6786bcfe120
+    sa-east-1:
+      HVM64: ami-00d10ca79f70a302a
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: "Environment Name"
+      Parameters:
+      - EnvironmentName
+    - Label:
+        default: "Network Configuration"
+      Parameters:
+      - VpcCIDR
+      - PublicSubnet1CIDR
+      - PublicSubnet2CIDR
+      - PublicSubnet3CIDR
+      - PrivateSubnet1CIDR
+      - PrivateSubnet2CIDR
+      - PrivateSubnet3CIDR
+      - NatGateway
+    - Label:
+        default: "OpenSearch Configuration"
+      Parameters:
+      - DomainName
+      - EngineVersion
+      - InstanceType
+      - MasterUserName
+      - MasterUserPassword
+    - Label:
+        default: "Reverse Proxy Configuration"
+      Parameters:
+      - ReverseProxyInstanceType
+      - ReverseProxySSHLocation
+    - Label:
+        default: "Cloud9 Configuration"
+      Parameters:
+      - EnvironmentNameC9
+      - C9InstanceType
+      - C9EnvType
+      - OwnerArn
+      - C9InstanceVolumeSize
+    - Label:
+        default: "EKS Configuration"
+      Parameters:
+      - EKSClusterName
 
 Conditions: 
   CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
@@ -558,6 +615,9 @@ Resources:
         - Key: Environment
           Value: Poc
           PropagateAtLaunch: "true"
+        - Key: IsUsedForDeploy
+          Value: True
+          PropagateAtLaunch: "true"  
         - Key: Name
           Value: ProxyInstance
           PropagateAtLaunch: "true"
@@ -701,10 +761,18 @@ Resources:
             Service:
             - ec2.amazonaws.com
             - ssm.amazonaws.com
+            - eks.amazonaws.com
+            - codebuild.amazonaws.com
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AdministratorAccess
+      - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+      - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+      - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+      - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+      - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+      - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
       Path: "/"
       Policies:
       - PolicyName:
@@ -1014,6 +1082,69 @@ Resources:
           Value: Active
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9} 
+
+
+##EKs Cluster
+  # EKSIAMRole:
+  #   Type: 'AWS::IAM::Role'
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:  
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - eks.amazonaws.com
+  #               - ec2.amazonaws.com  
+  #               - codebuild.amazonaws.com          
+  #           Action:
+  #             - 'sts:AssumeRole'
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+  #       - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+  #       - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+  #       - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+  #       - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  #       - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  #       - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess 
+  #       - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds                 
+
+  ClusterControlPlaneSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cluster communication with worker nodes
+      VpcId: !Ref VPC
+
+  EKSCluster:
+    Type: AWS::EKS::Cluster
+    Properties:
+      Name: !Ref EKSClusterName
+      RoleArn:
+        "Fn::GetAtt": ["C9Role", "Arn"]
+      ResourcesVpcConfig:
+        SecurityGroupIds:
+        - !Ref ClusterControlPlaneSecurityGroup
+        SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+        - !Ref PrivateSubnet3
+      Version: 1.21
+
+  EKSNodegroup:
+    Type: 'AWS::EKS::Nodegroup'
+    DependsOn: EKSCluster
+    Properties:
+      ClusterName: !Ref EKSClusterName
+      NodeRole: !GetAtt C9Role.Arn
+      CapacityType: ON_DEMAND
+      ScalingConfig:
+        MinSize: 2
+        DesiredSize: 2
+        MaxSize: 2
+      Subnets:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+        - !Ref PrivateSubnet3
 
 Outputs:
   MyVPC:
