@@ -578,8 +578,8 @@ Resources:
           cat << EOF > /etc/nginx/conf.d/nginx_opensearch.conf
           server {
               listen 443;
-              server_name $host;
-              rewrite ^/$ https://$host/_dashboards redirect;
+              server_name \$host;
+              rewrite ^/$ https://\$host/_dashboards redirect;
 
               # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
               ssl_certificate           /etc/nginx/cert.crt;
@@ -597,11 +597,11 @@ Resources:
                   proxy_pass https://DOMAIN_ENDPOINT/_dashboards;
 
                   # Update cookie domain and path
-                  proxy_cookie_domain DOMAIN_ENDPOINT $host;
+                  proxy_cookie_domain DOMAIN_ENDPOINT \$host;
 
                   proxy_set_header Accept-Encoding "";
                   sub_filter_types *;
-                  sub_filter DOMAIN_ENDPOINT $host;
+                  sub_filter DOMAIN_ENDPOINT \$host;
                   sub_filter_once off;
 
                   # Response buffer settings
