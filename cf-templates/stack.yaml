@@ -126,6 +126,11 @@ Parameters:
     Description: The Size in GB of the Cloud9 Instance Volume. 
     Default: 30
 
+  # EKSClusterName:
+  #   Description: 'Please enter the EKS Cluster Name'
+  #   Type: String
+  #   Default: "clustereks01"
+
 Mappings:
   AWSInstanceType2Arch:
     t1.micro:
@@ -148,7 +153,59 @@ Mappings:
       Arch: HVM64
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-04d29b6f966df1537
+      HVM64: ami-03ededff12e34e59e
+    us-east-2:
+      HVM64: ami-0c7478fd229861c57
+    us-west-1:
+      HVM64: ami-06542a822d33e2e40
+    us-west-2:
+      HVM64: ami-0b36cd6786bcfe120
+    sa-east-1:
+      HVM64: ami-00d10ca79f70a302a
+
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+    - Label:
+        default: "Environment Name"
+      Parameters:
+      - EnvironmentName
+    - Label:
+        default: "Network Configuration"
+      Parameters:
+      - VpcCIDR
+      - PublicSubnet1CIDR
+      - PublicSubnet2CIDR
+      - PublicSubnet3CIDR
+      - PrivateSubnet1CIDR
+      - PrivateSubnet2CIDR
+      - PrivateSubnet3CIDR
+      - NatGateway
+    - Label:
+        default: "OpenSearch Configuration"
+      Parameters:
+      - DomainName
+      - EngineVersion
+      - InstanceType
+      - MasterUserName
+      - MasterUserPassword
+    - Label:
+        default: "Reverse Proxy Configuration"
+      Parameters:
+      - ReverseProxyInstanceType
+      - ReverseProxySSHLocation
+    - Label:
+        default: "Cloud9 Configuration"
+      Parameters:
+      - EnvironmentNameC9
+      - C9InstanceType
+      - C9EnvType
+      - OwnerArn
+      - C9InstanceVolumeSize
+    # - Label:
+    #     default: "EKS Configuration"
+    #   Parameters:
+    #   - EKSClusterName
 
 Conditions: 
   CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
@@ -554,6 +611,16 @@ Resources:
       LaunchConfigurationName: !Ref ReverseProxyLaunchConfig
       MinSize: '1'
       MaxSize: '1'
+      Tags:
+        - Key: Environment
+          Value: Poc
+          PropagateAtLaunch: "true"
+        - Key: IsUsedForDeploy
+          Value: True
+          PropagateAtLaunch: "true"  
+        - Key: Name
+          Value: ProxyInstance
+          PropagateAtLaunch: "true"
 
   ReverseProxyLaunchConfig:
     Type: 'AWS::AutoScaling::LaunchConfiguration'
@@ -694,6 +761,8 @@ Resources:
             Service:
             - ec2.amazonaws.com
             - ssm.amazonaws.com
+            - eks.amazonaws.com
+            - codebuild.amazonaws.com
           Action:
           - sts:AssumeRole
       ManagedPolicyArns:
@@ -928,6 +997,13 @@ Resources:
             - alternatives --set python /usr/bin/python3.6
             - echo '=== INSTALL and CONFIGURE default software components ==='
             - sudo -H -u ec2-user bash -c "pip install --user -U boto boto3 botocore awscli aws-sam-cli"
+            - echo '=== INSTALL Kubectl ==='
+            - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+            - sudo chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+            - sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
+            - echo '=== INSTALL eksctl ==='
+            - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+            - sudo mv /tmp/eksctl /usr/local/bin
             - echo '=== Resizing the Instance volume'
             - !Sub SIZE=${C9InstanceVolumeSize}
             - !Sub REGION=${AWS::Region}
@@ -1008,6 +1084,191 @@ Resources:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9} 
 
+##EKs Cluster
+  # EKSIAMRole:
+  #   Type: 'AWS::IAM::Role'
+  #   Properties:
+  #     AssumeRolePolicyDocument:
+  #       Version: 2012-10-17
+  #       Statement:  
+  #         - Effect: Allow
+  #           Principal:
+  #             Service:
+  #               - eks.amazonaws.com
+  #               - ec2.amazonaws.com  
+  #               - codebuild.amazonaws.com          
+  #           Action:
+  #             - 'sts:AssumeRole'
+  #     ManagedPolicyArns:
+  #       - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+  #       - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
+  #       - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+  #       - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+  #       - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+  #       - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+  #       - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+  #       - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds        
+
+  # ClusterControlPlaneSecurityGroup:
+  #   Type: AWS::EC2::SecurityGroup
+  #   Properties:
+  #     GroupDescription: Cluster communication with worker nodes
+  #     VpcId: !Ref VPC
+
+  # EKSCluster:
+  #   Type: AWS::EKS::Cluster
+  #   Properties:
+  #     Name: !Ref EKSClusterName
+  #     RoleArn:
+  #       "Fn::GetAtt": ["EKSIAMRole", "Arn"]
+  #     ResourcesVpcConfig:
+  #       SecurityGroupIds:
+  #       - !Ref ClusterControlPlaneSecurityGroup
+  #       SubnetIds:
+  #       - !Ref PrivateSubnet1
+  #       - !Ref PrivateSubnet2
+  #       - !Ref PrivateSubnet3
+  #     Version: 1.21
+
+  # EKSNodegroup:
+  #   Type: 'AWS::EKS::Nodegroup'
+  #   DependsOn: EKSCluster
+  #   Properties:
+  #     ClusterName: !Ref EKSClusterName
+  #     NodeRole: !GetAtt EKSIAMRole.Arn
+  #     CapacityType: ON_DEMAND
+  #     ScalingConfig:
+  #       MinSize: 2
+  #       DesiredSize: 2
+  #       MaxSize: 2
+  #     Subnets:
+  #       - !Ref PrivateSubnet1
+  #       - !Ref PrivateSubnet2
+  #       - !Ref PrivateSubnet3
+
+## Lambda Get PublicIP Information
+  GetEC2PublicIP:
+      Type: AWS::Lambda::Function
+      DependsOn: ReverseProxyLaunchConfig
+      Properties:
+        Code:
+          ZipFile: |
+            import json
+            import boto3
+            import logging
+            import urllib3
+            import time
+            http = urllib3.PoolManager()
+
+            logger = logging.getLogger(__name__)
+            logging.getLogger().setLevel(logging.INFO)
+
+            SUCCESS = "SUCCESS"
+            FAILED = "FAILED"
+            time.sleep(15)
+
+            def lambda_handler(event, context):
+                global arn
+                logger.info('Event: %s' % json.dumps(event))
+                responseData={}
+                try:
+                    if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                        print("Request Type:",event['RequestType'])
+                        GetPublicIP=event['ResourceProperties']['GetPublicIP']
+                        try:
+                            client = boto3.client('ec2')
+                            response = client.describe_instances(
+                                Filters=[ {
+                                        'Name': 'tag:IsUsedForDeploy',
+                                        'Values': ['true']}
+                                ]
+                            )
+                            for r in response['Reservations']:
+                                for i in r['Instances']:
+                                    PublicIpAddress = (i['PublicIpAddress'])
+                                    print (PublicIpAddress)
+                        except Exception as ex:
+                            raise
+
+                        responseData={'PublicIpAddress':PublicIpAddress}
+                        print("Sending CFN")
+                    responseStatus = 'SUCCESS'
+                except Exception as e:
+                    print('Failed to process:', e)
+                    responseStatus = 'FAILURE'
+                    responseData = {'Failure': 'Check Logs.'}
+                send(event, context, responseStatus, responseData)
+
+            def send(event, context, responseStatus, responseData, physicalResourceId=None, noEcho=False):
+                responseUrl = event['ResponseURL']
+                print(responseUrl)
+                responseBody = {'Status': responseStatus,
+                                'Reason': 'See the details in CloudWatch Log Stream: ' + context.log_stream_name,
+                                'PhysicalResourceId': physicalResourceId or context.log_stream_name,
+                                'StackId': event['StackId'],
+                                'RequestId': event['RequestId'],
+                                'LogicalResourceId': event['LogicalResourceId'],
+                                'Data': responseData}
+                json_responseBody = json.dumps(responseBody)
+                print("Response body:\n" + json_responseBody)
+                headers = {
+                    'content-type' : '',
+                    'content-length' : str(len(json_responseBody))
+                }
+                try:
+                    response = http.request('PUT', responseUrl, headers=headers, body=json_responseBody)
+                    print("Status code:", response.status)
+                except Exception as e:
+                    print("send(..) failed executing http.request(..):", e)
+        FunctionName: 'EC2ASG-GetPublicIpAddress'
+        Handler: "index.lambda_handler"
+        Timeout: 30
+        Role: !GetAtt 'LambdaRole.Arn'
+        Runtime: python3.9
+  Lambdatrigger:
+     Type: 'Custom::GetEC2PublicIP'
+     Properties:
+       ServiceToken: !GetAtt 'GetEC2PublicIP.Arn'
+       GetPublicIP: !Ref GetEC2PublicIP
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F3
+            reason: "Required for GetPublicIP"
+          - id: W11
+            reason: "Required for GetPublicIP"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          -
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: "lambda-logs"
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'ec2:Describe*'
+                  - 'ec2:List*'
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - "arn:aws:logs:*:*:*"
+
 Outputs:
   MyVPC:
     Description: A reference to the created VPC
@@ -1017,33 +1278,21 @@ Outputs:
   PublicSubnet1:
     Description: A reference to the public subnet in the 1st Availability Zone
     Value: !Ref PublicSubnet1
-    Export:
-      Name: ExPublicSubnet1
   PublicSubnet2:
     Description: A reference to the public subnet in the 2nd Availability Zone
     Value: !Ref PublicSubnet2
-    Export:
-      Name: ExPublicSubnet2
   PublicSubnet3:
     Description: A reference to the public subnet in the 3nd Availability Zone
     Value: !Ref PublicSubnet3
-    Export:
-      Name: ExPublicSubnet3
   PrivateSubnet1:
     Description: A reference to the private subnet in the 1st Availability Zone
     Value: !Ref PrivateSubnet1
-    Export:
-      Name: ExPrivateSubnet1
   PrivateSubnet2:
     Description: A reference to the private subnet in the 2nd Availability Zone
     Value: !Ref PrivateSubnet2
-    Export:
-      Name: ExPrivateSubnet2
   PrivateSubnet3:
     Description: A reference to the private subnet in the 3th Availability Zone
     Value: !Ref PrivateSubnet3
-    Export:
-      Name: ExPrivateSubnet3
   Cloud9IDE:
     Value:
       Fn::Join:
@@ -1070,3 +1319,12 @@ Outputs:
 
   AOSDomainPassword:
     Value: !Ref MasterUserPassword
+    
+  DashBoardPublicIP:
+    Description: Proxy Dashboard Public IP
+    Value:
+      Fn::Join:
+      - ''
+      - - https://
+        - !GetAtt Lambdatrigger.PublicIpAddress
+        - /_dashboards
