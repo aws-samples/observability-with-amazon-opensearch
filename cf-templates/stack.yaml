@@ -1084,7 +1084,6 @@ Resources:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9} 
 
-
 ##EKs Cluster
   # EKSIAMRole:
   #   Type: 'AWS::IAM::Role'
@@ -1131,21 +1130,21 @@ Resources:
   #       - !Ref PrivateSubnet3
   #     Version: 1.21
 
-  EKSNodegroup:
-    Type: 'AWS::EKS::Nodegroup'
-    DependsOn: EKSCluster
-    Properties:
-      ClusterName: !Ref EKSClusterName
-      NodeRole: !GetAtt EKSIAMRole.Arn
-      CapacityType: ON_DEMAND
-      ScalingConfig:
-        MinSize: 2
-        DesiredSize: 2
-        MaxSize: 2
-      Subnets:
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-        - !Ref PrivateSubnet3
+  # EKSNodegroup:
+  #   Type: 'AWS::EKS::Nodegroup'
+  #   DependsOn: EKSCluster
+  #   Properties:
+  #     ClusterName: !Ref EKSClusterName
+  #     NodeRole: !GetAtt EKSIAMRole.Arn
+  #     CapacityType: ON_DEMAND
+  #     ScalingConfig:
+  #       MinSize: 2
+  #       DesiredSize: 2
+  #       MaxSize: 2
+  #     Subnets:
+  #       - !Ref PrivateSubnet1
+  #       - !Ref PrivateSubnet2
+  #       - !Ref PrivateSubnet3
 
 ## Lambda Get PublicIP Information
   GetEC2PublicIP:
