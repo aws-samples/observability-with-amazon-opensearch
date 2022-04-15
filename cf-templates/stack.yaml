@@ -1000,7 +1000,7 @@ Resources:
             - echo '=== INSTALL Kubectl ==='
             - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/kubectl
             - sudo chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-            - echo "source <(kubectl completion bash)" >> ~/.bashrc
+            - sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
             - echo '=== INSTALL eksctl ==='
             - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
             - sudo mv /tmp/eksctl /usr/local/bin
@@ -1157,6 +1157,7 @@ Resources:
             import boto3
             import logging
             import urllib3
+            import time
             http = urllib3.PoolManager()
 
             logger = logging.getLogger(__name__)
@@ -1164,6 +1165,7 @@ Resources:
 
             SUCCESS = "SUCCESS"
             FAILED = "FAILED"
+            time.sleep(15)
 
             def lambda_handler(event, context):
                 global arn
