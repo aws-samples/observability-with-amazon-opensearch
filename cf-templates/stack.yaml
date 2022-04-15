@@ -126,10 +126,10 @@ Parameters:
     Description: The Size in GB of the Cloud9 Instance Volume. 
     Default: 30
 
-  EKSClusterName:
-    Description: 'Please enter the EKS Cluster Name'
-    Type: String
-    Default: "clustereks01"
+  # EKSClusterName:
+  #   Description: 'Please enter the EKS Cluster Name'
+  #   Type: String
+  #   Default: "clustereks01"
 
 Mappings:
   AWSInstanceType2Arch:
@@ -202,10 +202,10 @@ Metadata:
       - C9EnvType
       - OwnerArn
       - C9InstanceVolumeSize
-    - Label:
-        default: "EKS Configuration"
-      Parameters:
-      - EKSClusterName
+    # - Label:
+    #     default: "EKS Configuration"
+    #   Parameters:
+    #   - EKSClusterName
 
 Conditions: 
   CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
