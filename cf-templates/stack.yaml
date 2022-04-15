@@ -1143,7 +1143,7 @@ Resources:
 ## Lambda Get PublicIP Information
   GetEC2PublicIP:
       Type: AWS::Lambda::Function
-      DependsOn: ReverseProxyASG
+      DependsOn: ReverseProxyLaunchConfig
       Properties:
         Code:
           ZipFile: |
