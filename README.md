@@ -35,16 +35,16 @@ vpc:
       ${AZS[0]}:
         id: "${PrivateSubnet1}" # PrivateSubnet1
       ${AZS[1]}:
-        id: "{PrivateSubnet2}" # PrivateSubnet2
+        id: "${PrivateSubnet2}" # PrivateSubnet2
       ${AZS[2]}:
-        id: "{PrivateSubnet3}" # PrivateSubnet3
+        id: "${PrivateSubnet3}" # PrivateSubnet3
     public:
       ${AZS[0]}:
-        id: "{PublicSubnet1}" # PublicSubnet1
+        id: "${PublicSubnet1}" # PublicSubnet1
       ${AZS[1]}:
-        id: "{PublicSubnet2}" # PublicSubnet2
+        id: "${PublicSubnet2}" # PublicSubnet2
       ${AZS[2]}:
-        id: "{PublicSubnet3}" # PublicSubnet3
+        id: "${PublicSubnet3}" # PublicSubnet3
 
 managedNodeGroups:
 - name: nodegroup
