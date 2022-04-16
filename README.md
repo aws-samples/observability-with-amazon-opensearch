@@ -9,7 +9,11 @@
 ### Cloud9 (Terminal):
   - Run the 00-setup.sh script:
 
- ```curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable```
+ ```
+ curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable
+ source ~/.bash_profile
+ ```
+ 
  
   - You must create the EKS Cluster (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
 ```
@@ -24,23 +28,23 @@ metadata:
   version: "1.21"
 
 vpc:
-  id: "vpc-CHANGE_HERE"  # MyVPC
+  id: "${MyVPC}" # MyVPC
   subnets:
     # must provide 'private' and/or 'public' subnets by availibility zone as shown
     private:
-      us-east-1a:
-        id: "subnet-CHANGE_HERE" # PrivateSubnet1
-      us-east-1b:
-        id: "subnet-CHANGE_HERE" # PrivateSubnet2
-      us-east-1c:
-        id: "subnet-CHANGE_HERE" # PrivateSubnet3
+      ${AZS[0]}:
+        id: "${PrivateSubnet1}" # PrivateSubnet1
+      ${AZS[1]}:
+        id: "${PrivateSubnet2}" # PrivateSubnet2
+      ${AZS[2]}:
+        id: "${PrivateSubnet3}" # PrivateSubnet3
     public:
-      us-east-1a:
-        id: "subnet-CHANGE_HERE" # PublicSubnet1
-      us-east-1b:
-        id: "subnet-CHANGE_HERE" # PublicSubnet2
-      us-east-1c:
-        id: "subnet-CHANGE_HERE" # PublicSubnet3
+      ${AZS[0]}:
+        id: "${PublicSubnet1}" # PublicSubnet1
+      ${AZS[1]}:
+        id: "${PublicSubnet2}" # PublicSubnet2
+      ${AZS[2]}:
+        id: "${PublicSubnet3}" # PublicSubnet3
 
 managedNodeGroups:
 - name: nodegroup
