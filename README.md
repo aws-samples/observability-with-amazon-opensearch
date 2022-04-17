@@ -15,7 +15,7 @@
  ```
  
  
-  - You must create the Amazon EKS Cluster (the parameters to be dynamically replaced based on the CloudFormation->Output):
+  - You must create the Amazon EKS Cluster (parameters will be dynamically replaced according to Cloudformation->Output):
 ```
 cat << EOF > observability-workshop.yaml
 --- 
@@ -97,8 +97,11 @@ EOF
   ```kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
 
 ### Browser
-  - Access Sample APP (URL);
-  - Access OpenSearch Dashboards (URL);
+  - Access Sample APP (URL):
+  ``` kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
+  
+  - Access OpenSearch Dashboards (URL):
+  ``` CloudFormation->Output->DashBoardPublicIP``` 
 
 ## Architecture
 ![architecture](/assets/arch.jpg)
