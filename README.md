@@ -6,7 +6,7 @@
 
   - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, Cloud9, Amazon OpenSearch and Reverse-Proxy Instance.
 
-### Cloud9 (Terminal):
+### AWS Cloud9 (Terminal):
   - Run the 00-setup.sh script:
 
  ```
@@ -15,7 +15,7 @@
  ```
  
  
-  - You must create the EKS Cluster (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
+  - You must create the Amazon EKS Cluster (parameters will be dynamically replaced according to Cloudformation->Output):
 ```
 cat << EOF > observability-workshop.yaml
 --- 
@@ -60,11 +60,11 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
-  - Run the (responsible for creating the EKS Cluster):
+  - Run the (responsible for creating the Amazon EKS Cluster):
    
  ```eksctl create cluster -f observability-workshop.yaml```
  
-  - Run the (responsible for building and pushing the images to the ECR): 
+  - Run the (responsible for building and pushing the images to the Amazon ECR): 
  
  ```cd observability-aos/scripts/; bash 01-build-push.sh```
  
@@ -97,8 +97,11 @@ EOF
   ```kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
 
 ### Browser
-  - Access Sample APP (URL);
-  - Access OpenSearch Dashboards (URL);
+  - Access Sample APP (URL):
+  ``` kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
+  
+  - Access OpenSearch Dashboards (URL):
+  ``` CloudFormation->Output->DashBoardPublicIP``` 
 
 ## Architecture
 ![architecture](/assets/arch.jpg)
