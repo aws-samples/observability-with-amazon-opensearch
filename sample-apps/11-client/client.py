@@ -34,10 +34,10 @@ PORT = int(os.getenv("MYSQL_PORT")) if os.getenv("MYSQL_PORT") is not None else 
 external_stylesheets = ['https://codepen.io/chriddyp/pen/bWLwgP.css']
 
 app = dash.Dash(__name__, external_stylesheets=external_stylesheets)
-app.title = 'ANT403 Sample App'
+app.title = 'Sample App'
 
 app.layout = html.Div(id="main", children=[
-    html.H1("ANT403 Sample App", style={'textAlign': 'left'}),
+    html.H1("Sample App", style={'textAlign': 'left'}),
     html.Div(style={'padding': 25}),
 
     html.Div(style={'padding': 25}),

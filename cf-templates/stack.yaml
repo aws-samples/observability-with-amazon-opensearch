@@ -1331,7 +1331,7 @@ Outputs:
 
   AOSDomainPassword:
     Value: !Ref MasterUserPassword
-
+    
   DashBoardPublicIP:
     Description: Proxy Dashboard Public IP
     Value:
