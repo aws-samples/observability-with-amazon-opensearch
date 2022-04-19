@@ -31,13 +31,13 @@ aws configure set default.region ${AWS_REGION}
 aws configure get default.region
 
 # Configure network variables (VPC, Priv/Pub-subnets)
-export MyVPC=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='MyVPC'].OutputValue" --output text)
-export PrivateSubnet1=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet1'].OutputValue" --output text)
-export PrivateSubnet2=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet2'].OutputValue" --output text)
-export PrivateSubnet3=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PrivateSubnet3'].OutputValue" --output text)
-export PublicSubnet1=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PublicSubnet1'].OutputValue" --output text)
-export PublicSubnet2=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PublicSubnet2'].OutputValue" --output text)
-export PublicSubnet3=$(aws cloudformation describe-stacks --stack-name Observability-AOS --query "Stacks[0].Outputs[?OutputKey=='PublicSubnet3'].OutputValue" --output text)
+export MyVPC=$(aws ec2 describe-vpcs  --query 'Vpcs[*].[VpcId]' --filters "Name=tag-key,Values=IsUsedForDeploy" --output text)
+export PrivateSubnet1=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Private Subnet (AZ1)" --output text)
+export PrivateSubnet2=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Private Subnet (AZ2)" --output text)
+export PrivateSubnet3=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Private Subnet (AZ3)" --output text)
+export PublicSubnet1=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Public Subnet (AZ1)" --output text)
+export PublicSubnet2=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Public Subnet (AZ2)" --output text)
+export PublicSubnet3=$(aws ec2 describe-subnets --query 'Subnets[*].[SubnetId]' --filters "Name=tag-value,Values=VPC-Observability Public Subnet (AZ3)" --output text)
 
 echo "export MyVPC=${MyVPC}" | tee -a ~/.bash_profile
 echo "export PrivateSubnet1=${PrivateSubnet1}" | tee -a ~/.bash_profile
