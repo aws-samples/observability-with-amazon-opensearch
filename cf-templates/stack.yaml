@@ -1,7 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: This template deploys a VPC, with a pair of public and private subnets spread
-  across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
+Description: This template deploys a VPC, with a pair of public and private subnets spread across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
 
 Parameters:
   # VPC Variables
