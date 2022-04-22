@@ -20,7 +20,7 @@ import os, pkg_resources, socket, requests, random, json
 
 logger = logging.getLogger(__name__)
 
-ERROR_RATE_THRESHOLD = 60
+ERROR_RATE_THRESHOLD = 100
 
 app = Flask(__name__)
 
