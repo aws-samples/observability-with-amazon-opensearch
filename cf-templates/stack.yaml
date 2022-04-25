@@ -1314,23 +1314,30 @@ Outputs:
         - Ref: C9Instance
         - "?region="
         - Ref: AWS::Region
+    Export:
+      Name: Cloud9IDE
   AOSDomainArn:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - Arn
+    Export:
+      Name: AOSDomainArn
   AOSDomainEndpoint:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - DomainEndpoint
-
+    Export:
+      Name: AOSDomainEndpoint
   AOSDomainUserName:
     Value: !Ref MasterUserName
-
+    Export:
+      Name: AOSDomainUserName
   AOSDomainPassword:
     Value: !Ref MasterUserPassword
-    
+    Export:
+      Name: AOSDomainPassword
   AOSDashboardsPublicIP:
     Description: Proxy (Public IP) for Amazon Opensearch Dashboards
     Value:
@@ -1339,3 +1346,5 @@ Outputs:
       - - https://
         - !GetAtt Lambdatrigger.PublicIpAddress
         - /_dashboards
+    Export:
+      Name: AOSDashboardsPublicIP
