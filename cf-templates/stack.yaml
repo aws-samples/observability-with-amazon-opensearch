@@ -1331,8 +1331,8 @@ Outputs:
   AOSDomainPassword:
     Value: !Ref MasterUserPassword
     
-  DashBoardPublicIP:
-    Description: Proxy Dashboard Public IP
+  AOSDashboardsPublicIP:
+    Description: Proxy (Public IP) for Amazon Opensearch Dashboards
     Value:
       Fn::Join:
       - ''
