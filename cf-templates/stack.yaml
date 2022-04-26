@@ -1007,7 +1007,8 @@ Resources:
             - !Sub SIZE=${C9InstanceVolumeSize}
             - !Sub REGION=${AWS::Region}
             - |
-              INSTANCEID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+              TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+              INSTANCEID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
               VOLUMEID=$(aws ec2 describe-instances \
                 --instance-id $INSTANCEID \
                 --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
