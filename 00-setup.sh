@@ -57,4 +57,4 @@ echo "export MASTER_ARN=${MASTER_ARN}" | tee -a ~/.bash_profile
 source ~/.bash_profile
 
 # Download lab repository
-git clone https://github.com/rafael-gumiero/observability-aos
+git clone https://github.com/aws-samples/observability-with-amazon-opensearch
