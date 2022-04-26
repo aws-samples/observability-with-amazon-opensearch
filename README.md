@@ -10,7 +10,7 @@
   - Run the 00-setup.sh script:
 
  ```
- curl -sSL https://raw.githubusercontent.com/rafael-gumiero/observability-aos/main/00-setup.sh | bash -s stable
+ curl -sSL https://raw.githubusercontent.com/aws-samples/observability-with-amazon-opensearch/main/00-setup.sh | bash -s stable
  source ~/.bash_profile
  ```
  
