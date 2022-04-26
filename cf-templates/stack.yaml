@@ -467,6 +467,10 @@ Resources:
           IpProtocol: tcp
           ToPort: 80
           CidrIp: !Ref VpcCIDR
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
       
   CreateVpcEndpointSSM:
     Type: AWS::EC2::VPCEndpoint
@@ -526,6 +530,10 @@ Resources:
         - FromPort: '443'
           IpProtocol: tcp
           ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
 
   OpenSearchServiceDomain:
@@ -700,6 +708,10 @@ Resources:
         - IpProtocol: tcp
           FromPort: '443'
           ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
       VpcId: !Ref VPC
 
