@@ -467,6 +467,10 @@ Resources:
           IpProtocol: tcp
           ToPort: 80
           CidrIp: !Ref VpcCIDR
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
       
   CreateVpcEndpointSSM:
     Type: AWS::EC2::VPCEndpoint
@@ -526,6 +530,10 @@ Resources:
         - FromPort: '443'
           IpProtocol: tcp
           ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
 
   OpenSearchServiceDomain:
@@ -700,6 +708,10 @@ Resources:
         - IpProtocol: tcp
           FromPort: '443'
           ToPort: '443'
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
       VpcId: !Ref VPC
 
@@ -1007,7 +1019,8 @@ Resources:
             - !Sub SIZE=${C9InstanceVolumeSize}
             - !Sub REGION=${AWS::Region}
             - |
-              INSTANCEID=$(curl http://169.254.169.254/latest/meta-data/instance-id)
+              TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+              INSTANCEID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
               VOLUMEID=$(aws ec2 describe-instances \
                 --instance-id $INSTANCEID \
                 --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
@@ -1314,23 +1327,30 @@ Outputs:
         - Ref: C9Instance
         - "?region="
         - Ref: AWS::Region
+    Export:
+      Name: Cloud9IDE
   AOSDomainArn:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - Arn
+    Export:
+      Name: AOSDomainArn
   AOSDomainEndpoint:
     Value:
       'Fn::GetAtt':
         - OpenSearchServiceDomain
         - DomainEndpoint
-
+    Export:
+      Name: AOSDomainEndpoint
   AOSDomainUserName:
     Value: !Ref MasterUserName
-
+    Export:
+      Name: AOSDomainUserName
   AOSDomainPassword:
     Value: !Ref MasterUserPassword
-    
+    Export:
+      Name: AOSDomainPassword
   AOSDashboardsPublicIP:
     Description: Proxy (Public IP) for Amazon Opensearch Dashboards
     Value:
@@ -1339,3 +1359,5 @@ Outputs:
       - - https://
         - !GetAtt Lambdatrigger.PublicIpAddress
         - /_dashboards
+    Export:
+      Name: AOSDashboardsPublicIP
