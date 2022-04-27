@@ -6,7 +6,12 @@ Amazon OpenSearch Service’s Trace Analytics functionality allows you to go bey
 ![architecture](/assets/arch.jpg)
 
 ## Instructions:
+Detailed Workshop instructions should be followed in this guide: https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e
 --
+
+## Instructions (short version):
+--
+
 ### CloudFormation
 - CloudFormation temples are in the /cf-templates directory;
 - Launch them from the CloudFormation console:
