@@ -73,7 +73,7 @@ EOF
  
   - Run the (responsible for building and pushing the images to the Amazon ECR): 
  
- ```cd observability-aos/scripts/; bash 01-build-push.sh```
+ ```cd observability-with-amazon-opensearch/scripts/; bash 01-build-push.sh```
  
   - You must change credentials and endpoint in Fluentbit (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
   
