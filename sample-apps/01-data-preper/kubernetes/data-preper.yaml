@@ -46,7 +46,25 @@ data:
             hosts: [ "https://__AOS_ENDPOINT__" ]
             username: "__AOS_USERNAME__"
             password: "__AOS_PASSWORD__"
-            trace_analytics_service_map: true
+            trace_analytics_service_map: true          
+    log-pipeline:
+      source:
+        http:
+          ssl: false
+          authentication:
+            unauthenticated:
+      processor:
+        - grok:
+            match:
+              # This will match logs with a "log" key against the COMMONAPACHELOG pattern (ex: { "log": "actual apache log..." } )
+              # You should change this to match what your logs look like. See the grok documenation to get started.
+              log: [ "%{COMMONAPACHELOG}" ]
+      sink:
+        - opensearch:
+            hosts: [ "https://__AOS_ENDPOINT__" ]
+            username: "__AOS_USERNAME__"
+            password: "__AOS_PASSWORD__"
+            index: test_logs           
   data-prepper-config.yaml: |
     ssl: false
 ---
