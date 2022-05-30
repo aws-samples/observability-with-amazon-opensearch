@@ -1,4 +1,4 @@
-# Microservices Observability with Amazon OpenSearch Service Workshop
+# Microservice Observability with Amazon OpenSearch Service Workshop
 
 Amazon OpenSearch Service’s Trace Analytics functionality allows you to go beyond simple monitoring to understand not just what events are happening, but why they are happening. In this workshop, learn how to instrument, collect, and analyze metrics, traces, and log data all the way from user front ends to service backends and everything in between. Put this together with Amazon OpenSearch Service, AWS Distro for OpenTelemetry, FluentBit, and Data Prepper.
 
