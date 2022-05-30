@@ -81,18 +81,16 @@ data:
         K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
 
-  output-elasticsearch.conf: |
+  output-data-prepper.conf: |
     [OUTPUT]
-        Name  es
+        Name  http
         Match *
-        Host  __AOS_ENDPOINT__
-        Port  443
-        Index sample_app_logs
-        Type  docker
-        HTTP_User __AOS_USERNAME__
-        HTTP_Passwd __AOS_PASSWORD__
-        tls On
+        Host  data-prepper.data-prepper.svc.cluster.local
+        Port  2021
+        tls Off
         tls.verify Off
+        Format json
+        URI /log/ingest
 
   parsers.conf: |
     [PARSER]
