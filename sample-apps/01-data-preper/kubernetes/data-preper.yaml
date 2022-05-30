@@ -64,7 +64,7 @@ data:
             hosts: [ "https://__AOS_ENDPOINT__" ]
             username: "__AOS_USERNAME__"
             password: "__AOS_PASSWORD__"
-            index: test_logs 
+            index: sample_app_logs 
   data-prepper-config.yaml: |
     ssl: false
 ---
