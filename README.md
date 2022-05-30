@@ -12,22 +12,22 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-e
 
 ## Instructions (short version): 🚀
 
-### CloudFormation
-- CloudFormation temples are in the /cf-templates directory;
-- Launch them from the CloudFormation console:
+### AWS CloudFormation
+- CloudFormation temples are in the /cf-templates/ directory.
+- Launch them from the AWS CloudFormation console.
 
-  - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, Cloud9, Amazon OpenSearch and Reverse-Proxy Instance.
+  - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance.
 
-### AWS Cloud9 (Terminal):
-  - Run the 00-setup.sh script:
+### AWS Cloud9 (Terminal)
+  - Run the following commands on the Cloud9 [terminal] to install the necessary tools and configure environment variables.
 
  ```
  curl -sSL https://raw.githubusercontent.com/aws-samples/observability-with-amazon-opensearch/main/00-setup.sh | bash -s stable
  source ~/.bash_profile
  ```
  
- 
-  - You must create the Amazon EKS Cluster (parameters will be dynamically replaced according to Cloudformation->Output):
+ ### You must create the EKS Cluster parameter file.
+  - Run the following command on the Cloud9 [terminal] to create the observability-workshop.yaml file. The command uses the environment variables configured on the last step to fill out the necessary information.
 ```
 cat << EOF > observability-workshop.yaml
 --- 
@@ -72,25 +72,17 @@ secretsEncryption:
   keyARN: ${MASTER_ARN}
 EOF
 ```
-  - Run the (responsible for creating the Amazon EKS Cluster):
+### Now it’s time to create our EKS Cluster with the eksctl tool.
+  - Run the following command on the Cloud9 [terminal] (should take 15 minutes to complete).
    
  ```eksctl create cluster -f observability-workshop.yaml```
  
-  - Run the (responsible for building and pushing the images to the Amazon ECR): 
+  - After creating the EKS Cluster, you must build and push the microservices images to the ECR repository (should take 5 minutes to complete).
  
  ```cd observability-with-amazon-opensearch/scripts/; bash 01-build-push.sh```
- 
-  - You must change credentials and endpoint in Fluentbit (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
   
-  ```
-  Host  __AOS_ENDPOINT__
-  HTTP_User __AOS_USERNAME__
-  HTTP_Passwd __AOS_PASSWORD__
-
-  vim /sample-apps/00-fluentBit/kubernetes/fluentbit.yaml
-  ```
-  
-  - You must change credentials and endpoint in DataPrepper (the parameters to be replaced must be checked in the CloudFormation-> Outputs [tab] of the first step):
+  ### You must change credentials and endpoint in DataPrepper.
+  - Open the /observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-preper.yaml file via Cloud9 [editor] and replace the following variables with the corresponding values in the ’Outputs’ tab in CloudFormation. (You should only copy the content of the value of CloudFormation -> Output -> AOSDomainEndpoint [Key] instead of using "Copy Link".)
   
   ```
   hosts: [ "https://__AOS_ENDPOINT__" ]
@@ -99,17 +91,22 @@ EOF
             
   vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml
   ```
-  
-  - Run the (responsible for applying the Kubernetes manifests):
+ 
+  ### As a final step in deploying the microservices, you must apply the Kubernetes manifests. 
+  - Run the following command on the Cloud9 [terminal].
   
   ```bash 02-apply-k8s-manifests.sh```
   
-  - Run the (to get the Sample APP DNS endpoint):
+  - Check that all created Pods are running, as follows (it may take a few seconds for all of them to start completely).
+
+  ```watch -n 10 kubectl get pods --all-namespaces```
+
+  - To get the Sample APP DNS endpoint.
   
   ```kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
 
 ### Browser
-  - Access Sample APP (URL):
+  - Validate the Sample App is working by opening the endpoint from the previous step in your browser:
   ``` kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
   
   - Access OpenSearch Dashboards (URL):
