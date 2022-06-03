@@ -55,7 +55,7 @@ data:
 
     @INCLUDE input-kubernetes.conf
     @INCLUDE filter-kubernetes.conf
-    @INCLUDE output-elasticsearch.conf
+    @INCLUDE output-data-prepper.conf
 
   input-kubernetes.conf: |
     [INPUT]
