@@ -59,7 +59,7 @@ Parameters:
   EngineVersion:
     Description: Amazon OpenSearch Service - Version
     Type: String
-    Default: "OpenSearch_1.2"
+    Default: "OpenSearch_1.3"
   
   InstanceType:
     Description: Amazon OpenSearch Service - Instance Type
