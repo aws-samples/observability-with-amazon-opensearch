@@ -1,0 +1,1 @@
+{"version":3,"file":"create-category-color-scale.d.ts","sourceRoot":"","sources":["../../../../src/internal/utils/create-category-color-scale.ts"],"names":[],"mappings":"AAMA,MAAM,CAAC,OAAO,UAAU,wBAAwB,CAAC,CAAC,EAChD,KAAK,EAAE,SAAS,CAAC,EAAE,EACnB,WAAW,GAAE,CAAC,IAAI,EAAE,CAAC,KAAK,OAAqB,EAC/C,WAAW,GAAE,CAAC,IAAI,EAAE,CAAC,KAAK,IAAI,GAAG,MAAmB,GACnD,MAAM,EAAE,CAeV"}

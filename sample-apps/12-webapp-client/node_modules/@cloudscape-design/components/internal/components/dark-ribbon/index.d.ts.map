@@ -1,0 +1,1 @@
+{"version":3,"file":"index.d.ts","sourceRoot":"","sources":["../../../../../src/internal/components/dark-ribbon/index.tsx"],"names":[],"mappings":"AAEA,OAAO,KAA4B,MAAM,OAAO,CAAC;AAKjD,UAAU,eAAe;IACvB,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B,SAAS,EAAE,OAAO,CAAC;IACnB,eAAe,CAAC,EAAE,OAAO,CAAC;CAC3B;AAQD,MAAM,CAAC,OAAO,UAAU,UAAU,CAAC,EAAE,QAAQ,EAAE,SAAS,EAAE,eAAe,EAAE,EAAE,eAAe,eA0C3F"}

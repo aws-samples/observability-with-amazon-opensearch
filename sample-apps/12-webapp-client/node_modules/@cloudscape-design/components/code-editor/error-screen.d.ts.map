@@ -1,0 +1,1 @@
+{"version":3,"file":"error-screen.d.ts","sourceRoot":"","sources":["../../../src/code-editor/error-screen.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAsB,MAAM,OAAO,CAAC;AAE3C,OAAO,EAA0B,yBAAyB,EAAE,MAAM,oBAAoB,CAAC;AAMvF,UAAU,KAAK;IACb,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B,YAAY,CAAC,EAAE,MAAM,CAAC;IACtB,eAAe,CAAC,EAAE,yBAAyB,CAAC,IAAI,CAAC,CAAC;CACnD;sEAE4D,KAAK;AAAlE,wBAcE"}

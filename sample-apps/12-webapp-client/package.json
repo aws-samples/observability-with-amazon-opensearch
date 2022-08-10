@@ -1,0 +1,36 @@
+{
+  "name": "12-webapp-client",
+  "version": "0.1.0",
+  "private": true,
+  "homepage": "https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e/en-US",
+  "bugs": {
+    "url": "https://github.com/aws-samples/observability-with-amazon-opensearch/issues"
+  },
+   "license" : "SEE LICENSE IN https://github.com/aws-samples/observability-with-amazon-opensearch/blob/main/LICENSE",
+   "author": {
+    "name": "Ibrahim Cesar",
+    "email": "ibracnb@amazon.com"
+   },
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@cloudscape-design/components": "^3.0.11",
+    "@cloudscape-design/global-styles": "^1.0.1",
+    "next": "12.2.3",
+    "next-transpile-modules": "^9.0.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "18.6.3",
+    "@types/react": "18.0.15",
+    "@types/react-dom": "18.0.6",
+    "eslint": "8.21.0",
+    "eslint-config-next": "12.2.3",
+    "typescript": "4.7.4"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "name": "next-compose-plugins",
+  "version": "2.2.1",
+  "description": "Provides a cleaner API for enabling and configuring plugins for next.js",
+  "main": "lib/index.js",
+  "files": [
+    "lib"
+  ],
+  "scripts": {
+    "build": "babel src -d lib",
+    "watch": "babel --watch src -d lib",
+    "lint": "eslint src",
+    "lint:fix": "eslint --fix src",
+    "pretest": "npm run build",
+    "test": "jest --coverage lib",
+    "test:watch": "jest --watch lib",
+    "prepack": "rimraf lib/**/__tests__"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/cyrilwanner/next-compose-plugins.git"
+  },
+  "keywords": [
+    "next.js",
+    "next",
+    "react",
+    "plugins",
+    "compose"
+  ],
+  "author": "Cyril Wanner <info@cyr.li>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/cyrilwanner/next-compose-plugins/issues"
+  },
+  "homepage": "https://github.com/cyrilwanner/next-compose-plugins#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.4.4",
+    "@babel/core": "^7.4.4",
+    "@babel/plugin-proposal-object-rest-spread": "^7.4.4",
+    "@babel/preset-env": "^7.4.4",
+    "babel-core": "^6.26.3",
+    "eslint": "^5.16.0",
+    "eslint-config-airbnb-base": "^13.1.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-jest": "^22.5.1",
+    "jest": "^24.7.1",
+    "npm-autoinstaller": "^1.3.1",
+    "rimraf": "^2.6.3"
+  }
+}

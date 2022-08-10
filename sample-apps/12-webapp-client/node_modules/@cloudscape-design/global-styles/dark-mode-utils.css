@@ -1,0 +1,20 @@
+/*
+  Makes the content visible in the dark mode.
+*/
+.awsui-util-show-in-dark-mode {
+  display: none;
+}
+@supports (--css-variable-support-check: #000) {
+  .awsui-dark-mode .awsui-util-show-in-dark-mode {
+    display: initial;
+  }
+}
+
+/*
+  Makes the content hidden in the dark mode.
+*/
+@supports (--css-variable-support-check: #000) {
+  .awsui-dark-mode .awsui-util-hide-in-dark-mode {
+    display: none;
+  }
+}

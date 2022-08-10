@@ -1,0 +1,1 @@
+{"version":3,"file":"data-series.d.ts","sourceRoot":"","sources":["../../../../src/area-chart/elements/data-series.tsx"],"names":[],"mappings":"AAQA,OAAO,EAAE,cAAc,EAAE,MAAM,eAAe,CAAC;AAC/C,OAAO,EAAE,UAAU,EAAE,MAAM,UAAU,CAAC;;AAKtC,wBAAqD;AAErD,iBAAS,UAAU,CAAC,CAAC,SAAS,cAAc,CAAC,SAAS,EAAE,EAAE,KAAK,EAAE,EAAE;IAAE,KAAK,EAAE,UAAU,CAAC,CAAC,CAAC,CAAA;CAAE,eAyD1F"}

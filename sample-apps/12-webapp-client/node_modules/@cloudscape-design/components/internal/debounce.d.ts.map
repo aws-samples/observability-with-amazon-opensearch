@@ -1,0 +1,1 @@
+{"version":3,"file":"debounce.d.ts","sourceRoot":"","sources":["../../../src/internal/debounce.ts"],"names":[],"mappings":"AAIA,eAAO,MAAM,sBAAsB,MAAM,CAAC;AAG1C,MAAM,CAAC,OAAO,UAAU,QAAQ,CAAC,YAAY,SAAS,CAAC,GAAG,IAAI,EAAE,GAAG,EAAE,KAAK,IAAI,EAC5E,IAAI,EAAE,YAAY,EAClB,KAAK,GAAE,MAA+B,GACrC,YAAY,CAYd"}

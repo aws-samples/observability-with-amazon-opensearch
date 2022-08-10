@@ -1,0 +1,28 @@
+"use strict";
+/*
+ * Copyright The OpenTelemetry Authors
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      https://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.UpDownSumObserverMetric = void 0;
+const BaseObserverMetric_1 = require("./BaseObserverMetric");
+const types_1 = require("./export/types");
+/** This is a SDK implementation of UpDownSumObserver Metric. */
+class UpDownSumObserverMetric extends BaseObserverMetric_1.BaseObserverMetric {
+    constructor(name, options, processor, resource, instrumentationLibrary, callback) {
+        super(name, options, processor, resource, types_1.MetricKind.UP_DOWN_SUM_OBSERVER, instrumentationLibrary, callback);
+    }
+}
+exports.UpDownSumObserverMetric = UpDownSumObserverMetric;
+//# sourceMappingURL=UpDownSumObserverMetric.js.map
