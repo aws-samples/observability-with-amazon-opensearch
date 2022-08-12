@@ -1,2 +1,0 @@
-export default function createCategoryColorScale<T>(items: readonly T[], isThreshold?: (item: T) => boolean, getOwnColor?: (item: T) => null | string): string[];
-//# sourceMappingURL=create-category-color-scale.d.ts.map

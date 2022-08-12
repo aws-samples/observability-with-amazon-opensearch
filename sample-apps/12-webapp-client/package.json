@@ -6,11 +6,11 @@
   "bugs": {
     "url": "https://github.com/aws-samples/observability-with-amazon-opensearch/issues"
   },
-   "license" : "SEE LICENSE IN https://github.com/aws-samples/observability-with-amazon-opensearch/blob/main/LICENSE",
-   "author": {
+  "license": "SEE LICENSE IN https://github.com/aws-samples/observability-with-amazon-opensearch/blob/main/LICENSE",
+  "author": {
     "name": "Ibrahim Cesar",
     "email": "ibracnb@amazon.com"
-   },
+  },
   "scripts": {
     "dev": "next dev",
     "build": "next build",
@@ -20,6 +20,7 @@
   "dependencies": {
     "@cloudscape-design/components": "^3.0.11",
     "@cloudscape-design/global-styles": "^1.0.1",
+    "dotenv": "^16.0.1",
     "next": "12.2.3",
     "next-transpile-modules": "^9.0.0",
     "react": "18.2.0",

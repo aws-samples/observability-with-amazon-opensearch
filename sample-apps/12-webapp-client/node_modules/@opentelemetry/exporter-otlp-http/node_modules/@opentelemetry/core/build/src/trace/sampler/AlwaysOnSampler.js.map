@@ -1,1 +1,0 @@
-{"version":3,"file":"AlwaysOnSampler.js","sourceRoot":"","sources":["../../../../src/trace/sampler/AlwaysOnSampler.ts"],"names":[],"mappings":";AAAA;;;;;;;;;;;;;;GAcG;;;AAEH,4CAA+E;AAE/E,uCAAuC;AACvC,MAAa,eAAe;IAC1B,YAAY;QACV,OAAO;YACL,QAAQ,EAAE,sBAAgB,CAAC,kBAAkB;SAC9C,CAAC;IACJ,CAAC;IAED,QAAQ;QACN,OAAO,iBAAiB,CAAC;IAC3B,CAAC;CACF;AAVD,0CAUC"}
