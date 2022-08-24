@@ -82,5 +82,4 @@ do
 done
 
 ##### Sample App hostname #####
-echo "Sample App HostName:"
-kubectl get svc -nclient-service | awk '{print $4}' | tail -n1
+echo "Sample App HostName:" $(kubectl get svc -nclient-service | awk '{print $4}' | tail -n1)
