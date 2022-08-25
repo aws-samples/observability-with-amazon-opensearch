@@ -55,6 +55,7 @@ data:
 
     @INCLUDE input-kubernetes.conf
     @INCLUDE filter-kubernetes.conf
+    @INCLUDE filter-trace-id.conf
     @INCLUDE output-data-prepper.conf
 
   input-kubernetes.conf: |
@@ -81,16 +82,25 @@ data:
         K8S-Logging.Parser  On
         K8S-Logging.Exclude Off
 
+  filter-trace-id.conf: |
+    [FILTER]
+        Name              parser
+        Match             kube.*
+        Key_Name          log
+        Parser            traceId
+        Reserve_Data      On
+        Preserve_Key      On
+  
   output-data-prepper.conf: |
     [OUTPUT]
-        Name  http
-        Match *
-        Host  data-prepper.data-prepper.svc.cluster.local
-        Port  2021
-        tls Off
-        tls.verify Off
-        Format json
-        URI /log/ingest
+        Name              http
+        Match             *
+        Host              data-prepper.data-prepper.svc.cluster.local
+        Port              2021
+        tls               Off
+        tls.verify        Off
+        Format            json
+        URI               /log/ingest
 
   parsers.conf: |
     [PARSER]
@@ -138,6 +148,12 @@ data:
         Regex       ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
         Time_Key    time
         Time_Format %b %d %H:%M:%S
+        
+    [PARSER]
+        Name        traceId
+        Format      regex
+        Regex       trace_id=(?<traceId>[^ ]+)
+        
 ---
 apiVersion: apps/v1
 kind: DaemonSet
