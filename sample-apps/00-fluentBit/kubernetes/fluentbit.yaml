@@ -87,7 +87,7 @@ data:
         Name              parser
         Match             kube.*
         Key_Name          log
-        Parser            traceId
+        Parser            traceInfo
         Reserve_Data      On
         Preserve_Key      On
   
@@ -150,9 +150,9 @@ data:
         Time_Format %b %d %H:%M:%S
         
     [PARSER]
-        Name        traceId
+        Name        traceInfo
         Format      regex
-        Regex       trace_id=(?<traceId>[^ ]+)
+        Regex       trace_id=(?<traceId>[^ ]+) span_id=(?<spanId>[^ ]+) resource.service.name=(?<serviceName>[^]]+)
         
 ---
 apiVersion: apps/v1
