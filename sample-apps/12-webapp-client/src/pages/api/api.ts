@@ -1,6 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next'
 import dotenv from 'dotenv'
 
+dotenv.config()
+
 type Data = {
   oltp: string
   recommend: string
@@ -15,7 +17,7 @@ type Data = {
 }
 
 export default function handler(
-  req: NextApiRequest,
+  _req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   res.status(200).json({

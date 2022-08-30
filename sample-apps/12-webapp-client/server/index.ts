@@ -2,7 +2,7 @@ import { createServer } from "node:http";
 import { parse } from "node:url";
 import next from "next";
 
-const port = parseInt(process.env.PORT || "5001", 10);
+const port = parseInt(process.env.PORT || "5000", 10);
 const dev = process.env.NODE_ENV !== "production";
 const app = next({ dev });
 const handle = app.getRequestHandler();

@@ -1,0 +1,4 @@
+const Component = () => {
+}
+
+export { Component }

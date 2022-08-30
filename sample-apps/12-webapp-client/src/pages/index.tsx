@@ -1,27 +1,17 @@
-import type { NextPage } from 'next'
+import type { ReactElement } from 'react'
+import Layout from '../components/layout'
+import type { NextPageWithLayout } from './_app'
 
-import Container from '@cloudscape-design/components/container'
-import Header from '@cloudscape-design/components/header'
-import SpaceBetween from '@cloudscape-design/components/space-between'
+const Page: NextPageWithLayout = () => {
+  return <p>hello world</p>
+}
 
-
-
-import ClientRender from '../components/client-render'
-
-const Home: NextPage = () => {
-
+Page.getLayout = function getLayout(page: ReactElement) {
   return (
-    <ClientRender>
-      <SpaceBetween size="m">
-        <Header variant="h1">o11y Shop</Header>
-          <Container>
-            <SpaceBetween size="s">
-              <span>Observability webapp</span>
-            </SpaceBetween>
-          </Container>
-      </SpaceBetween>
-    </ClientRender>
+    <Layout>
+      {page}
+    </Layout>
   )
 }
 
-export default Home
+export default Page

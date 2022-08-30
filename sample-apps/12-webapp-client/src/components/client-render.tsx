@@ -13,7 +13,7 @@ const ClientRender = ({ children }: Props) => {
 
   return (
     <>
-      {loaded ? children : null};
+      {loaded ? children : null}
     </>
   )
 };
