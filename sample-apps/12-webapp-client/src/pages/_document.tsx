@@ -4,6 +4,7 @@ export default function Document() {
   return (
     <Html>
       <Head>
+        <title>o11y Shop</title>
         <link
           rel="icon"
           type="image/x-icon"
