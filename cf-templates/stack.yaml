@@ -1302,6 +1302,13 @@ Outputs:
         - Ref: AWS::Region
     Export:
       Name: Cloud9IDE
+  AOSDomainArn:
+    Value:
+      'Fn::GetAtt':
+        - OpenSearchServiceDomain
+        - Arn
+    Export:
+      Name: AOSDomainArn
   AOSDomainEndpoint:
     Value:
       'Fn::GetAtt':
