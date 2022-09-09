@@ -1,0 +1,7 @@
+// Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+// SPDX-License-Identifier: Apache-2.0
+export var insertAt = function (text, toInsert, start, end) {
+    if (end === void 0) { end = start; }
+    return text.slice(0, start) + toInsert + text.slice(end);
+};
+//# sourceMappingURL=strings.js.map

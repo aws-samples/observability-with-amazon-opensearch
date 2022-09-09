@@ -1,0 +1,1 @@
+{"version":3,"file":"dismiss-button.d.ts","sourceRoot":"","sources":["../../../src/token-group/dismiss-button.tsx"],"names":[],"mappings":"AASA,UAAU,kBAAkB;IAC1B,QAAQ,CAAC,EAAE,OAAO,CAAC;IACnB,SAAS,CAAC,EAAE,MAAM,IAAI,CAAC;IACvB,YAAY,CAAC,EAAE,MAAM,CAAC;CACvB;AAOD,MAAM,CAAC,OAAO,UAAU,aAAa,CAAC,EAAE,QAAQ,EAAE,YAAY,EAAE,SAAS,EAAE,EAAE,kBAAkB,eAqB9F"}

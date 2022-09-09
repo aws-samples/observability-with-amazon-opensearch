@@ -1,0 +1,11 @@
+import { DropdownOption } from '../../internal/components/option/interfaces';
+interface ItemProps {
+    option: DropdownOption;
+    index: number;
+    getOptionProps: any;
+    filteringValue: string;
+    checkboxes: boolean;
+}
+export declare const getItemProps: ({ option, index, getOptionProps, filteringValue, checkboxes }: ItemProps) => any;
+export {};
+//# sourceMappingURL=get-item-props.d.ts.map

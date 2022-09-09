@@ -1,0 +1,2 @@
+export declare function checkOptionValueField<ValueType extends ReadonlyArray<any>>(componentName: string, propertyName: string, propertyValue: ValueType | undefined): void;
+//# sourceMappingURL=check-option-value-field.d.ts.map

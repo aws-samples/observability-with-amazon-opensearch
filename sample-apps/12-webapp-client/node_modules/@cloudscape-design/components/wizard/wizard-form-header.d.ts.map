@@ -1,0 +1,1 @@
+{"version":3,"file":"wizard-form-header.d.ts","sourceRoot":"","sources":["../../../src/wizard/wizard-form-header.tsx"],"names":[],"mappings":"AAGA,OAAO,KAAK,MAAM,OAAO,CAAC;AAI1B,UAAU,qBAAqB;IAC7B,QAAQ,EAAE,KAAK,CAAC,SAAS,CAAC;IAC1B,QAAQ,EAAE,OAAO,CAAC;IAClB,eAAe,EAAE,OAAO,CAAC;CAC1B;AAED,MAAM,CAAC,OAAO,UAAU,gBAAgB,CAAC,EAAE,QAAQ,EAAE,eAAe,EAAE,EAAE,qBAAqB,eAe5F"}

@@ -1,4 +1,0 @@
-const Component = () => {
-}
-
-export { Component }

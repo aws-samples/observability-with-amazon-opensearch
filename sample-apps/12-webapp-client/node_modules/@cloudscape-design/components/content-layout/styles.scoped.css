@@ -1,0 +1,144 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* stylelint-disable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/* stylelint-enable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* Style used for links in slots/components that are text heavy, to help links stand out among 
+surrounding text. (WCAG F73) https://www.w3.org/WAI/WCAG21/Techniques/failures/F73#description */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+Pass through the header and child content if not rendering in 
+visual refresh mode. The padding is still added to the header 
+in this scenario because otherwise the header and child 
+nodes will directly touch with no gap between them.
+*/
+.awsui_layout_5gtk3_1onm4_99:not(#\9):not(.awsui_is-visual-refresh_5gtk3_1onm4_99) {
+  display: contents;
+}
+.awsui_layout_5gtk3_1onm4_99:not(#\9):not(.awsui_is-visual-refresh_5gtk3_1onm4_99) > .awsui_background_5gtk3_1onm4_102 {
+  display: none;
+}
+.awsui_layout_5gtk3_1onm4_99:not(#\9):not(.awsui_is-visual-refresh_5gtk3_1onm4_99) > .awsui_header_5gtk3_1onm4_105 {
+  padding-bottom: var(--space-content-header-padding-bottom-nvqytg, 24px);
+}
+
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99:not(#\9) {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: auto var(--space-dark-header-overlap-distance-hfejul, 36px) 1fr;
+  min-height: 100%;
+}
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99.awsui_is-overlap-disabled_5gtk3_1onm4_115:not(#\9) {
+  grid-template-rows: auto 0 1fr;
+}
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_background_5gtk3_1onm4_102:not(#\9) {
+  background-color: var(--color-background-layout-main-sfhm4y, #ffffff);
+  grid-column: 1;
+  grid-row: 1/3;
+}
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_background_5gtk3_1onm4_102.awsui_is-overlap-disabled_5gtk3_1onm4_115:not(#\9) {
+  grid-row: 1/2;
+}
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_header_5gtk3_1onm4_105:not(#\9) {
+  grid-column: 1;
+  grid-row: 1;
+  padding-bottom: var(--space-content-header-padding-bottom-nvqytg, 24px);
+}
+@media (min-width: 689px) {
+  .awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_header_5gtk3_1onm4_105.awsui_has-breadcrumbs_5gtk3_1onm4_132:not(#\9) {
+    padding-top: var(--space-xxs-ynfts5, 4px);
+  }
+}
+@media (max-width: 688px) {
+  .awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_header_5gtk3_1onm4_105:not(#\9) {
+    padding: var(--space-m-17eucw, 16px) 0 var(--space-content-header-padding-bottom-nvqytg, 24px);
+  }
+}
+.awsui_layout_5gtk3_1onm4_99.awsui_is-visual-refresh_5gtk3_1onm4_99 > .awsui_content_5gtk3_1onm4_141:not(#\9) {
+  grid-column: 1;
+  grid-row: 2/4;
+}

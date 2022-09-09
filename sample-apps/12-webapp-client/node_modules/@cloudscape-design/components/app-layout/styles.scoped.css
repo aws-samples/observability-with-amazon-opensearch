@@ -1,0 +1,315 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* stylelint-disable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/* stylelint-enable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* Style used for links in slots/components that are text heavy, to help links stand out among 
+surrounding text. (WCAG F73) https://www.w3.org/WAI/WCAG21/Techniques/failures/F73#description */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+.awsui_root_lm6vo_hzagk_97:not(#\9),
+.awsui_layout-wrapper_lm6vo_hzagk_98:not(#\9) {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.awsui_root-no-scroll_lm6vo_hzagk_104:not(#\9) {
+  position: relative;
+  z-index: 1;
+}
+
+.awsui_layout_lm6vo_hzagk_98:not(#\9) {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: stretch;
+  background-color: var(--color-background-layout-main-sfhm4y, #ffffff);
+}
+.awsui_layout-no-scroll_lm6vo_hzagk_115:not(#\9) {
+  overflow: hidden;
+}
+
+.awsui_layout-main_lm6vo_hzagk_119:not(#\9) {
+  flex: 1;
+  min-width: 0;
+  background-color: var(--color-background-layout-main-sfhm4y, #ffffff);
+  position: relative;
+}
+.awsui_layout-main-scrollable_lm6vo_hzagk_125:not(#\9) {
+  overflow: auto;
+}
+
+/* stylelint-disable-next-line selector-combinator-disallowed-list, selector-max-universal */
+.awsui_unfocusable_lm6vo_hzagk_130 *:not(#\9) {
+  visibility: hidden;
+}
+
+.awsui_navigation-panel_lm6vo_hzagk_134:not(#\9) {
+  overflow-anchor: none;
+}
+
+.awsui_drawer_lm6vo_hzagk_138:not(#\9) {
+  flex-shrink: 0;
+  position: relative;
+  word-wrap: break-word;
+  box-shadow: var(--shadow-panel-gp3bf2, 0px 1px 1px 1px #e9ebed, 0px 6px 36px rgba(0, 7, 22, 0.1));
+}
+.awsui_drawer_lm6vo_hzagk_138:not(#\9):not(.awsui_drawer-mobile_lm6vo_hzagk_144) {
+  z-index: 850;
+}
+.awsui_drawer-closed_lm6vo_hzagk_147:not(#\9) {
+  min-width: 40px;
+  cursor: pointer;
+}
+.awsui_drawer-closed_lm6vo_hzagk_147.awsui_drawer-mobile_lm6vo_hzagk_144:not(#\9) {
+  display: none;
+}
+.awsui_drawer_lm6vo_hzagk_138.awsui_opaque-background_lm6vo_hzagk_154:not(#\9) {
+  background: var(--color-background-layout-panel-content-808qum, #ffffff);
+}
+
+.awsui_drawer-content_lm6vo_hzagk_158:not(#\9) {
+  position: fixed;
+  overflow: auto;
+  background-color: var(--color-background-layout-panel-content-808qum, #ffffff);
+}
+.awsui_opaque-background_lm6vo_hzagk_154 > .awsui_drawer-content_lm6vo_hzagk_158:not(#\9) {
+  border-right: var(--border-divider-section-width-4wm2it, 2px) solid var(--color-border-divider-panel-side-yjkfcr, #e9ebed);
+}
+.awsui_drawer-mobile_lm6vo_hzagk_144 > .awsui_drawer-content_lm6vo_hzagk_158:not(#\9) {
+  z-index: 1001;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+.awsui_drawer-closed_lm6vo_hzagk_147 > .awsui_drawer-content_lm6vo_hzagk_158:not(#\9) {
+  width: 40px;
+}
+.awsui_drawer-closed_lm6vo_hzagk_147 > .awsui_drawer-content_lm6vo_hzagk_158:not(#\9):hover {
+  background: var(--color-background-layout-panel-hover-0bg3gq, #e9ebed);
+}
+.awsui_drawer-content_lm6vo_hzagk_158 > [aria-hidden=true]:not(#\9) {
+  display: none;
+}
+
+.awsui_toggle_lm6vo_hzagk_183:not(#\9) {
+  box-sizing: border-box;
+  padding: var(--space-xxs-ynfts5, 4px) 7px;
+}
+
+.awsui_visual-refresh-toggle_lm6vo_hzagk_188:not(#\9) {
+  position: fixed;
+  padding: var(--space-scaled-s-cu1hzn, 12px) var(--space-layout-toggle-padding-axl9jr, 20px);
+}
+.awsui_visual-refresh-toggle-type-tools_lm6vo_hzagk_192:not(#\9) {
+  right: 0;
+}
+.awsui_visual-refresh-toggle-type-navigation_lm6vo_hzagk_195:not(#\9) {
+  left: 0;
+}
+.awsui_visual-refresh-toggle_lm6vo_hzagk_188[aria-hidden=true]:not(#\9) {
+  visibility: hidden;
+}
+.awsui_visual-refresh-toggle_lm6vo_hzagk_188[aria-hidden=false]:not(#\9) {
+  visibility: visible;
+}
+
+.awsui_button-toggles-container_lm6vo_hzagk_205:not(#\9) {
+  min-width: calc(var(--space-layout-toggle-diameter-hzvqtj, 40px) + 2 * var(--space-layout-toggle-padding-axl9jr, 20px));
+  position: relative;
+  z-index: 851;
+}
+.awsui_button-toggles-container-is-hidden_lm6vo_hzagk_210:not(#\9) {
+  min-width: 0;
+}
+.awsui_button-toggles-container_lm6vo_hzagk_205.awsui_opaque-background_lm6vo_hzagk_154:not(#\9)::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: calc(var(--space-layout-toggle-diameter-hzvqtj, 40px) + 2 * var(--space-layout-toggle-padding-axl9jr, 20px));
+  background: var(--color-background-layout-panel-content-808qum, #ffffff);
+  border-left: var(--border-divider-section-width-4wm2it, 2px) solid var(--color-border-divider-panel-side-yjkfcr, #e9ebed);
+}
+
+.awsui_breadcrumbs-desktop_lm6vo_hzagk_224:not(#\9) {
+  padding-top: var(--space-scaled-m-pv0fmt, 16px);
+  padding-bottom: var(--space-scaled-s-cu1hzn, 12px);
+}
+
+.awsui_content-header-wrapper_lm6vo_hzagk_229:not(#\9) {
+  padding-bottom: var(--space-content-header-padding-bottom-nvqytg, 24px);
+}
+
+.awsui_content-wrapper_lm6vo_hzagk_233:not(#\9) {
+  padding-bottom: var(--space-layout-content-bottom-kg9l42, 40px);
+}
+
+.awsui_content-overlapped_lm6vo_hzagk_237:not(#\9) {
+  margin-top: calc(-1 * var(--space-dark-header-overlap-distance-hfejul, 36px));
+}
+
+.awsui_content-extra-top-padding_lm6vo_hzagk_241:not(#\9) {
+  padding-top: var(--space-scaled-m-pv0fmt, 16px);
+}
+
+/* stylelint-disable-next-line selector-max-universal */
+.awsui_navigation-toggle_lm6vo_hzagk_246 > *:not(#\9) {
+  pointer-events: none;
+}
+
+/* stylelint-disable-next-line selector-max-universal */
+.awsui_tools-toggle_lm6vo_hzagk_251 > *:not(#\9) {
+  pointer-events: none;
+}
+
+.awsui_navigation_lm6vo_hzagk_134:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_navigation-toggle_lm6vo_hzagk_246:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_navigation-close_lm6vo_hzagk_263:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_tools_lm6vo_hzagk_251:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_tools-toggle_lm6vo_hzagk_251:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_tools-close_lm6vo_hzagk_275:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_notifications_lm6vo_hzagk_279:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_breadcrumbs_lm6vo_hzagk_224:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_content_lm6vo_hzagk_229:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_panel-wrapper-outer_lm6vo_hzagk_291:not(#\9),
+.awsui_panel-wrapper-inner_lm6vo_hzagk_292:not(#\9) {
+  z-index: 850;
+}
+
+.awsui_panel-wrapper-outer_lm6vo_hzagk_291:not(#\9) {
+  position: fixed;
+  height: 100%;
+  display: flex;
+}
+.awsui_panel-wrapper-outer_lm6vo_hzagk_291.awsui_mobile_lm6vo_hzagk_301:not(#\9) {
+  left: 0;
+  right: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+.awsui_panel-wrapper-outer_lm6vo_hzagk_291.awsui_mobile_lm6vo_hzagk_301.awsui_open_lm6vo_hzagk_307:not(#\9) {
+  z-index: 1001;
+  width: 100vw;
+  pointer-events: auto;
+}
+
+.awsui_panel-wrapper-inner_lm6vo_hzagk_292:not(#\9) {
+  background: var(--color-background-layout-panel-content-808qum, #ffffff);
+}

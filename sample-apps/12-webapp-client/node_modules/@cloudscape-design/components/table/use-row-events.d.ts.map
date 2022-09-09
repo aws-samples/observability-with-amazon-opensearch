@@ -1,0 +1,1 @@
+{"version":3,"file":"use-row-events.d.ts","sourceRoot":"","sources":["../../../src/table/use-row-events.ts"],"names":[],"mappings":"AAGA,OAAO,EAAE,UAAU,EAAE,MAAM,cAAc,CAAC;AAI1C,wBAAgB,YAAY,CAAC,CAAC,EAAE,EAAE,UAAU,EAAE,gBAAgB,EAAE,EAAE,IAAI,CAAC,UAAU,EAAE,YAAY,GAAG,kBAAkB,CAAC;mCAC9E,MAAM,QAAQ,CAAC,SAAS,gBAAgB;yCAOlC,MAAM,QAAQ,CAAC,SAAS,gBAAgB;EAcpF"}

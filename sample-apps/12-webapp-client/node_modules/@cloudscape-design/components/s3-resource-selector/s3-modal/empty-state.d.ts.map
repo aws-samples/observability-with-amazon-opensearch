@@ -1,0 +1,1 @@
+{"version":3,"file":"empty-state.d.ts","sourceRoot":"","sources":["../../../../src/s3-resource-selector/s3-modal/empty-state.tsx"],"names":[],"mappings":"AAEA,OAAO,KAAK,MAAM,OAAO,CAAC;AAG1B,UAAU,eAAe;IACvB,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,QAAQ,CAAC,EAAE,MAAM,CAAC;IAClB,MAAM,CAAC,EAAE,KAAK,CAAC,SAAS,CAAC;CAC1B;AAED,wBAAgB,UAAU,CAAC,EAAE,KAAK,EAAE,QAAQ,EAAE,MAAM,EAAE,EAAE,eAAe,eAYtE"}

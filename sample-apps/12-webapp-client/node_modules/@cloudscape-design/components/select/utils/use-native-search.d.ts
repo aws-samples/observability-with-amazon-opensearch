@@ -1,0 +1,14 @@
+import React from 'react';
+import { DropdownOption, OptionDefinition } from '../../internal/components/option/interfaces';
+export declare const isChar: (keyCode: number) => boolean;
+export declare const isRepeatedChar: (str: string) => boolean;
+interface UseNativeSearchProps {
+    isEnabled: boolean;
+    options: ReadonlyArray<DropdownOption>;
+    highlightOption: (option: DropdownOption) => void;
+    highlightedOption: OptionDefinition | undefined | null;
+    useInteractiveGroups?: boolean;
+}
+export declare function useNativeSearch({ isEnabled, options, highlightOption, highlightedOption, useInteractiveGroups, }: UseNativeSearchProps): (event: React.KeyboardEvent) => void;
+export {};
+//# sourceMappingURL=use-native-search.d.ts.map

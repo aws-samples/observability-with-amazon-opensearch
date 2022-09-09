@@ -1,0 +1,113 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+.awsui_axis_f0fot_62k26_9:not(#\9),
+.awsui_vertical-marker_f0fot_62k26_10:not(#\9) {
+  stroke: var(--color-charts-line-axis-yo865k, #d1d5db);
+  stroke-width: 1px;
+}
+
+.awsui_axis--emphasized_f0fot_62k26_15:not(#\9) {
+  stroke-width: 2px;
+}
+
+.awsui_axis-label_f0fot_62k26_19:not(#\9) {
+  font-weight: bold;
+  fill: var(--color-text-body-default-ajf1h5, #000716);
+}
+
+.awsui_axis-label--x_f0fot_62k26_24:not(#\9),
+.awsui_axis-label--y_f0fot_62k26_25:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_grid_f0fot_62k26_29:not(#\9) {
+  stroke: var(--color-charts-line-grid-6wil4m, #d1d5db);
+  stroke-width: 1px;
+}
+
+.awsui_ticks__line_f0fot_62k26_34:not(#\9) {
+  stroke: var(--color-charts-line-tick-yidpvu, #d1d5db);
+  stroke-width: 1px;
+}
+
+.awsui_ticks__text_f0fot_62k26_39:not(#\9) {
+  font-size: var(--font-chart-detail-size-pm0amk, 12px);
+  fill: var(--color-text-body-secondary-fdstdf, #414d5c);
+}
+
+.awsui_ticks--y_f0fot_62k26_44:not(#\9),
+.awsui_ticks--x_f0fot_62k26_45:not(#\9) {
+  /* used in test-utils */
+}
+
+.awsui_ticks--bottom_f0fot_62k26_49 > .awsui_ticks__text_f0fot_62k26_39:not(#\9) {
+  text-anchor: middle;
+  dominant-baseline: hanging;
+}
+
+.awsui_labels-left_f0fot_62k26_54 > .awsui_ticks_f0fot_62k26_34 > .awsui_ticks__text_f0fot_62k26_39:not(#\9) {
+  text-anchor: end;
+  dominant-baseline: central;
+}
+
+.awsui_labels-left_f0fot_62k26_54:not(#\9) {
+  position: relative;
+  margin-right: 12px;
+}
+.awsui_labels-left_f0fot_62k26_54 > .awsui_axis-label_f0fot_62k26_19:not(#\9) {
+  position: absolute;
+  visibility: visible;
+  white-space: nowrap;
+}
+
+.awsui_labels-left__label_f0fot_62k26_69:not(#\9) {
+  position: absolute;
+}
+
+.awsui_labels-left--hidden_f0fot_62k26_73:not(#\9) {
+  visibility: hidden;
+}
+.awsui_labels-left--hidden_f0fot_62k26_73 > .awsui_labels-left__label_f0fot_62k26_69:not(#\9) {
+  position: relative;
+  white-space: nowrap;
+}
+
+.awsui_labels-bottom_f0fot_62k26_81:not(#\9) {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: visible;
+}
+
+.awsui_vertical-marker_f0fot_62k26_10:not(#\9) {
+  pointer-events: none;
+}
+
+.awsui_vertical-marker-circle_f0fot_62k26_92:not(#\9) {
+  fill: var(--color-background-container-content-i8i4a0, #ffffff);
+  pointer-events: none;
+  stroke-width: var(--border-line-chart-width-nj0hc5, 2px);
+}
+
+.awsui_vertical-marker-circle-active_f0fot_62k26_98:not(#\9) {
+  cursor: pointer;
+  stroke-width: var(--border-line-chart-width-nj0hc5, 2px);
+}
+
+.awsui_focus-outline_f0fot_62k26_103:not(#\9) {
+  outline: none;
+  pointer-events: none;
+  fill: none;
+  stroke: var(--color-border-item-focused-ap3b6s, #0972d3);
+  stroke-width: 2px;
+}
+
+.awsui_filter-container_f0fot_62k26_111:not(#\9) {
+  /* used in test-utils */
+}

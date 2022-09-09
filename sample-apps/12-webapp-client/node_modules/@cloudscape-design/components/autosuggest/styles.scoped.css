@@ -1,0 +1,17 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+.awsui_root_12hwc_12ujv_5:not(#\9) {
+  width: 100%;
+}
+
+.awsui_layout-strut_12hwc_12ujv_9:not(#\9) {
+  width: 100%;
+  position: relative;
+  transform: translate3d(0, 0, 0);
+}
+
+.awsui_list-bottom_12hwc_12ujv_15:not(#\9) {
+  /* used in unit-tests */
+}

@@ -1,0 +1,16 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+.awsui_background-fill_1fi2u_1fyw7_9:not(#\9) {
+  background-color: var(--color-background-layout-main-sfhm4y, #ffffff);
+  position: absolute;
+}
+
+.awsui_content_1fi2u_1fyw7_14:not(#\9) {
+  position: relative;
+}

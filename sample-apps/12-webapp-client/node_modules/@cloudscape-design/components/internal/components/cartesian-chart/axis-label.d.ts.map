@@ -1,0 +1,1 @@
+{"version":3,"file":"axis-label.d.ts","sourceRoot":"","sources":["../../../../../src/internal/components/cartesian-chart/axis-label.tsx"],"names":[],"mappings":"AASA,UAAU,cAAc;IACtB,KAAK,CAAC,EAAE,MAAM,CAAC;IACf,IAAI,EAAE,GAAG,GAAG,GAAG,CAAC;IAChB,QAAQ,EAAE,MAAM,GAAG,QAAQ,CAAC;CAC7B;;AAED,wBAAmD;AAEnD,iBAAS,SAAS,CAAC,EAAE,KAAK,EAAE,IAAI,EAAE,QAAQ,EAAE,EAAE,cAAc,sBAe3D"}

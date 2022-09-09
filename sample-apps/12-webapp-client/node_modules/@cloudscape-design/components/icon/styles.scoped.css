@@ -1,0 +1,253 @@
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* stylelint-disable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/* stylelint-enable @cloudscape-design/no-motion-outside-of-mixin, selector-combinator-disallowed-list, selector-pseudo-class-no-unknown, selector-class-pattern */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* Style used for links in slots/components that are text heavy, to help links stand out among 
+surrounding text. (WCAG F73) https://www.w3.org/WAI/WCAG21/Techniques/failures/F73#description */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+/* stylelint-disable selector-max-universal, selector-max-type */
+/*
+ Copyright Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ SPDX-License-Identifier: Apache-2.0
+*/
+.awsui_icon_h11ix_k54ie_98:not(#\9) {
+  position: relative;
+  display: inline-block;
+  vertical-align: top;
+  /* stylelint-disable-next-line selector-max-type */
+}
+.awsui_icon-flex-height_h11ix_k54ie_104:not(#\9) {
+  display: inline-flex;
+  align-items: center;
+}
+.awsui_icon_h11ix_k54ie_98 > svg:not(#\9) {
+  pointer-events: none;
+}
+.awsui_icon_h11ix_k54ie_98 > svg:not(#\9) {
+  fill: none;
+}
+.awsui_icon_h11ix_k54ie_98 > svg *:not(#\9) {
+  stroke: currentColor;
+}
+.awsui_icon_h11ix_k54ie_98 > svg .stroke-linejoin-round:not(#\9) {
+  stroke-linejoin: round;
+}
+.awsui_icon_h11ix_k54ie_98 > svg .stroke-linecap-square:not(#\9) {
+  stroke-linecap: square;
+}
+.awsui_icon_h11ix_k54ie_98 > svg .stroke-linecap-round:not(#\9) {
+  stroke-linecap: round;
+}
+.awsui_icon_h11ix_k54ie_98 > svg .filled:not(#\9) {
+  fill: currentColor;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-small_h11ix_k54ie_129:not(#\9) {
+  width: var(--size-icon-normal-j1z5fn, 16px);
+  box-sizing: border-box;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-small-mapped-height_h11ix_k54ie_133:not(#\9) {
+  height: var(--font-body-s-line-height-kdsbrl, 16px);
+  padding: calc((var(--font-body-s-line-height-kdsbrl, 16px) - var(--size-icon-normal-j1z5fn, 16px)) / 2) 0;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-small_h11ix_k54ie_129 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-small_h11ix_k54ie_129 > img:not(#\9) {
+  width: var(--size-icon-normal-j1z5fn, 16px);
+  height: var(--size-icon-normal-j1z5fn, 16px);
+  vertical-align: top;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-small_h11ix_k54ie_129 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-small_h11ix_k54ie_129 > svg *:not(#\9) {
+  stroke-width: 2px;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal_h11ix_k54ie_147:not(#\9) {
+  width: var(--size-icon-normal-j1z5fn, 16px);
+  box-sizing: border-box;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal-mapped-height_h11ix_k54ie_151:not(#\9) {
+  height: var(--font-body-m-line-height-i7xxvv, 22px);
+  padding: calc((var(--font-body-m-line-height-i7xxvv, 22px) - var(--size-icon-normal-j1z5fn, 16px)) / 2) 0;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal_h11ix_k54ie_147 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal_h11ix_k54ie_147 > img:not(#\9) {
+  width: var(--size-icon-normal-j1z5fn, 16px);
+  height: var(--size-icon-normal-j1z5fn, 16px);
+  vertical-align: top;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal_h11ix_k54ie_147 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-normal_h11ix_k54ie_147 > svg *:not(#\9) {
+  stroke-width: 2px;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium_h11ix_k54ie_165:not(#\9) {
+  width: var(--size-icon-medium-fvz0oi, 20px);
+  box-sizing: border-box;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium-mapped-height_h11ix_k54ie_169:not(#\9) {
+  height: var(--font-heading-l-line-height-gev4n1, 30px);
+  padding: calc((var(--font-heading-l-line-height-gev4n1, 30px) - var(--size-icon-medium-fvz0oi, 20px)) / 2) 0;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium_h11ix_k54ie_165 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium_h11ix_k54ie_165 > img:not(#\9) {
+  width: var(--size-icon-medium-fvz0oi, 20px);
+  height: var(--size-icon-medium-fvz0oi, 20px);
+  vertical-align: top;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium_h11ix_k54ie_165 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-medium_h11ix_k54ie_165 > svg *:not(#\9) {
+  stroke-width: 2px;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-big_h11ix_k54ie_183:not(#\9) {
+  width: var(--size-icon-big-cu55wt, 32px);
+  box-sizing: border-box;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-big-mapped-height_h11ix_k54ie_187:not(#\9) {
+  height: var(--font-heading-xl-line-height-doxfdj, 40px);
+  padding: calc((var(--font-heading-xl-line-height-doxfdj, 40px) - var(--size-icon-big-cu55wt, 32px)) / 2) 0;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-big_h11ix_k54ie_183 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-big_h11ix_k54ie_183 > img:not(#\9) {
+  width: var(--size-icon-big-cu55wt, 32px);
+  height: var(--size-icon-big-cu55wt, 32px);
+  vertical-align: top;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-big_h11ix_k54ie_183 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-big_h11ix_k54ie_183 > svg *:not(#\9) {
+  stroke-width: 2px;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-large_h11ix_k54ie_201:not(#\9) {
+  width: var(--size-icon-large-9vh494, 48px);
+  box-sizing: border-box;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-large-mapped-height_h11ix_k54ie_205:not(#\9) {
+  height: var(--font-display-l-line-height-71tnj3, 54px);
+  padding: calc((var(--font-display-l-line-height-71tnj3, 54px) - var(--size-icon-large-9vh494, 48px)) / 2) 0;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-large_h11ix_k54ie_201 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-large_h11ix_k54ie_201 > img:not(#\9) {
+  width: var(--size-icon-large-9vh494, 48px);
+  height: var(--size-icon-large-9vh494, 48px);
+  vertical-align: top;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_size-large_h11ix_k54ie_201 > svg:not(#\9),
+.awsui_icon_h11ix_k54ie_98.awsui_size-large_h11ix_k54ie_201 > svg *:not(#\9) {
+  stroke-width: 1.2px;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-normal_h11ix_k54ie_219:not(#\9) {
+  color: currentColor;
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-disabled_h11ix_k54ie_222:not(#\9) {
+  color: var(--color-text-interactive-disabled-3pbb07, #9ba7b6);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-inverted_h11ix_k54ie_225:not(#\9) {
+  color: var(--color-text-inverted-821sko, #ffffff);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-subtle_h11ix_k54ie_228:not(#\9) {
+  color: var(--color-text-icon-subtle-bz5b7h, #5f6b7a);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-warning_h11ix_k54ie_231:not(#\9) {
+  color: var(--color-text-status-warning-27nlyh, #d91515);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-error_h11ix_k54ie_234:not(#\9) {
+  color: var(--color-text-status-error-5sesl6, #d91515);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-success_h11ix_k54ie_237:not(#\9) {
+  color: var(--color-text-status-success-0fzhv9, #037f0c);
+}
+.awsui_icon_h11ix_k54ie_98.awsui_variant-link_h11ix_k54ie_240:not(#\9) {
+  color: var(--color-text-link-default-5f186r, #0972d3);
+}
+
+.awsui_badge_h11ix_k54ie_244:not(#\9)::after {
+  content: "";
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 8px;
+  background-color: var(--color-text-status-info-utupcz, #0972d3);
+  top: 2px;
+  right: -2px;
+}

@@ -1,43 +1,45 @@
 {
-  "name": "12-webapp-client",
+  "name": "observability-with-amazon-opensearch-webapp-client",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e/en-US",
-  "bugs": {
-    "url": "https://github.com/aws-samples/observability-with-amazon-opensearch/issues"
-  },
-  "license": "SEE LICENSE IN https://github.com/aws-samples/observability-with-amazon-opensearch/blob/main/LICENSE",
-  "author": {
-    "name": "Ibrahim Cesar",
-    "email": "ibracnb@amazon.com"
+  "dependencies": {
+    "@cloudscape-design/components": "^3.0.39",
+    "@cloudscape-design/global-styles": "^1.0.1",
+    "@testing-library/jest-dom": "^5.16.5",
+    "@testing-library/react": "^13.3.0",
+    "@testing-library/user-event": "^13.5.0",
+    "@types/jest": "^27.5.2",
+    "@types/node": "^16.11.56",
+    "@types/react": "^18.0.18",
+    "@types/react-dom": "^18.0.6",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "typescript": "^4.8.2",
+    "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "dev": "nodemon",
-    "build": "next build && tsc --project tsconfig.server.json",
-    "start": "cross-env NODE_ENV=production node dist/index.js",
-    "lint": "next lint"
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
   },
-  "dependencies": {
-    "@opentelemetry/auto-instrumentations-node": "^0.31.2",
-    "@opentelemetry/exporter-otlp-grpc": "^0.26.0",
-    "@opentelemetry/resources": "^1.6.0",
-    "@opentelemetry/sdk-node": "^0.32.0",
-    "@opentelemetry/semantic-conventions": "^1.6.0",
-    "dotenv": "^16.0.1",
-    "next": "12.2.5",
-    "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "styled-components": "^5.3.5"
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
   },
-  "devDependencies": {
-    "@types/node": "^18.7.14",
-    "@types/react": "18.0.17",
-    "@types/react-dom": "18.0.6",
-    "@types/styled-components": "^5.1.26",
-    "eslint": "8.23.0",
-    "eslint-config-next": "12.2.5",
-    "nodemon": "^2.0.19",
-    "ts-node": "^10.9.1",
-    "typescript": "4.8.2"
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
   }
 }
