@@ -1,1 +1,3 @@
 *.pem
+.vscode
+node_modules
