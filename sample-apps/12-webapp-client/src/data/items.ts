@@ -4,6 +4,7 @@ const items = [
     description: "This is the first item",
     type: "1A",
     size: "Small",
+    image: "10.png",
     slo: 95
   },
   {
@@ -12,6 +13,7 @@ const items = [
     description: "This is the second item",
     type: "1B",
     size: "Large",
+    image: "10.png",
     slo: 99.99
   },
   {
@@ -20,6 +22,7 @@ const items = [
     description: "This is the third item",
     type: "1A",
     size: "Large",
+    image: "10.png",
     slo: 99.9
   },
   {
@@ -28,6 +31,7 @@ const items = [
     description: "This is the fourth item",
     type: "2A",
     size: "Small",
+    image: "10.png",
     slo: 99.99
   },
   {
@@ -36,6 +40,7 @@ const items = [
     description: "This is the fifth item",
     type: "2A",
     size: "Large",
+    image: "10.png",
     slo: 99.9
   },
   {
@@ -44,6 +49,7 @@ const items = [
     description: "This is the sixth item",
     type: "1A",
     size: "Small",
+    image: "10.png",
     slo: 99.9999
   }
 ];

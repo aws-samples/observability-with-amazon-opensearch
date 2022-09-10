@@ -1,17 +1,23 @@
-FROM node:16-alpine as builder
-
+# Build step #1: build the React front end
+FROM node:16-alpine as build-step
 WORKDIR /app
-COPY . .
-RUN npm ci
-
+ENV PATH /app/node_modules/.bin:$PATH
+COPY *.json ./
+COPY ./src ./src
+COPY ./public ./public
+RUN npm install
 RUN npm run build
 
-FROM nginx:1.21.0-alpine as production
+# Build step #2: build the API with the client as static files
+FROM python:3.7-slim
+WORKDIR /app
+COPY --from=build-step /app/build ./build
 
-ENV NODE_ENV production
-
-COPY --from=builder /app/build /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+RUN mkdir ./api
+COPY api/requirements.txt api/api.py api/.flaskenv ./api
+RUN pip install -r ./api/requirements.txt
+ENV FLASK_ENV production
 
 EXPOSE 5000
-CMD ["nginx", "-g", "daemon off;"]
+WORKDIR /app/api
+CMD ["gunicorn", "-b", ":5000", "api:app"]

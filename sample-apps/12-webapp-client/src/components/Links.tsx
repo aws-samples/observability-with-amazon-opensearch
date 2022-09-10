@@ -5,6 +5,7 @@ export default function Links() {
 
   return (
     <BreadcrumbGroup
+      className="with-link"
       items={[
         {
           text: "AWS Workshops",

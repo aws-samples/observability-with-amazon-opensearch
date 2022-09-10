@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 import { Box, Button, Cards, Header } from "@cloudscape-design/components";
-
+import Image from "./Image";
 import items from "../data/items";
 
 interface Item {
@@ -10,6 +10,7 @@ interface Item {
   type?: string
   size?: string
   slo?: number
+  image?: string
 }
 
 export default () => {
@@ -33,7 +34,7 @@ export default () => {
           {
             id: "description",
             header: "Description",
-            content: e => e.description
+            content: e => <Image src={`/products/${e.image}`} title={e.description} />,
           },
           {
             id: "type",
@@ -49,6 +50,10 @@ export default () => {
             id: "slo",
             header: "SLO",
             content: e => e.slo + "%"
+          },
+          {
+            id: "image",
+            content: e => "public/" + e.image
           }
         ]
       }}
@@ -56,12 +61,13 @@ export default () => {
         { cards: 1 },
         { minWidth: 350, cards: 3 }
       ]}
+      className={"cards"}
       items={items}
-      loading
+      loading={false}
       loadingText="Loading from Inventory..."
       selectionType="multi"
       trackBy="name"
-      visibleSections={["description", "type", "size", "slo"]}
+      visibleSections={["image", "description", "type", "size", "slo"]}
       empty={
         <Box textAlign="center" color="inherit">
           <b>No resources</b>
@@ -83,7 +89,7 @@ export default () => {
               : "(10)"
           }
         >
-          Common cards with selection
+          Selected
         </Header>
       }
     />
