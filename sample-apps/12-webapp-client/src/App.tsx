@@ -1,63 +1,41 @@
 import { useEffect, useState } from "react";
 import Layout from "@cloudscape-design/components/app-layout";
 import { SpaceBetween, Header, Link, Button, Alert, ContentLayout, Container, Wizard, TextContent } from "@cloudscape-design/components";
-import { Cards, Links, Tools } from "./components";
+import { Cards, Links, Payment, Tools } from "./components";
 
 export default function App() {
 
   const [currentTime, setCurrentTime] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [paid, setPaid] = useState(false)
+  const [total, setTotal] = useState(0)
 
   useEffect(() => {
     fetch('/time').then(res => res.json()).then(data => {
-      console.log(data)
       setCurrentTime(data.time);
     });
   }, []);
+
+  const handleTotal = (num: number) => {
+    setTotal(num)
+  }
+
+  const handlePay = (bool: boolean) => {
+    setLoading(false)
+    setPaid(bool)
+  }
+
+  const handleTest = () => {
+    fetch('/create-order').then(res => res.json()).then(data => {
+      console.log(data)
+    });
+  }
 
   const [
     activeStepIndex,
     setActiveStepIndex
   ] = useState(0);
 
-  const checkout = async (e: any) => {
-    const req = await fetch('/checkout')
-      .then(res => res.json())
-      .then(data => console.log(data))
-
-    console.log(req)
-  }
-
-  const createOrder = async (e: any) => {
-    const req = await fetch('/create-order')
-      .then(res => res.json())
-      .then(data => console.log(data))
-
-    console.log(req)
-  }
-
-  const statusOrder = async (e: any) => {
-    const req = await fetch('/order')
-      .then(res => res.json())
-      .then(data => console.log(data))
-
-    console.log(req)
-  }
-
-  const cancelOrder = async (e: any) => {
-    const req = await fetch('http://order-service.order-service.svc.cluster.local:80/clear_order')
-      .then(res => res.json())
-      .then(data => console.log(data))
-
-    console.log(req)
-  }
-
-  const payOrder = async (e: any) => {
-    const req = await fetch('/pay-order')
-      .then(res => res.json())
-      .then(data => console.log(data))
-
-    console.log(req)
-  }
 
   return (
     <>
@@ -86,24 +64,11 @@ export default function App() {
                   }
                   variant="h1"
                 >
-                  o11y Shop  <p>The current time is {currentTime}.</p>
+                  o11y Shop  <span>The current time is {currentTime}.</span>
                 </Header>
-
-                {/* <Alert>This is a generic alert.</Alert> */}
               </SpaceBetween>
             }
           >
-            {/* <Container
-              header={
-                <Header
-                  description="Container description"
-                  variant="h2"
-                >
-                  Your one stop shop for Observability
-                </Header>
-              }
-            > */}
-
             <Wizard
               i18nStrings={{
                 stepNumberLabel: stepNumber =>
@@ -115,27 +80,50 @@ export default function App() {
                 cancelButton: "Cancel",
                 previousButton: "Previous",
                 nextButton: "Next",
-                submitButton: "Launch instance",
+                submitButton: "Checkout",
                 optional: "optional"
               }}
-              onNavigate={({ detail }) =>
+              onCancel={() => {
+                setActiveStepIndex(0)
+                setTotal(0)
+                setLoading(false)
+              }}
+              onNavigate={({ detail }) => {
                 setActiveStepIndex(detail.requestedStepIndex)
-              }
+                setLoading(true)
+              }}
               activeStepIndex={activeStepIndex}
+              isLoadingNextStep={loading}
               steps={[
                 {
-                  title: "Choose instance type",
+                  title: "Select your products",
                   content: (
-                    <Cards />
+                    <Cards handleTotal={handleTotal} />
                   )
                 },
                 {
-                  title: "Add storage",
+                  title: "Complete your checkout",
                   content: (
                     <Container
                       header={
                         <Header variant="h2">
-                          Form container header
+                          Payment
+                        </Header>
+                      }
+                    >
+                      <SpaceBetween direction="vertical" size="l">
+                        <Payment total={total} handlePay={handlePay} />
+                      </SpaceBetween>
+                    </Container>
+                  )
+                },
+                {
+                  title: "Check status",
+                  content: (
+                    <Container
+                      header={
+                        <Header variant="h2">
+                          Order status
                         </Header>
                       }
                     >
@@ -143,99 +131,21 @@ export default function App() {
                       </SpaceBetween>
                     </Container>
                   ),
-                  isOptional: true
-                },
-                {
-                  title: "Configure security group",
-                  content: (
-                    <Container
-                      header={
-                        <Header variant="h2">
-                          Form container header
-                        </Header>
-                      }
-                    >
-                      <SpaceBetween direction="vertical" size="l">
-                      </SpaceBetween>
-                    </Container>
-                  ),
-                  isOptional: true
-                },
-                {
-                  title: "Review and launch",
-                  content: (
-                    <SpaceBetween size="xs">
-                      <Header
-                        variant="h3"
-                        actions={
-                          <Button
-                            onClick={() => setActiveStepIndex(0)}
-                          >
-                            Edit
-                          </Button>
-                        }
-                      >
-                        Step 1: Instance type
-                      </Header>
-                      <Container
-                        header={
-                          <Header variant="h2">
-                            Container title
-                          </Header>
-                        }
-                      >
-                      </Container>
-                    </SpaceBetween>
-                  )
                 }
               ]}
             />
-            <SpaceBetween size="m" >
-              <div className="to-the-right">
-                <Button
-                  variant="primary"
-                  onClick={checkout}
-                >
-                  Checkout
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={createOrder}
-                >
-                  Create
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={statusOrder}
-                >
-                  Order
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={payOrder}
-                >
-                  Pay
-                </Button>
-                <Button
-                  variant="primary"
-                  onClick={cancelOrder}
-                >
-                  Cancel
-                </Button>
-              </div>
 
-              <TextContent className="with-link">
-                © {new Date().getFullYear()}, Amazon Web Services, Inc. or its affiliates. All rights reserved. Made with {" "}
-                <a
-                  href="https://cloudscape.design/"
-                  rel="noopener noreferrer"
-                  target="_blank">
-                  <strong>Cloudscape</strong> Design System
-                </a>
+            <TextContent className="with-link mt5">
+              <Button onClick={handleTest}>Test</Button>
+              © {new Date().getFullYear()}, Amazon Web Services, Inc. or its affiliates. All rights reserved. Made with {" "}
+              <a
+                href="https://cloudscape.design/"
+                rel="noopener noreferrer"
+                target="_blank">
+                <strong>Cloudscape</strong> Design System
+              </a>
 
-              </TextContent>
-
-            </SpaceBetween>
+            </TextContent>
 
             {/* </Container> */}
           </ContentLayout >

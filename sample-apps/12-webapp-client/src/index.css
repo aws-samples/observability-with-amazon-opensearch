@@ -2,10 +2,15 @@
   text-align: right;
 }
 
+.mt5 {
+  margin-top: 5rem;
+}
+
 #footer a {
   color: var(--color-text-link-default-5f186r, #0972d3);
   text-decoration: none;
 }
+
 
 .with-link a[href^="https://"]::after,
 .with-link a[href^="http"]::after {

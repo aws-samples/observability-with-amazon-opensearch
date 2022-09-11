@@ -1,31 +1,62 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-import { Box, Button, Cards, Header } from "@cloudscape-design/components";
+import { Box, Button, Cards, CardsProps, Header } from "@cloudscape-design/components";
 import Image from "./Image";
 import items from "../data/items";
 
+interface IFnTotal {
+  handleTotal: (num: number) => void;
+}
 interface Item {
-  name: string
-  description?: string
-  type?: string
-  size?: string
+  name?: string
+  id: number
   slo?: number
   image?: string
+  price: number
 }
 
-export default () => {
+function Card({ handleTotal }: IFnTotal) {
   const [
     selectedItems,
     setSelectedItems
-  ] = useState<Item[]>([{ name: "Item 1" }]);
+  ] = useState<Item[]>();
+  const [inventory, setInventory] = useState(true);
+
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      setInventory(false);
+    }, 1000 * 3)
+    return () => clearInterval(intervalId)
+
+  }, []);
+
+  const evntHandler = (e: CardsProps.SelectionChangeDetail<Item>) => {
+    let prices;
+    console.log(e.selectedItems.length);
+    if (e.selectedItems.length === 1) {
+      prices = 0;
+      handleTotal(e.selectedItems[0].price)
+    } else {
+      prices = 0;
+      prices = e.selectedItems
+        .reduce<number>((acc, curr) => {
+          return acc + curr.price
+        }, 0);
+      handleTotal(prices)
+    }
+  }
+
+
   return (
     <Cards
-      onSelectionChange={({ detail }) =>
-        setSelectedItems(detail.selectedItems)
-      }
+      onSelectionChange={({ detail }) => {
+        setSelectedItems(detail.selectedItems);
+        evntHandler(detail);
+      }}
       selectedItems={selectedItems}
       ariaLabels={{
-        itemSelectionLabel: (e, t) => `select ${t.name}`,
+        itemSelectionLabel: (e, t) => `select ${t.id}`,
         selectionGroupLabel: "Item selection"
       }}
       cardDefinition={{
@@ -33,18 +64,8 @@ export default () => {
         sections: [
           {
             id: "description",
-            header: "Description",
-            content: e => <Image src={`/products/${e.image}`} title={e.description} />,
-          },
-          {
-            id: "type",
-            header: "Type",
-            content: e => e.type
-          },
-          {
-            id: "size",
-            header: "Size",
-            content: e => e.size
+            header: "",
+            content: e => <Image src={`/products/${e.image}`} title={e.name} />,
           },
           {
             id: "slo",
@@ -52,22 +73,24 @@ export default () => {
             content: e => e.slo + "%"
           },
           {
-            id: "image",
-            content: e => "public/" + e.image
+            id: "price",
+            header: "Price",
+            content: e => e.price + " GLD"
           }
         ]
       }}
       cardsPerRow={[
         { cards: 1 },
-        { minWidth: 350, cards: 3 }
+        { minWidth: 500, cards: 2 },
+        { minWidth: 768, cards: 3 }
       ]}
       className={"cards"}
       items={items}
-      loading={false}
-      loadingText="Loading from Inventory..."
+      loading={inventory}
+      loadingText="Loading from Inventory API..."
       selectionType="multi"
-      trackBy="name"
-      visibleSections={["image", "description", "type", "size", "slo"]}
+      trackBy="id"
+      visibleSections={["description", "slo", "price"]}
       empty={
         <Box textAlign="center" color="inherit">
           <b>No resources</b>
@@ -84,9 +107,9 @@ export default () => {
       header={
         <Header
           counter={
-            selectedItems.length
-              ? "(" + selectedItems.length + "/" + items.length + ")"
-              : "(10)"
+            selectedItems?.length
+              ? "(" + (selectedItems?.length) + "/" + items.length + ")"
+              : "(0)"
           }
         >
           Selected
@@ -95,3 +118,5 @@ export default () => {
     />
   );
 }
+
+export default Card;
