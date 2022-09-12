@@ -23,4 +23,4 @@ ENV PATH="/app/env/bin:$PATH"
 
 EXPOSE 5000
 WORKDIR /app/api
-ENTRYPOINT [ "python3", "client.py" ]
+ENTRYPOINT [ "python3", "api.py" ]
