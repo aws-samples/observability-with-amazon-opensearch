@@ -2,22 +2,22 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: webapp-client-service
-  name: webapp-client-service
-  namespace: webapp-client-service
+    app: client-service
+  name: client-service
+  namespace: client-service
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: webapp-client-service
+      app: client-service
   template:
     metadata:
       labels:
-        app: webapp-client-service
+        app: client-service
     spec:
       containers:
-      - image: __ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/webapp-client-service
-        name: webapp-client-service
+      - image: __ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/client-service
+        name: client-service
         ports:
         - containerPort: 5000
         resources: {} # Verify the amount of requests
@@ -51,12 +51,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: webapp-client-service
-  namespace: webapp-client-service
+  name: client-service
+  namespace: client-service
 spec:
   type: LoadBalancer
   ports:
   - port: 80
     targetPort: 5000
   selector:
-    app: webapp-client-service
+    app: client-service
