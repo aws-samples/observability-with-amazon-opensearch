@@ -14,10 +14,13 @@ WORKDIR /app
 COPY --from=build-step /app/build ./build
 
 RUN mkdir ./api
-COPY api/requirements.txt api/api.py api/.flaskenv ./api
+COPY api/requirements.txt api/api.py api/.flaskenv ./api/
 RUN pip install -r ./api/requirements.txt
 ENV FLASK_ENV production
 
+# Make sure we use the virtualenv:
+ENV PATH="/app/env/bin:$PATH"
+
 EXPOSE 5000
 WORKDIR /app/api
-CMD ["gunicorn", "-b", ":5000", "api:app"]
+ENTRYPOINT [ "python3", "client.py" ]
