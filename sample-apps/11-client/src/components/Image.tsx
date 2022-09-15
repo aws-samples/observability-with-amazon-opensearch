@@ -1,11 +1,14 @@
-type Image = {
+type tImage = {
   src: string,
   title?: string
 }
 
-export default function Image({ src, title }: Image) {
-
+function Image({ src, title }: tImage) {
   return (
-    <img src={src} title={title || ""} />
+    <div>
+      <img src={src} title={title || ""} alt="" />
+    </div>
   )
 }
+
+export default Image

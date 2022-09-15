@@ -26,6 +26,7 @@ export default function App() {
   }
 
   const handleTest = () => {
+    console.log('create-order')
     fetch('/create-order').then(res => res.json()).then(data => {
       console.log(data)
     });

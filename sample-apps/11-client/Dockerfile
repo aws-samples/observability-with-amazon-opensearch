@@ -13,14 +13,12 @@ FROM python:3.7-slim
 WORKDIR /app
 COPY --from=build-step /app/build ./build
 
-RUN mkdir ./api
-COPY api/requirements.txt api/api.py api/.flaskenv ./api/
-RUN pip install -r ./api/requirements.txt
-ENV FLASK_ENV production
-
 # Make sure we use the virtualenv:
 ENV PATH="/app/env/bin:$PATH"
 
+COPY api/requirements.txt api/api.py api/.flaskenv ./
+RUN pip install -r requirements.txt
+
+
 EXPOSE 5000
-WORKDIR /app/api
 ENTRYPOINT [ "python3", "api.py" ]

@@ -1,8 +1,6 @@
-import time
-from flask import Flask
 # Client calling various operations in Sample App
-
 from sys import argv
+from flask import Flask, render_template
 from requests import delete, get, post
 import mysql.connector
 from opentelemetry import trace
@@ -30,6 +28,99 @@ DB_NAME = 'APM'
 HOST = os.getenv("MYSQL_HOST") if os.getenv("MYSQL_HOST") is not None else "localhost"
 PORT = int(os.getenv("MYSQL_PORT")) if os.getenv("MYSQL_PORT") is not None else 3306
 
+app = Flask(__name__, static_url_path='', static_folder='build', template_folder='build')
+
+@app.route("/")
+def my_index():
+    return render_template("index.html")
+
+@app.route("/create-order")   
+def createOrder():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_create_order") as create_order_trace_group:
+            trace_id = get_hexadecimal_trace_id(create_order_trace_group.get_span_context().trace_id)
+            updateOrderAPIRequest = post(
+                "http://{}:80/update_order".format(ORDER),
+                data=[
+                    ("apple", 1),
+                    ("orange", 3),
+                    ("banana", 2)
+                ]
+            )
+            assert updateOrderAPIRequest.status_code == 200
+            return get_ref_link("Create", "success", trace_id)
+    except:
+        return get_ref_link("Create", "failed", trace_id)
+
+@app.route("/checkout")
+def checkout():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_checkout") as checkout_trace_group:
+            trace_id = get_hexadecimal_trace_id(checkout_trace_group.get_span_context().trace_id)
+            checkoutAPIRequest = post(
+                "http://{}:80/checkout".format(PAYMENT),
+                data=[
+                    ("banana", 2),
+                    ("orange", 3),
+                    ("apple", 1),
+                ],
+            )
+            assert checkoutAPIRequest.status_code == 200
+            return get_ref_link("Checkout", "success", trace_id)
+    except:
+        return get_ref_link("Checkout", "failed", trace_id)
+
+@app.route("/pay-order")        
+def payOrder():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_pay_order") as pay_order_trace_group:
+            trace_id = get_hexadecimal_trace_id(pay_order_trace_group.get_span_context().trace_id)
+            payOrderAPIRequest = post("http://{}:80/pay_order".format(ORDER))
+            assert payOrderAPIRequest.status_code == 200
+            return get_ref_link("Pay", "success", trace_id)
+    except:
+        return get_ref_link("Pay", "failed", trace_id)
+
+@app.route("/cancel-order")
+def cancelOrder():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_cancel_order") as cancel_order_trace_group:
+            trace_id=get_hexadecimal_trace_id(cancel_order_trace_group.get_span_context().trace_id)
+            cancelOrderAPIRequest = delete("http://{}:80/clear_order".format(ORDER))
+            assert cancelOrderAPIRequest.status_code == 200
+            return get_ref_link("Cancel", "success", trace_id)
+    except:
+        return get_ref_link("Cancel", "failed", trace_id)
+
+@app.route("/login") 
+def load_main_screen():
+    setupDB()
+    # Client attempts login with authentication.
+    with tracer.start_as_current_span("load_main_screen"):
+        # No retry because if error occurs we want to throw it to Kibana.
+        loginSession = requests.Session()
+        loginAPIResponse = loginSession.get(
+            "http://{}:80/server_request_login".format(AUTH)
+        )
+        loginSession.close()
+        if loginAPIResponse.status_code != 200:
+            loginAPIResponse.raise_for_status()
+
+@app.route("/delivery-status")
+def deliveryStatus():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_delivery_status") as delivery_status_trace_group:
+            trace_id = get_hexadecimal_trace_id(delivery_status_trace_group.get_span_context().trace_id)
+            getOrderAPIRequest = get("http://{}:80/get_order".format(ORDER))
+            assert getOrderAPIRequest.status_code == 200
+            return get_ref_link("Status", "success", trace_id)
+    except:
+        return get_ref_link("Status", "failed", trace_id)
 
 trace.set_tracer_provider(
     TracerProvider(
@@ -63,37 +154,51 @@ retry_strategy = Retry(
     method_whitelist=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
 )
 
+
+def getDBCnx():
+    cnx = mysql.connector.connect(user="root", host=HOST, port=PORT, database=DB_NAME)
+    return cnx
+
+
+def closeCursorAndDBCnx(cursor, cnx):
+    cursor.close()
+    cnx.close()
+
+
+def setupDB():
+    INSERT_ROWS_CMD = """INSERT INTO Inventory_Items (ItemId, TotalQty)
+                           VALUES (%(ItemId)s, %(Qty)s) ON DUPLICATE KEY UPDATE TotalQty = TotalQty + %(Qty)s"""
+    data = [
+        {"ItemId": "apple", "Qty": 4},
+        {"ItemId": "orange", "Qty": 10},
+        {"ItemId": "banana", "Qty": 6},
+    ]
+
+    cnx = getDBCnx()
+    cursor = cnx.cursor()
+
+    for item in data:
+        cursor.execute(INSERT_ROWS_CMD, item)
+        cnx.commit()
+
+    closeCursorAndDBCnx(cursor, cnx)
+
+
+def cleanupDB():
+    DELETE_INVENTORY = "DELETE FROM Inventory_Items;"
+
+    cnx = getDBCnx()
+    cursor = cnx.cursor()
+
+    cursor.execute(DELETE_INVENTORY)
+    cnx.commit()
+
+    closeCursorAndDBCnx(cursor, cnx)
+
+# def get_ref_link(operation, status, trace_id):
+#     return [html.Div([html.H5("{} {}. {}".format(operation, "", trace_id))])]
+
 def get_hexadecimal_trace_id(trace_id: int) -> str:
     return bytes(bytearray.fromhex("{:032x}".format(trace_id))).hex()
 
-
-app = Flask(__name__, static_folder='../build', static_url_path='/')
-
-@app.route('/')
-def index():
-    return app.send_static_file('index.html')
-
-@app.route('/time')
-def get_current_time():
-    return {'time': time.time()}
-
-@app.route('/create-order')
-def createOrder():
-    trace_id = None
-    try:
-        with tracer.start_as_current_span("client_create_order") as create_order_trace_group:
-            trace_id = get_hexadecimal_trace_id(create_order_trace_group.get_span_context().trace_id)
-            updateOrderAPIRequest = post(
-                "http://{}:80/update_order".format(ORDER),
-                data=[
-                    ("apple", 1),
-                    ("orange", 3),
-                    ("banana", 2)
-                ]
-            )
-            assert updateOrderAPIRequest.status_code == 200
-            return get_ref_link("Create", "success", trace_id)
-    except:
-        return get_ref_link("Create", "failed", trace_id)
-
-app.run(debug=True)
+app.run(debug=True, host="0.0.0.0", port=5000)
