@@ -1,6 +1,6 @@
 # Client calling various operations in Sample App
 from sys import argv
-from flask import Flask, render_template
+from flask import Flask, jsonfy, render_template
 from requests import delete, get, post
 import mysql.connector
 from opentelemetry import trace
@@ -195,8 +195,12 @@ def cleanupDB():
 
     closeCursorAndDBCnx(cursor, cnx)
 
-# def get_ref_link(operation, status, trace_id):
-#     return [html.Div([html.H5("{} {}. {}".format(operation, "", trace_id))])]
+def get_ref_link(operation, status, trace_id):
+    return jsonify(
+      status=status,
+      operation=operation,
+      traceId=trace_id
+    )
 
 def get_hexadecimal_trace_id(trace_id: int) -> str:
     return bytes(bytearray.fromhex("{:032x}".format(trace_id))).hex()

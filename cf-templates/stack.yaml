@@ -756,11 +756,6 @@ Resources:
     Properties:
       RepositoryName: "client-service"
 
-  WebAppClientServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "webapp-client-service"
-
 ######## Cloud9 ########
   C9Role:
     Type: AWS::IAM::Role

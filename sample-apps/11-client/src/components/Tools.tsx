@@ -52,31 +52,15 @@ export default function Tools() {
         <p>
           Securely unlock real-time search, monitoring, and analysis of business and operational data.
         </p>
-        <h3>Heading</h3>
+        <h3>Next Steps</h3>
         <p>
-          Text
+          After this step, please continue the workshop in the <a
+            href="https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e/en-US/050-step3"
+            rel="noopener noreferrer"
+            target="_blank"
+            title="Microservice Observability with Amazon OpenSearch Service Workshop Step 3"
+          ><strong>Step 3:</strong> Enable searching logs</a>.
         </p>
-        <h5>Terms</h5>
-        <dl>
-          <dt>
-            Logs
-          </dt>
-          <dd>
-            This is its description.
-          </dd>
-          <dt>
-            Tracing
-          </dt>
-          <dd>
-            This is its description
-          </dd>
-          <dt>
-            Metrics
-          </dt>
-          <dd>
-            This is its description
-          </dd>
-        </dl>
       </div>
     </HelpPanel>
   )
