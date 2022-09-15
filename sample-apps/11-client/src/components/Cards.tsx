@@ -28,12 +28,10 @@ function Card({ handleTotal }: IFnTotal) {
       setInventory(false);
     }, 1000 * 3)
     return () => clearInterval(intervalId)
-
   }, []);
 
   const evntHandler = (e: CardsProps.SelectionChangeDetail<Item>) => {
     let prices;
-    console.log(e.selectedItems.length);
     if (e.selectedItems.length === 1) {
       prices = 0;
       handleTotal(e.selectedItems[0].price)
@@ -80,9 +78,17 @@ function Card({ handleTotal }: IFnTotal) {
         ]
       }}
       cardsPerRow={[
-        { cards: 1 },
-        { minWidth: 500, cards: 2 },
-        { minWidth: 768, cards: 3 }
+        {
+          cards: 1
+        },
+        {
+          minWidth: 500,
+          cards: 2
+        },
+        {
+          minWidth: 768,
+          cards: 3
+        }
       ]}
       className={"cards"}
       items={items}

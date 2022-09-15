@@ -1,42 +1,56 @@
 import { useEffect, useState } from "react";
 import Layout from "@cloudscape-design/components/app-layout";
-import { SpaceBetween, Header, Link, Button, Alert, ContentLayout, Container, Wizard, TextContent } from "@cloudscape-design/components";
-import { Cards, Links, Payment, Tools } from "./components";
+import {
+  Container,
+  ContentLayout,
+  Header,
+  Link,
+  SpaceBetween,
+  TextContent,
+  Wizard
+} from "@cloudscape-design/components";
+import {
+  Cards,
+  Links,
+  Payment,
+  Status,
+  Tools
+} from "./components";
 
 export default function App() {
 
-  const [currentTime, setCurrentTime] = useState(0);
+  const [activeStepIndex, setActiveStepIndex] = useState(0);
+  const [finished, setFinished] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [paid, setPaid] = useState(false)
-  const [total, setTotal] = useState(0)
+  const [paid, setPaid] = useState(false);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    fetch('/time').then(res => res.json()).then(data => {
-      setCurrentTime(data.time);
-    });
+    fetch('/login')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
   }, []);
 
   const handleTotal = (num: number) => {
+    fetch('/create-order')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     setTotal(num)
-  }
+  };
 
   const handlePay = (bool: boolean) => {
+    fetch('/pay-order')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     setLoading(false)
     setPaid(bool)
-  }
-
-  const handleTest = () => {
-    console.log('create-order')
-    fetch('/create-order').then(res => res.json()).then(data => {
-      console.log(data)
-    });
-  }
-
-  const [
-    activeStepIndex,
-    setActiveStepIndex
-  ] = useState(0);
-
+  };
 
   return (
     <>
@@ -65,79 +79,101 @@ export default function App() {
                   }
                   variant="h1"
                 >
-                  o11y Shop  <span>The current time is {currentTime}.</span>
+                  o11y Shop
                 </Header>
               </SpaceBetween>
             }
           >
-            <Wizard
-              i18nStrings={{
-                stepNumberLabel: stepNumber =>
-                  `Step ${stepNumber}`,
-                collapsedStepsLabel: (stepNumber, stepsCount) =>
-                  `Step ${stepNumber} of ${stepsCount}`,
-                skipToButtonLabel: (step, stepNumber) =>
-                  `Skip to ${step.title}`,
-                cancelButton: "Cancel",
-                previousButton: "Previous",
-                nextButton: "Next",
-                submitButton: "Checkout",
-                optional: "optional"
-              }}
-              onCancel={() => {
-                setActiveStepIndex(0)
-                setTotal(0)
-                setLoading(false)
-              }}
-              onNavigate={({ detail }) => {
-                setActiveStepIndex(detail.requestedStepIndex)
-                setLoading(true)
-              }}
-              activeStepIndex={activeStepIndex}
-              isLoadingNextStep={loading}
-              steps={[
-                {
-                  title: "Select your products",
-                  content: (
-                    <Cards handleTotal={handleTotal} />
-                  )
-                },
-                {
-                  title: "Complete your checkout",
-                  content: (
-                    <Container
-                      header={
-                        <Header variant="h2">
-                          Payment
-                        </Header>
+            {
+              finished
+                ? (
+                  <Wizard
+                    i18nStrings={{
+                      stepNumberLabel: stepNumber =>
+                        `Step ${stepNumber}`,
+                      collapsedStepsLabel: (stepNumber, stepsCount) =>
+                        `Step ${stepNumber} of ${stepsCount}`,
+                      skipToButtonLabel: (step, stepNumber) =>
+                        `Skip to ${step.title}`,
+                      cancelButton: "Cancel",
+                      previousButton: "Previous",
+                      nextButton: "Next",
+                      submitButton: "Finish",
+                      optional: "optional"
+                    }}
+                    onCancel={() => {
+                      setActiveStepIndex(0)
+                      setTotal(0)
+                      setLoading(false);
+                    }}
+                    onNavigate={({ detail }) => {
+                      setActiveStepIndex(detail.requestedStepIndex)
+                      setLoading(true);
+                    }}
+                    onSubmit={() => {
+                      setFinished(true);
+                    }}
+                    activeStepIndex={activeStepIndex}
+                    isLoadingNextStep={loading}
+                    steps={[
+                      {
+                        title: "Select your products",
+                        content: (
+                          <Cards handleTotal={handleTotal} />
+                        )
+                      },
+                      {
+                        title: "Complete your checkout",
+                        content: (
+                          <Container
+                            header={
+                              <Header variant="h2">
+                                Payment
+                              </Header>
+                            }
+                          >
+                            <SpaceBetween direction="vertical" size="l">
+                              <Payment total={total} handlePay={handlePay} />
+                            </SpaceBetween>
+                          </Container>
+                        )
+                      },
+                      {
+                        title: "Check status",
+                        content: (
+                          <Container
+                            header={
+                              <Header variant="h2">
+                                Order status
+                              </Header>
+                            }
+                          >
+                            <SpaceBetween direction="vertical" size="l">
+                              <Status />
+                            </SpaceBetween>
+                          </Container>
+                        ),
                       }
-                    >
-                      <SpaceBetween direction="vertical" size="l">
-                        <Payment total={total} handlePay={handlePay} />
-                      </SpaceBetween>
-                    </Container>
-                  )
-                },
-                {
-                  title: "Check status",
-                  content: (
-                    <Container
-                      header={
-                        <Header variant="h2">
-                          Order status
-                        </Header>
-                      }
-                    >
-                      <SpaceBetween direction="vertical" size="l">
-                      </SpaceBetween>
-                    </Container>
-                  ),
-                }
-              ]}
-            />
+                    ]}
+                  />
+                )
+                : (
+                  <Container
+                    header={
+                      <Header
+                        variant="h2"
+                        description="After some rounds, go check your logs and traces."
+                      >
+                        Done!
+                      </Header>
+                    }
+                  >
+                    Make sure to reload and explore several times to generate enough data.
+                  </Container>
+                )
+            }
 
             <TextContent className="with-link mt5">
-              <Button onClick={handleTest}>Test</Button>
               © {new Date().getFullYear()}, Amazon Web Services, Inc. or its affiliates. All rights reserved. Made with {" "}
               <a
                 href="https://cloudscape.design/"
@@ -148,7 +184,6 @@ export default function App() {
 
             </TextContent>
 
-            {/* </Container> */}
           </ContentLayout >
         }
         footerSelector="#footer"
