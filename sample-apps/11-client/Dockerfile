@@ -1,27 +1,24 @@
-FROM python:3.8-slim as base
+# Build step #1: build the React front end
+FROM node:16-alpine as build-step
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY *.json ./
+COPY ./src ./src
+COPY ./public ./public
+RUN npm install
+RUN npm run build
 
-# ---- compile image -----------------------------------------------
-FROM base AS compile-image
-RUN apt-get update \
-  && apt-get install -y --no-install-recommends \
-  build-essential \
-  gcc
-
-RUN python -m venv /app/env
-ENV PATH="/app/env/bin:$PATH"
-
-COPY requirements.txt .
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
-
-# ---- build image -----------------------------------------------
-FROM base AS build-image
-COPY --from=compile-image /app/env /app/env
+# Build step #2: build the API with the client as static files
+FROM python:3.7-slim
+WORKDIR /app
+COPY --from=build-step /app/build ./build
 
 # Make sure we use the virtualenv:
 ENV PATH="/app/env/bin:$PATH"
-COPY . /app
-WORKDIR /app 
+
+COPY api/requirements.txt api/api.py api/.flaskenv ./
+RUN pip install -r requirements.txt
+
 
 EXPOSE 5000
-ENTRYPOINT [ "python3", "client.py" ]
+ENTRYPOINT [ "python3", "api.py" ]
