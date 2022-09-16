@@ -1,6 +1,6 @@
 # Client calling various operations in Sample App
 from sys import argv
-from flask import Flask, jsonfy, render_template
+from flask import Flask, jsonify, request, render_template
 from requests import delete, get, post
 import mysql.connector
 from opentelemetry import trace
