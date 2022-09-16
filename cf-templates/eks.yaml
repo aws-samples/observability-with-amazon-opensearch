@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Transform: 'AWS::Serverless-2016-10-31'
+Parameters:
+  EksClusterRole:
+    Default: arn:*
+    Type: String
+  EksSubnet1:
+    Description: Subnet 1 ID
+    Type: String
+  EksSubnet2:
+    Description: Subnet 2 ID
+    Type: String
+  EksSubnet3:
+    Description: Subnet 3 ID
+    Type: String
+  EksNodeSubnet1:
+    Description: EKS Nodes Subnet 1 ID
+    Type: String
+  EksNodeSubnet2:
+    Description: EKS Nodes Subnet 2 ID
+    Type: String
+  EksNodeSubnet3:
+    Description: EKS Nodes Subnet 3 ID
+    Type: String
+  EksClusterName:
+    Default: eks-cluster-01
+    Type: String
+  EksNodesRole:
+    Default: arn:*
+    Type: String
+Resources:
+  EKS:
+    Type: 'AWS::EKS::Cluster'
+    Properties:
+      Name: !Ref EksClusterName
+      Version: '1.22'
+      RoleArn: !Ref EksClusterRole
+      ResourcesVpcConfig:
+        SubnetIds:
+         - !Ref EksSubnet1
+         - !Ref EksSubnet2
+         - !Ref EksSubnet3
+  
+  EKSNodegroup:
+    Type: 'AWS::EKS::Nodegroup'
+    DependsOn: EKS
+    Properties:
+      ClusterName: !Ref EksClusterName
+      NodeRole: !Ref EksNodesRole
+      CapacityType: ON_DEMAND
+      ScalingConfig:
+        MinSize: 1
+        DesiredSize: 3
+        MaxSize: 5
+      Subnets:
+        - !Ref EksNodeSubnet1
+        - !Ref EksNodeSubnet2
+        - !Ref EksNodeSubnet3

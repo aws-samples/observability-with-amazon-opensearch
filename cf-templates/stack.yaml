@@ -124,11 +124,16 @@ Parameters:
     Type: Number
     Description: The Size in GB of the Cloud9 Instance Volume. 
     Default: 30
-
-  # EKSClusterName:
-  #   Description: 'Please enter the EKS Cluster Name'
-  #   Type: String
-  #   Default: "clustereks01"
+  
+  # EKS Cluster Variables
+  EKSClusterName:
+    Description: 'Please enter the EKS Cluster Name'
+    Type: String
+    Default: "observability-cluster"
+  TemplateRepo:
+    Description: 'Please enter the URL for the EKS Cluster template'
+    Type: String
+    Default: "https://observability-with-amazon-opensearch.s3.amazonaws.com/assets/eks.yaml"
 
 Mappings:
   AWSInstanceType2Arch:
@@ -201,10 +206,11 @@ Metadata:
       - C9EnvType
       - OwnerArn
       - C9InstanceVolumeSize
-    # - Label:
-    #     default: "EKS Configuration"
-    #   Parameters:
-    #   - EKSClusterName
+    - Label:
+        default: "EKS Configuration"
+      Parameters:
+      - EKSClusterName
+      - TemplateRepo
 
 Conditions: 
   CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
@@ -776,6 +782,10 @@ Resources:
             - codebuild.amazonaws.com
           Action:
           - sts:AssumeRole
+        - Effect: Allow
+          Principal:
+            AWS: !GetAtt DeployCloudformationStackLambdaRole.Arn
+          Action: sts:AssumeRole
       ManagedPolicyArns:
       - arn:aws:iam::aws:policy/AdministratorAccess
       - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
@@ -793,6 +803,37 @@ Resources:
             Action:
             - cloud9:UpdateEnvironment
             Resource: "*"
+      - PolicyName: RunKubeCtlCommands
+        PolicyDocument:
+          Version: 2012-10-17
+          Statement:
+          - Effect: Allow
+            Action:
+              - 'eks:*'
+              - 'cloudformation:CreateStack'
+              - 'cloudformation:CreateChangeSet'
+              - 'serverlessrepo:CreateCloudFormationTemplate'
+              - 'serverlessrepo:GetCloudFormationTemplate'
+              - 's3:GetObject'
+              - 'lambda:PublishLayerVersion'
+              - 'lambda:CreateFunction'
+              - 'lambda:GetLayerVersion'
+              - 'lambda:GetFunction'
+              - 'lambda:InvokeFunction'
+              - 'lambda:GetFunctionConfiguration'
+              - 'iam:PassRole'
+              - 'iam:GetRole'
+              - 'logs:CreateLogGroup'
+              - 'logs:CreateLogStream'
+              - 'logs:PutLogEvents'
+            Resource: '*'
+          - Effect: Allow
+            Action:
+              - 'iam:PassRole'
+              - 'iam:GetRole'
+            Resource: 
+              - !GetAtt EKSIAMRole.Arn
+              - !GetAtt DeployCloudformationStackLambdaRole.Arn
 
   C9LambdaExecutionRole:
     Type: AWS::IAM::Role
@@ -1107,67 +1148,143 @@ Resources:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9} 
 
-##EKs Cluster
-  # EKSIAMRole:
-  #   Type: 'AWS::IAM::Role'
-  #   Properties:
-  #     AssumeRolePolicyDocument:
-  #       Version: 2012-10-17
-  #       Statement:  
-  #         - Effect: Allow
-  #           Principal:
-  #             Service:
-  #               - eks.amazonaws.com
-  #               - ec2.amazonaws.com  
-  #               - codebuild.amazonaws.com          
-  #           Action:
-  #             - 'sts:AssumeRole'
-  #     ManagedPolicyArns:
-  #       - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-  #       - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
-  #       - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
-  #       - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
-  #       - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
-  #       - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
-  #       - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
-  #       - arn:aws:iam::aws:policy/EC2InstanceProfileForImageBuilderECRContainerBuilds        
+##EKS Cluster
+  EKSIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:  
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com       
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy   
 
-  # ClusterControlPlaneSecurityGroup:
-  #   Type: AWS::EC2::SecurityGroup
-  #   Properties:
-  #     GroupDescription: Cluster communication with worker nodes
-  #     VpcId: !Ref VPC
+  EKSNodesIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:  
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+                - ec2.amazonaws.com      
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
 
-  # EKSCluster:
-  #   Type: AWS::EKS::Cluster
-  #   Properties:
-  #     Name: !Ref EKSClusterName
-  #     RoleArn:
-  #       "Fn::GetAtt": ["EKSIAMRole", "Arn"]
-  #     ResourcesVpcConfig:
-  #       SecurityGroupIds:
-  #       - !Ref ClusterControlPlaneSecurityGroup
-  #       SubnetIds:
-  #       - !Ref PrivateSubnet1
-  #       - !Ref PrivateSubnet2
-  #       - !Ref PrivateSubnet3
-  #     Version: 1.21
+  DeployCloudformationStackLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowRolePassAndCF
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - 'logs:CreateLogGroup'
+                  - 'logs:CreateLogStream'
+                  - 'logs:PutLogEvents'
+                  - 'iam:PassRole'
+                  - 'iam:GetRole'
+                  - 'cloudformation:CreateStack'
+                  - 'cloudformation:CreateChangeSet'
+                  - 'eks:DescribeCluster'
+                Resource: '*'
 
-  # EKSNodegroup:
-  #   Type: 'AWS::EKS::Nodegroup'
-  #   DependsOn: EKSCluster
-  #   Properties:
-  #     ClusterName: !Ref EKSClusterName
-  #     NodeRole: !GetAtt EKSIAMRole.Arn
-  #     CapacityType: ON_DEMAND
-  #     ScalingConfig:
-  #       MinSize: 2
-  #       DesiredSize: 2
-  #       MaxSize: 2
-  #     Subnets:
-  #       - !Ref PrivateSubnet1
-  #       - !Ref PrivateSubnet2
-  #       - !Ref PrivateSubnet3
+  ClusterControlPlaneSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Cluster communication with worker nodes
+      VpcId: !Ref VPC
+
+  TriggerStack:
+      Type: "Custom::TriggerStack"
+      DependsOn: DeployCloudformationStack
+      Properties:
+        ServiceToken: !GetAtt DeployCloudformationStack.Arn
+        cfStackName: "eksDeploy"
+        assumeRoleARN: !GetAtt C9Role.Arn
+        templateUrl: !Ref TemplateRepo
+        stackParameters: 
+          - ParameterKey: EksClusterName
+            ParameterValue: !Ref EKSClusterName
+          - ParameterKey: EksClusterRole
+            ParameterValue: !GetAtt EKSIAMRole.Arn
+          - ParameterKey: EksSubnet1
+            ParameterValue: !Ref PublicSubnet1
+          - ParameterKey: EksSubnet2
+            ParameterValue: !Ref PublicSubnet2
+          - ParameterKey: EksSubnet3
+            ParameterValue: !Ref PublicSubnet3
+          - ParameterKey: EksNodeSubnet1
+            ParameterValue: !Ref PrivateSubnet1
+          - ParameterKey: EksNodeSubnet2
+            ParameterValue: !Ref PrivateSubnet2
+          - ParameterKey: EksNodeSubnet3
+            ParameterValue: !Ref PrivateSubnet3
+          - ParameterKey: EksNodesRole
+            ParameterValue: !GetAtt EKSNodesIAMRole.Arn
+
+  DeployCloudformationStack:
+    Type: AWS::Lambda::Function
+    Properties:
+      Description: Deploy cloudformation stack
+      Handler: index.lambda_handler
+      Runtime: python3.8
+      Role: !GetAtt DeployCloudformationStackLambdaRole.Arn
+      MemorySize: 128
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import cfnresponse
+          import json, os, boto3, logging
+          from botocore.exceptions import ClientError
+          def lambda_handler(event, context):
+            print("Received event: " + json.dumps(event, indent=2))
+            payload = ""
+            result = cfnresponse.SUCCESS
+            logger = logging.getLogger()
+            logger.setLevel(logging.INFO)
+            try:
+             if event['RequestType'] == 'Create':
+               payload = deployStack(event['ResourceProperties'])
+            except ClientError as e:
+             logger.error('Error: %s', e)
+             result = cfnresponse.FAILED   
+            cfnresponse.send(event, context, result, payload)
+          
+          def deployStack(input):
+              
+              sts = boto3.client('sts').assume_role(RoleArn=input['assumeRoleARN'],RoleSessionName="lambda_assume_role")
+              
+              client = boto3.client('cloudformation',
+                  aws_access_key_id=sts['Credentials']['AccessKeyId'],
+                  aws_secret_access_key=sts['Credentials']['SecretAccessKey'],
+                  aws_session_token=sts['Credentials']['SessionToken']
+              )
+              response = client.create_stack(StackName=input['cfStackName'], TemplateURL=input['templateUrl'],Parameters=input['stackParameters'], TimeoutInMinutes=60, Capabilities=['CAPABILITY_IAM','CAPABILITY_NAMED_IAM','CAPABILITY_AUTO_EXPAND'])
 
 ## Lambda Get PublicIP Information
   GetEC2PublicIP:
