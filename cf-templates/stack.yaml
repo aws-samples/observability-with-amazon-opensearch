@@ -1198,20 +1198,17 @@ Resources:
                     if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
                         print("Request Type:",event['RequestType'])
                         GetPublicIP=event['ResourceProperties']['GetPublicIP']
-                        try:
-                            client = boto3.client('ec2')
-                            response = client.describe_instances(
-                                Filters=[ {
-                                        'Name': 'tag:IsUsedForDeploy',
-                                        'Values': ['true']}
-                                ]
-                            )
-                            for r in response['Reservations']:
-                                for i in r['Instances']:
-                                    PublicIpAddress = (i['PublicIpAddress'])
-                                    print (PublicIpAddress)
-                        except Exception as ex:
-                            raise
+                        client = boto3.client('ec2')
+                        response = client.describe_instances(
+                            Filters=[ {
+                                    'Name': 'tag:IsUsedForDeploy',
+                                    'Values': ['true']}
+                            ]
+                        )
+                        for r in response['Reservations']:
+                            for i in r['Instances']:
+                                PublicIpAddress = (i['PublicIpAddress'])
+                                print (PublicIpAddress)
 
                         responseData={'PublicIpAddress':PublicIpAddress}
                         print("Sending CFN")
@@ -1293,41 +1290,6 @@ Resources:
                   - "arn:aws:logs:*:*:*"
 
 Outputs:
-  MyVPC:
-    Description: A reference to the created VPC
-    Value: !Ref VPC
-    Export:
-      Name: MyVPCId
-  PublicSubnet1:
-    Description: A reference to the public subnet in the 1st Availability Zone
-    Value: !Ref PublicSubnet1
-    Export:
-      Name: PublicSubnet1
-  PublicSubnet2:
-    Description: A reference to the public subnet in the 2nd Availability Zone
-    Value: !Ref PublicSubnet2
-    Export:
-      Name: PublicSubnet2
-  PublicSubnet3:
-    Description: A reference to the public subnet in the 3nd Availability Zone
-    Value: !Ref PublicSubnet3
-    Export:
-      Name: PublicSubnet3
-  PrivateSubnet1:
-    Description: A reference to the private subnet in the 1st Availability Zone
-    Value: !Ref PrivateSubnet1
-    Export:
-      Name: PrivateSubnet1
-  PrivateSubnet2:
-    Description: A reference to the private subnet in the 2nd Availability Zone
-    Value: !Ref PrivateSubnet2
-    Export:
-      Name: PrivateSubnet2
-  PrivateSubnet3:
-    Description: A reference to the private subnet in the 3th Availability Zone
-    Value: !Ref PrivateSubnet3
-    Export:
-      Name: PrivateSubnet3
   Cloud9IDE:
     Value:
       Fn::Join:
