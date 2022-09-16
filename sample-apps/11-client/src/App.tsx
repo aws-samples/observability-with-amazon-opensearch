@@ -111,7 +111,7 @@ export default function App() {
                       setLoading(true);
                     }}
                     onSubmit={() => {
-                      setFinished(true);
+                      setFinished(false);
                     }}
                     activeStepIndex={activeStepIndex}
                     isLoadingNextStep={loading}
