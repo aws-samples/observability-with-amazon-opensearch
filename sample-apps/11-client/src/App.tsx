@@ -102,6 +102,9 @@ function App() {
                     }}
                     onSubmit={() => {
                       setFinished(false);
+                      setActiveStepIndex(0)
+                      setTotal(0)
+                      setLoading(false);
                     }}
                     activeStepIndex={activeStepIndex}
                     isLoadingNextStep={loading}
