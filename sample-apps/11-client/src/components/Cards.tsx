@@ -30,7 +30,15 @@ function Card({ handleTotal }: IFnTotal) {
     return () => clearInterval(intervalId)
   }, []);
 
-  const evntHandler = (e: CardsProps.SelectionChangeDetail<Item>) => {
+  const makeCheckoutCall = () => {
+    fetch('/checkout')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
+  }
+
+  const evntHandler = async (e: CardsProps.SelectionChangeDetail<Item>) => {
     let prices;
     if (e.selectedItems.length === 1) {
       prices = 0;
@@ -41,6 +49,12 @@ function Card({ handleTotal }: IFnTotal) {
         .reduce<number>((acc, curr) => {
           return acc + curr.price
         }, 0);
+      await fetch('/create-order')
+        .then(res => res.json())
+        .then(async (data) => {
+          console.log(data)
+          await makeCheckoutCall();
+        });
       handleTotal(prices)
     }
   }

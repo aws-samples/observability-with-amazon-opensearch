@@ -34,20 +34,10 @@ export default function App() {
   }, []);
 
   const handleTotal = (num: number) => {
-    fetch('/create-order')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      });
     setTotal(num)
   };
 
   const handlePay = async (bool: boolean) => {
-    await fetch('/pay-order')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      });
     setLoading(false)
     setPaid(bool)
   };
