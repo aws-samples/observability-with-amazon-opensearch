@@ -24,6 +24,11 @@ function Card({ handleTotal }: IFnTotal) {
 
 
   useEffect(() => {
+    fetch('/checkout')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     const intervalId = setInterval(() => {
       setInventory(false);
     }, 1000 * 3)

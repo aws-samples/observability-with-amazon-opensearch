@@ -1,6 +1,6 @@
 import { HelpPanel, Icon } from "@cloudscape-design/components";
 
-export default function Tools() {
+function Tools() {
   return (
     <HelpPanel
       header={
@@ -65,3 +65,5 @@ export default function Tools() {
     </HelpPanel>
   )
 }
+
+export default Tools;

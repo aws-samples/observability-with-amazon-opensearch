@@ -5,8 +5,7 @@ interface IPayment {
   total: number;
   handlePay: (bool: boolean) => void
 }
-
-export default function Payment({ total, handlePay }: IPayment) {
+function Payment({ total, handlePay }: IPayment) {
   const [btnStatus, setBtnStatus] = useState(false);
   const [btnLoading, setbtnLoading] = useState(false);
 
@@ -19,6 +18,11 @@ export default function Payment({ total, handlePay }: IPayment) {
   }
 
   const handlePayment = async () => {
+    fetch('/checkout')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     fetch('/pay-order')
       .then(res => res.json())
       .then(data => {
@@ -44,3 +48,5 @@ export default function Payment({ total, handlePay }: IPayment) {
     </>
   )
 }
+
+export default Payment;

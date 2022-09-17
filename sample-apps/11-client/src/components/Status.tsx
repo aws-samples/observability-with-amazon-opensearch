@@ -5,7 +5,7 @@ import {
   SpaceBetween
 } from "@cloudscape-design/components";
 
-export default function Status() {
+function Status() {
   const [btnStatus, setBtnStatus] = useState(false);
   const [btnCancel, setBtnCancel] = useState(false);
   const [btnLoadingStatus, setBtnLoadingStatus] = useState(false);
@@ -88,3 +88,5 @@ export default function Status() {
     </>
   )
 }
+
+export default Status;

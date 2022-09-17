@@ -11,4 +11,4 @@ function Image({ src, title }: tImage) {
   )
 }
 
-export default Image
+export default Image;
