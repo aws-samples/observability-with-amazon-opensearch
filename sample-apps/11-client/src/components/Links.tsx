@@ -1,7 +1,7 @@
 
 import { BreadcrumbGroup } from "@cloudscape-design/components";
 
-export default function Links() {
+function Links() {
 
   return (
     <BreadcrumbGroup
@@ -20,3 +20,5 @@ export default function Links() {
     />
   )
 }
+
+export default Links;

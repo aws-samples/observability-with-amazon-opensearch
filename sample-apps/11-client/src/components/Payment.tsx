@@ -5,8 +5,7 @@ interface IPayment {
   total: number;
   handlePay: (bool: boolean) => void
 }
-
-export default function Payment({ total, handlePay }: IPayment) {
+function Payment({ total, handlePay }: IPayment) {
   const [btnStatus, setBtnStatus] = useState(false);
   const [btnLoading, setbtnLoading] = useState(false);
 
@@ -44,3 +43,5 @@ export default function Payment({ total, handlePay }: IPayment) {
     </>
   )
 }
+
+export default Payment;

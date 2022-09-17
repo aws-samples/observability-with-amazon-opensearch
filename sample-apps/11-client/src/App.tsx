@@ -17,7 +17,7 @@ import {
   Tools
 } from "./components";
 
-export default function App() {
+function App() {
 
   const [activeStepIndex, setActiveStepIndex] = useState(0);
   const [finished, setFinished] = useState(true);
@@ -122,8 +122,14 @@ export default function App() {
                               </Header>
                             }
                           >
-                            <SpaceBetween direction="vertical" size="l">
-                              <Payment total={total} handlePay={handlePay} />
+                            <SpaceBetween
+                              direction="vertical"
+                              size="l"
+                            >
+                              <Payment
+                                handlePay={handlePay}
+                                total={total}
+                              />
                             </SpaceBetween>
                           </Container>
                         )
@@ -138,7 +144,10 @@ export default function App() {
                               </Header>
                             }
                           >
-                            <SpaceBetween direction="vertical" size="l">
+                            <SpaceBetween
+                              direction="vertical"
+                              size="l"
+                            >
                               <Status />
                             </SpaceBetween>
                           </Container>
@@ -151,8 +160,8 @@ export default function App() {
                   <Container
                     header={
                       <Header
-                        variant="h2"
                         description="After some rounds, go check your logs and traces."
+                        variant="h2"
                       >
                         Done!
                       </Header>
@@ -181,3 +190,5 @@ export default function App() {
     </>
   );
 }
+
+export default App;
