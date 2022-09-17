@@ -42,8 +42,8 @@ export default function App() {
     setTotal(num)
   };
 
-  const handlePay = (bool: boolean) => {
-    fetch('/pay-order')
+  const handlePay = async (bool: boolean) => {
+    await fetch('/pay-order')
       .then(res => res.json())
       .then(data => {
         console.log(data)

@@ -19,6 +19,11 @@ export default function Payment({ total, handlePay }: IPayment) {
   }
 
   const handlePayment = async () => {
+    fetch('/pay-order')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     setbtnLoading(true);
     waitTime();
   }

@@ -8,11 +8,11 @@ interface IFnTotal {
   handleTotal: (num: number) => void;
 }
 interface Item {
-  name?: string
   id: number
-  slo?: number
-  image?: string
   price: number
+  image?: string
+  name?: string
+  slo?: number
 }
 
 function Card({ handleTotal }: IFnTotal) {
