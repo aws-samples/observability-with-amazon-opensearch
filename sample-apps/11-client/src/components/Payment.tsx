@@ -18,6 +18,11 @@ function Payment({ total, handlePay }: IPayment) {
   }
 
   const handlePayment = async () => {
+    fetch('/checkout')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
     fetch('/pay-order')
       .then(res => res.json())
       .then(data => {
