@@ -30,9 +30,42 @@ PORT = int(os.getenv("MYSQL_PORT")) if os.getenv("MYSQL_PORT") is not None else 
 
 app = Flask(__name__, static_url_path='', static_folder='build', template_folder='build')
 
+
 @app.route("/")
 def my_index():
     return render_template("index.html")
+
+
+@app.route("/cancel-order")
+def cancelOrder():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_cancel_order") as cancel_order_trace_group:
+            trace_id=get_hexadecimal_trace_id(cancel_order_trace_group.get_span_context().trace_id)
+            cancelOrderAPIRequest = delete("http://{}:80/clear_order".format(ORDER))
+            assert cancelOrderAPIRequest.status_code == 200
+            return get_ref_link("Cancel", "success", trace_id)
+    except:
+        return get_ref_link("Cancel", "failed", trace_id)
+
+
+@app.route("/checkout")
+def checkout():
+    trace_id = None
+    try:
+        with tracer.start_as_current_span("client_checkout") as checkout_trace_group:
+            trace_id = get_hexadecimal_trace_id(checkout_trace_group.get_span_context().trace_id)
+            checkoutAPIRequest = post(
+                "http://{}:80/checkout".format(PAYMENT),
+                data=[
+                    ("Config Mngmt", 2),
+                    ("Threat Detector", 3),
+                    ("Metrics", 1),
+                ],
+            )
+            assert checkoutAPIRequest.status_code == 200
+            return get_ref_link("Checkout", "success", trace_id)
+    exce
 
 @app.route("/create-order")   
 def createOrder():
@@ -53,48 +86,19 @@ def createOrder():
     except:
         return get_ref_link("Create", "failed", trace_id)
 
-@app.route("/checkout")
-def checkout():
+        
+@app.route("/delivery-status")
+def deliveryStatus():
     trace_id = None
     try:
-        with tracer.start_as_current_span("client_checkout") as checkout_trace_group:
-            trace_id = get_hexadecimal_trace_id(checkout_trace_group.get_span_context().trace_id)
-            checkoutAPIRequest = post(
-                "http://{}:80/checkout".format(PAYMENT),
-                data=[
-                    ("Config Mngmt", 2),
-                    ("Threat Detector", 3),
-                    ("Metrics", 1),
-                ],
-            )
-            assert checkoutAPIRequest.status_code == 200
-            return get_ref_link("Checkout", "success", trace_id)
+        with tracer.start_as_current_span("client_delivery_status") as delivery_status_trace_group:
+            trace_id = get_hexadecimal_trace_id(delivery_status_trace_group.get_span_context().trace_id)
+            getOrderAPIRequest = get("http://{}:80/get_order".format(ORDER))
+            assert getOrderAPIRequest.status_code == 200
+            return get_ref_link("Status", "success", trace_id)
     except:
-        return get_ref_link("Checkout", "failed", trace_id)
+        return get_ref_link("Status", "failed", trace_id)
 
-@app.route("/pay-order")        
-def payOrder():
-    trace_id = None
-    try:
-        with tracer.start_as_current_span("client_pay_order") as pay_order_trace_group:
-            trace_id = get_hexadecimal_trace_id(pay_order_trace_group.get_span_context().trace_id)
-            payOrderAPIRequest = post("http://{}:80/pay_order".format(ORDER))
-            assert payOrderAPIRequest.status_code == 200
-            return get_ref_link("Pay", "success", trace_id)
-    except:
-        return get_ref_link("Pay", "failed", trace_id)
-
-@app.route("/cancel-order")
-def cancelOrder():
-    trace_id = None
-    try:
-        with tracer.start_as_current_span("client_cancel_order") as cancel_order_trace_group:
-            trace_id=get_hexadecimal_trace_id(cancel_order_trace_group.get_span_context().trace_id)
-            cancelOrderAPIRequest = delete("http://{}:80/clear_order".format(ORDER))
-            assert cancelOrderAPIRequest.status_code == 200
-            return get_ref_link("Cancel", "success", trace_id)
-    except:
-        return get_ref_link("Cancel", "failed", trace_id)
 
 @app.route("/login") 
 def load_main_screen():
@@ -109,18 +113,21 @@ def load_main_screen():
         loginSession.close()
         if loginAPIResponse.status_code != 200:
             loginAPIResponse.raise_for_status()
+            
 
-@app.route("/delivery-status")
-def deliveryStatus():
+@app.route("/pay-order")        
+def payOrder():
     trace_id = None
     try:
-        with tracer.start_as_current_span("client_delivery_status") as delivery_status_trace_group:
-            trace_id = get_hexadecimal_trace_id(delivery_status_trace_group.get_span_context().trace_id)
-            getOrderAPIRequest = get("http://{}:80/get_order".format(ORDER))
-            assert getOrderAPIRequest.status_code == 200
-            return get_ref_link("Status", "success", trace_id)
+        with tracer.start_as_current_span("client_pay_order") as pay_order_trace_group:
+            trace_id = get_hexadecimal_trace_id(pay_order_trace_group.get_span_context().trace_id)
+            payOrderAPIRequest = post("http://{}:80/pay_order".format(ORDER))
+            assert payOrderAPIRequest.status_code == 200
+            return get_ref_link("Pay", "success", trace_id)
     except:
-        return get_ref_link("Status", "failed", trace_id)
+        return get_ref_link("Pay", "failed", trace_id)
+
+
 
 trace.set_tracer_provider(
     TracerProvider(
