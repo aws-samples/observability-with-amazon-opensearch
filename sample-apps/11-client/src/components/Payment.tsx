@@ -14,7 +14,7 @@ function Payment({ total, handlePay }: IPayment) {
       handlePay(true);
       setBtnStatus(true);
       setbtnLoading(false);
-    }, 1000 * 5)
+    }, 1000 * 1)
   }
 
   const handlePayment = async () => {
