@@ -8,3 +8,4 @@ opentelemetry-instrumentation-logging==0.28b1
 opentelemetry-sdk==1.9.1
 flask==2.0.2
 protobuf==3.15.6
+mysql-connector-python==8.0.30
