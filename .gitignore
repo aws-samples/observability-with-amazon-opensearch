@@ -1,6 +1,7 @@
 *.pem
 .vscode
 node_modules
+build
 
 venv
 env
