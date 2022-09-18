@@ -43,9 +43,9 @@ def createOrder():
             updateOrderAPIRequest = post(
                 "http://{}:80/update_order".format(ORDER),
                 data=[
-                    ("apple", 1),
-                    ("orange", 3),
-                    ("banana", 2)
+                    ("Metrics", 1),
+                    ("Threat Detector", 3),
+                    ("Config Mngmt", 2)
                 ]
             )
             assert updateOrderAPIRequest.status_code == 200
@@ -62,9 +62,9 @@ def checkout():
             checkoutAPIRequest = post(
                 "http://{}:80/checkout".format(PAYMENT),
                 data=[
-                    ("banana", 2),
-                    ("orange", 3),
-                    ("apple", 1),
+                    ("Config Mngmt", 2),
+                    ("Threat Detector", 3),
+                    ("Metrics", 1),
                 ],
             )
             assert checkoutAPIRequest.status_code == 200
@@ -169,9 +169,9 @@ def setupDB():
     INSERT_ROWS_CMD = """INSERT INTO Inventory_Items (ItemId, TotalQty)
                            VALUES (%(ItemId)s, %(Qty)s) ON DUPLICATE KEY UPDATE TotalQty = TotalQty + %(Qty)s"""
     data = [
-        {"ItemId": "apple", "Qty": 4},
-        {"ItemId": "orange", "Qty": 10},
-        {"ItemId": "banana", "Qty": 6},
+        {"ItemId": "Metrics", "Qty": 40},
+        {"ItemId": "Config Mngmt", "Qty": 100},
+        {"ItemId": "Threat Detector", "Qty": 60},
     ]
 
     cnx = getDBCnx()
