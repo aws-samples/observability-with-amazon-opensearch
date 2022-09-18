@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Layout from "@cloudscape-design/components/app-layout";
 import {
+  Button,
   Container,
   ContentLayout,
   Header,
@@ -42,6 +43,7 @@ function App() {
     setPaid(bool)
   };
 
+
   return (
     <>
       <Layout
@@ -74,106 +76,119 @@ function App() {
               </SpaceBetween>
             }
           >
-            {
-              finished
-                ? (
-                  <Wizard
-                    i18nStrings={{
-                      stepNumberLabel: stepNumber =>
-                        `Step ${stepNumber}`,
-                      collapsedStepsLabel: (stepNumber, stepsCount) =>
-                        `Step ${stepNumber} of ${stepsCount}`,
-                      skipToButtonLabel: (step, stepNumber) =>
-                        `Skip to ${step.title}`,
-                      cancelButton: "Cancel",
-                      previousButton: "Previous",
-                      nextButton: "Next",
-                      submitButton: "Finish",
-                      optional: "optional"
-                    }}
-                    onCancel={() => {
-                      setActiveStepIndex(0)
-                      setTotal(0)
-                      setLoading(false);
-                    }}
-                    onNavigate={({ detail }) => {
-                      setActiveStepIndex(detail.requestedStepIndex)
-                      setLoading(true);
-                    }}
-                    onSubmit={() => {
-                      setFinished(false);
-                      setActiveStepIndex(0)
-                      setTotal(0)
-                      setLoading(false);
-                    }}
-                    activeStepIndex={activeStepIndex}
-                    isLoadingNextStep={loading}
-                    steps={[
-                      {
-                        title: "Select your products",
-                        content: (
-                          <Cards handleTotal={handleTotal} />
-                        )
-                      },
-                      {
-                        title: "Complete your checkout",
-                        content: (
-                          <Container
-                            header={
-                              <Header variant="h2">
-                                Payment
-                              </Header>
-                            }
-                          >
-                            <SpaceBetween
-                              direction="vertical"
-                              size="l"
-                            >
-                              <Payment
-                                handlePay={handlePay}
-                                total={total}
-                              />
-                            </SpaceBetween>
-                          </Container>
-                        )
-                      },
-                      {
-                        title: "Check status",
-                        content: (
-                          <Container
-                            header={
-                              <Header variant="h2">
-                                Order status
-                              </Header>
-                            }
-                          >
-                            <SpaceBetween
-                              direction="vertical"
-                              size="l"
-                            >
-                              <Status />
-                            </SpaceBetween>
-                          </Container>
-                        ),
+            <Wizard
+              i18nStrings={{
+                stepNumberLabel: stepNumber =>
+                  `Step ${stepNumber}`,
+                collapsedStepsLabel: (stepNumber, stepsCount) =>
+                  `Step ${stepNumber} of ${stepsCount}`,
+                skipToButtonLabel: (step, stepNumber) =>
+                  `Skip to ${step.title}`,
+                cancelButton: "Cancel",
+                previousButton: "Previous",
+                nextButton: "Next",
+                submitButton: "Restart",
+                optional: ""
+              }}
+              onCancel={() => {
+                setActiveStepIndex(0)
+                setTotal(0)
+                setLoading(false);
+              }}
+              onNavigate={({ detail }) => {
+                setActiveStepIndex(detail.requestedStepIndex)
+                setLoading(true);
+              }}
+              onSubmit={() => {
+                setFinished(false);
+                setActiveStepIndex(0)
+                setTotal(0)
+                setLoading(false);
+              }}
+              activeStepIndex={activeStepIndex}
+              isLoadingNextStep={loading}
+              steps={[
+                {
+                  title: "Select your products",
+                  content: (
+                    <Cards handleTotal={handleTotal} />
+                  )
+                },
+                {
+                  title: "Complete your checkout",
+                  content: (
+                    <Container
+                      header={
+                        <Header variant="h2">
+                          Payment
+                        </Header>
                       }
-                    ]}
-                  />
-                )
-                : (
-                  <Container
-                    header={
-                      <Header
-                        description="After some rounds, go check your logs and traces."
-                        variant="h2"
+                    >
+                      <SpaceBetween
+                        direction="vertical"
+                        size="l"
                       >
-                        Done!
-                      </Header>
-                    }
-                  >
-                    Make sure to reload and explore several times to generate enough data.
-                  </Container>
-                )
-            }
+                        <Payment
+                          handlePay={handlePay}
+                          total={total}
+                        />
+                      </SpaceBetween>
+                    </Container>
+                  )
+                },
+                {
+                  title: "Check status",
+                  content: (
+                    <Container
+                      header={
+                        <Header variant="h2">
+                          Order status
+                        </Header>
+                      }
+                    >
+                      <SpaceBetween
+                        direction="vertical"
+                        size="l"
+                      >
+                        <Status />
+                      </SpaceBetween>
+                    </Container>
+                  ),
+                },
+                {
+                  title: "Done",
+                  content: (
+                    <Container
+                      header={
+                        <Header
+                          description="After some rounds, go check your logs and traces."
+                          variant="h2"
+                        >
+                          Done!
+                        </Header>
+                      }
+                    >
+                      Make sure to reload and explore several times to generate enough data.
+
+                      <SpaceBetween
+                        direction="horizontal"
+                        size="l"
+                      >
+                        <Button
+                          className="mt3"
+                          iconAlign="right"
+                          iconName="refresh"
+                          onClick={() => window.location.reload()}
+                          variant="primary"
+                        >
+                          Start again
+                        </Button>
+                      </SpaceBetween>
+                    </Container>
+                  )
+                }
+              ]}
+            />
 
             <TextContent className="with-link mt5">
               © {new Date().getFullYear()}, Amazon Web Services, Inc. or its affiliates. All rights reserved. Made with {" "}
