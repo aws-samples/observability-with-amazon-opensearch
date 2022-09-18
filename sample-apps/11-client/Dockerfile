@@ -5,7 +5,7 @@ ENV PATH /app/node_modules/.bin:$PATH
 COPY *.json ./
 COPY ./src ./src
 COPY ./public ./public
-RUN npm install
+RUN npm install --loglevel "silent"
 RUN npm run build
 
 # Build step #2: build the API with the client as static files

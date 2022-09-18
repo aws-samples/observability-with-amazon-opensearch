@@ -21,9 +21,9 @@ import {
 function App() {
 
   const [activeStepIndex, setActiveStepIndex] = useState(0);
-  const [finished, setFinished] = useState(true);
+  const [_finished, setFinished] = useState(true);
   const [loading, setLoading] = useState(false);
-  const [paid, setPaid] = useState(false);
+  const [_paid, setPaid] = useState(false);
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
@@ -35,14 +35,15 @@ function App() {
   }, []);
 
   const handleTotal = (num: number) => {
-    setTotal(num)
+    setTotal(num);
+    console.log(_finished);
   };
 
   const handlePay = async (bool: boolean) => {
-    setLoading(false)
-    setPaid(bool)
+    console.log(_paid);
+    setLoading(false);
+    setPaid(bool);
   };
-
 
   return (
     <>
