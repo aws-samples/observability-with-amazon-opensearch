@@ -115,6 +115,7 @@ Parameters:
       - self
       - 3rdParty
       - event-engine
+      - workshop-studio
     ConstraintDescription: must specify self or 3rdParty.
   OwnerArn: 
     Type: String
@@ -216,6 +217,7 @@ Conditions:
   CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
   Create3rdPartyResources: !Equals [ !Ref C9EnvType, 3rdParty ]
   CreateEventEngineResources: !Equals [ !Ref C9EnvType, event-engine ]
+  CreateWorkstudioResources: !Equals [ !Ref C9EnvType, workshop-studio ]
 
 Resources:
 ######## VPC Template ########
@@ -1141,7 +1143,7 @@ Resources:
       InstanceType:
         Ref: C9InstanceType
       Name: observabilityworkshop
-      OwnerArn: !If [Create3rdPartyResources, !Ref OwnerArn, !If [CreateEventEngineResources, !Join ['',['arn:aws:iam::',!Ref 'AWS::AccountId',':assumed-role/TeamRole/MasterKey']],!Ref "AWS::NoValue"]]
+      OwnerArn: !If [Create3rdPartyResources, !Ref OwnerArn, !If [CreateEventEngineResources, !Join ['',['arn:aws:iam::',!Ref 'AWS::AccountId',':assumed-role/TeamRole/MasterKey']],!If [CreateWorkstudioResources, !Join ['',['arn:aws:iam::',!Ref 'AWS::AccountId',':assumed-role/WSParticipantRole/Participant']],!Ref "AWS::NoValue"]]]
       Tags: 
         - Key: SSMBootstrap
           Value: Active
