@@ -65,7 +65,8 @@ def checkout():
             )
             assert checkoutAPIRequest.status_code == 200
             return get_ref_link("Checkout", "success", trace_id)
-    exce
+    except:
+        return get_ref_link("Checkout", "failed", trace_id)
 
 @app.route("/create-order")   
 def createOrder():
