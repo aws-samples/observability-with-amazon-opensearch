@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@cloudscape-design/components";
 
 interface IPayment {
@@ -7,15 +7,23 @@ interface IPayment {
 }
 function Payment({ total, handlePay }: IPayment) {
   const [btnStatus, setBtnStatus] = useState(false);
-  const [btnLoading, setbtnLoading] = useState(false);
+  const [btnLoading, setBtnLoading] = useState(false);
 
-  function waitTime() {
-    setInterval(() => {
-      handlePay(true);
-      setBtnStatus(true);
-      setbtnLoading(false);
-    }, 1000 * 1)
-  }
+  useEffect(() => {
+
+    let interval = setInterval(() => { }, 1000)
+
+    if (btnLoading) {
+      interval = setInterval(() => {
+        handlePay(true);
+        setBtnStatus(true);
+        setBtnLoading(false);
+      }, 1000 * 1)
+    };
+
+    return () => clearInterval(interval);
+
+  }, [btnLoading, btnStatus, handlePay])
 
   const handlePayment = async () => {
     fetch('/checkout')
@@ -28,8 +36,7 @@ function Payment({ total, handlePay }: IPayment) {
       .then(data => {
         console.log(data)
       });
-    setbtnLoading(true);
-    waitTime();
+    setBtnLoading(true);
   }
 
   return (

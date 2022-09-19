@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Alert,
   Button,
@@ -11,18 +11,40 @@ function Status() {
   const [btnLoadingStatus, setBtnLoadingStatus] = useState(false);
   const [btnLoadingCancel, setBtnLoadingCancel] = useState(false);
 
-  function waitTimeStatus() {
-    setInterval(() => {
-      setBtnStatus(true);
-      setBtnLoadingStatus(false);
-    }, 1000 * 2)
-  }
 
-  function waitTimeCancel() {
-    setInterval(() => {
-      setBtnCancel(true);
-      setBtnLoadingCancel(false);
-    }, 1000 * 6)
+  useEffect(() => {
+
+    let interval = setInterval(() => { }, 1000)
+
+    if (btnLoadingStatus) {
+      interval = setInterval(() => {
+        setBtnStatus(true);
+        setBtnLoadingStatus(false);
+      }, 1000 * 2)
+    }
+
+    if (btnLoadingCancel) {
+      interval = setInterval(() => {
+        setBtnCancel(true);
+        setBtnStatus(false);
+        setBtnLoadingStatus(false);
+        setBtnLoadingCancel(false);
+      }, 1000 * 6)
+    }
+
+    return () => clearInterval(interval);
+
+
+  }, [btnLoadingStatus, btnLoadingCancel]);
+
+
+  const handleCancel = async () => {
+    fetch('/cancel-order')
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+      });
+    setBtnLoadingCancel(true);
   }
 
   const handleStatus = async () => {
@@ -32,18 +54,8 @@ function Status() {
         console.log(data)
       });
     setBtnLoadingStatus(true);
-    waitTimeStatus();
   }
 
-  const handleCancel = async () => {
-    fetch('/cancel-order')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      });
-    setBtnLoadingCancel(true);
-    waitTimeCancel();
-  }
 
   return (
     <>
@@ -78,7 +90,7 @@ function Status() {
 
         <Alert
           visible={btnCancel}
-          header="Cancel"
+          header="Canceled"
           type="error"
         >
           We'll process your cancelation shortly.

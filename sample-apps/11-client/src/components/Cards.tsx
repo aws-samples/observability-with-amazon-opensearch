@@ -30,13 +30,13 @@ function Card({ handleTotal }: IFnTotal) {
     return () => clearInterval(intervalId)
   }, []);
 
-  const makeCheckoutCall = () => {
-    fetch('/checkout')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      });
-  }
+  // const makeCheckoutCall = () => {
+  //   fetch('/checkout')
+  //     .then(res => res.json())
+  //     .then(data => {
+  //       console.log(data)
+  //     });
+  // }
 
   const evntHandler = async (e: CardsProps.SelectionChangeDetail<Item>) => {
     let prices;
