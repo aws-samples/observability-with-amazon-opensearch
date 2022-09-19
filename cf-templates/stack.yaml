@@ -1111,6 +1111,7 @@ Resources:
                 fi
               fi
             - echo "Bootstrap completed with return code $?"
+            - !Sub EKS_Cluster=${EKSClusterName}
   C9BootstrapAssociation: 
     Type: AWS::SSM::Association
     Properties: 
