@@ -24,11 +24,6 @@ function Card({ handleTotal }: IFnTotal) {
 
 
   useEffect(() => {
-    fetch('/checkout')
-      .then(res => res.json())
-      .then(data => {
-        console.log(data)
-      });
     const intervalId = setInterval(() => {
       setInventory(false);
     }, 1000 * 3)
@@ -58,7 +53,7 @@ function Card({ handleTotal }: IFnTotal) {
         .then(res => res.json())
         .then(async (data) => {
           console.log(data)
-          await makeCheckoutCall();
+          // await makeCheckoutCall();
         });
       handleTotal(prices)
     }
