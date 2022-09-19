@@ -89,7 +89,7 @@ function App() {
                 previousButton: "Previous",
                 nextButton: "Next",
                 submitButton: "Restart",
-                optional: ""
+                optional: "optional"
               }}
               onCancel={() => {
                 setActiveStepIndex(0)
@@ -98,7 +98,6 @@ function App() {
               }}
               onNavigate={({ detail }) => {
                 setActiveStepIndex(detail.requestedStepIndex)
-                setLoading(true);
               }}
               onSubmit={() => {
                 setFinished(false);
@@ -139,6 +138,7 @@ function App() {
                 },
                 {
                   title: "Check status",
+                  isOptional: true,
                   content: (
                     <Container
                       header={
