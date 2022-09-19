@@ -16,8 +16,20 @@ unzip -o awscli-exe-linux-x86_64.zip
 sudo ./aws/install
 rm awscli-exe-linux-x86_64.zip
 
+# Install kubectl
+cat <<EOF | sudo tee /etc/yum.repos.d/kubernetes.repo
+[kubernetes]
+name=Kubernetes
+baseurl=https://packages.cloud.google.com/yum/repos/kubernetes-el7-\$basearch
+enabled=1
+gpgcheck=1
+gpgkey=https://packages.cloud.google.com/yum/doc/yum-key.gpg https://packages.cloud.google.com/yum/doc/rpm-package-key.gpg
+EOF
+sudo yum install -y kubectl
+
 # Install bash-completion
 sudo yum -y install jq gettext bash-completion moreutils
+kubectl completion bash | sudo tee /etc/bash_completion.d/kubectl > /dev/null
 
 # Configure AWS CLI
 export ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)
@@ -52,6 +64,9 @@ echo "export PublicSubnet3=${PublicSubnet3}" | tee -a ~/.bash_profile
 aws kms create-alias --alias-name alias/observability-workshop --target-key-id $(aws kms create-key --query KeyMetadata.Arn --output text)
 export MASTER_ARN=$(aws kms describe-key --key-id alias/observability-workshop --query KeyMetadata.Arn --output text)
 echo "export MASTER_ARN=${MASTER_ARN}" | tee -a ~/.bash_profile
+
+# Configure EKS Cluster
+aws eks --region $AWS_REGION update-kubeconfig --name observability-cluster
 
 # Reload bash_profile
 source ~/.bash_profile
