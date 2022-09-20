@@ -182,7 +182,7 @@ spec:
     spec:
       containers:
       - name: fluent-bit
-        image: amazon/aws-for-fluent-bit:2.5.0
+        image: amazon/aws-for-fluent-bit:stable
         imagePullPolicy: Always
         ports:
           - containerPort: 2020
