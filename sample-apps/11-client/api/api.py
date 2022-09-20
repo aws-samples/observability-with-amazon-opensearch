@@ -58,10 +58,10 @@ def checkout():
             checkoutAPIRequest = post(
                 "http://{}:80/checkout".format(PAYMENT),
                 data=[
-                    ("Config Mngmt", 2),
-                    ("Threat Detector", 3),
                     ("Metrics", 1),
-                ],
+                    ("ConfigMngmt", 2),
+                    ("ThreatDetector", 3),
+                ]
             )
             assert checkoutAPIRequest.status_code == 200
             return get_ref_link("Checkout", "success", trace_id)
@@ -76,10 +76,10 @@ def createOrder():
             trace_id = get_hexadecimal_trace_id(create_order_trace_group.get_span_context().trace_id)
             updateOrderAPIRequest = post(
                 "http://{}:80/update_order".format(ORDER),
-                data=[
+                 data=[
                     ("Metrics", 1),
-                    ("Threat Detector", 3),
-                    ("Config Mngmt", 2)
+                    ("ConfigMngmt", 2),
+                    ("ThreatDetector", 3),
                 ]
             )
             assert updateOrderAPIRequest.status_code == 200
@@ -178,8 +178,8 @@ def setupDB():
                            VALUES (%(ItemId)s, %(Qty)s) ON DUPLICATE KEY UPDATE TotalQty = TotalQty + %(Qty)s"""
     data = [
         {"ItemId": "Metrics", "Qty": 40},
-        {"ItemId": "Config Mngmt", "Qty": 100},
-        {"ItemId": "Threat Detector", "Qty": 60},
+        {"ItemId": "ConfigMngmt", "Qty": 100},
+        {"ItemId": "ThreatDetector", "Qty": 60},
     ]
 
     cnx = getDBCnx()
