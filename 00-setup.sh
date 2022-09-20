@@ -54,7 +54,11 @@ export MASTER_ARN=$(aws kms describe-key --key-id alias/observability-workshop -
 echo "export MASTER_ARN=${MASTER_ARN}" | tee -a ~/.bash_profile
 
 # Configure EKS Cluster kubeconfig
-aws eks --region $AWS_REGION update-kubeconfig --name $EKS_Cluster
+aws eks list-clusters --output text |
+awk '{print $2}' |                                                                                                                                                                                                           
+while read line;
+do aws eks --region us-east-1 update-kubeconfig --name $line;                                                                                                                                                               
+done
 
 # Reload bash_profile
 source ~/.bash_profile
