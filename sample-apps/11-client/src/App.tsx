@@ -25,6 +25,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [_paid, setPaid] = useState(false);
   const [total, setTotal] = useState(0);
+  const [step, isOrderStep] = useState(0)
 
   useEffect(() => {
     fetch('/login')
@@ -32,6 +33,14 @@ function App() {
       .then(data => {
         console.log(data)
       });
+
+    if (step === 1) {
+      fetch('/create-order')
+        .then(res => res.json())
+        .then(data => {
+          console.log(data)
+        });
+    }
   }, []);
 
   const handleTotal = (num: number) => {
@@ -97,6 +106,7 @@ function App() {
                 setLoading(false);
               }}
               onNavigate={({ detail }) => {
+                isOrderStep(detail.requestedStepIndex)
                 setActiveStepIndex(detail.requestedStepIndex)
               }}
               onSubmit={() => {

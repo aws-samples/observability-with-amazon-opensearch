@@ -49,12 +49,6 @@ function Card({ handleTotal }: IFnTotal) {
         .reduce<number>((acc, curr) => {
           return acc + curr.price
         }, 0);
-      await fetch('/create-order')
-        .then(res => res.json())
-        .then(async (data) => {
-          console.log(data)
-          // await makeCheckoutCall();
-        });
       handleTotal(prices)
     }
   }
