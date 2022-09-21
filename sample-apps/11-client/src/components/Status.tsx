@@ -60,6 +60,24 @@ function Status() {
   return (
     <>
       <SpaceBetween direction="vertical" size="l">
+
+        <Alert
+          visible={btnStatus}
+          header="Order Status"
+          type="success"
+        >
+          On the way!
+        </Alert>
+
+        <Alert
+          visible={btnCancel}
+          header="Canceled"
+          type="success"
+        >
+          We'll process your cancelation shortly.
+        </Alert>
+
+
         <Button
           disabled={btnStatus}
           iconName="status-info"
@@ -70,14 +88,6 @@ function Status() {
           Get order status
         </Button>
 
-        <Alert
-          visible={btnStatus}
-          header="Order Status"
-          type="success"
-        >
-          On the way!
-        </Alert>
-
 
         <Button
           disabled={btnCancel}
@@ -87,14 +97,6 @@ function Status() {
         >
           Cancel order
         </Button>
-
-        <Alert
-          visible={btnCancel}
-          header="Canceled"
-          type="error"
-        >
-          We'll process your cancelation shortly.
-        </Alert>
 
       </SpaceBetween>
     </>
