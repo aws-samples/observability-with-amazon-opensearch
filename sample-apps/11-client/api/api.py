@@ -15,7 +15,7 @@ from opentelemetry.instrumentation.logging import LoggingInstrumentor
 from opentelemetry.instrumentation.requests import RequestsInstrumentor
 from urllib3.util.retry import Retry
 
-import os, pkg_resources, socket, requests
+import os, pkg_resources, socket, requests, logging
 
 OTLP = os.getenv("OTLP") if os.getenv("OTLP") is not None else "localhost"
 ORDER = os.getenv("ORDER") if os.getenv("ORDER") is not None else "localhost"
@@ -159,7 +159,7 @@ RequestsInstrumentor().instrument(tracer_provider=tracerProvider)
 retry_strategy = Retry(
     total=2,
     status_forcelist=[401, 401.1, 429, 503],
-    method_whitelist=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
+    allowed_methods=["HEAD", "GET", "POST", "PUT", "DELETE", "OPTIONS", "TRACE"]
 )
 
 
@@ -213,4 +213,5 @@ def get_ref_link(operation, status, trace_id):
 def get_hexadecimal_trace_id(trace_id: int) -> str:
     return bytes(bytearray.fromhex("{:032x}".format(trace_id))).hex()
 
-app.run(debug=True, host="0.0.0.0", port=5000)
+logging.getLogger('werkzeug').disabled = True
+app.run(host="0.0.0.0", port=5000)
