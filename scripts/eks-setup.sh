@@ -28,7 +28,7 @@ total_running_pods=0
 time_end=$((SECONDS+300)) 
 
 # Time out after 5 min
-while [[ $total_running_pods -lt 22 && $SECONDS -lt $time_end ]]
+while [[ $total_running_pods -lt 19 && $SECONDS -lt $time_end ]]
 do
     total_running_pods=$(kubectl get pods --all-namespaces | awk '{ if ($4 == "Running") { print } }' | wc -l)
     echo "$total_running_pods pods running"
