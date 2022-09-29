@@ -16,7 +16,7 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-e
 - CloudFormation temples are in the /cf-templates/ directory.
 - Launch them from the AWS CloudFormation console.
 
-  - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance.
+  - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, AWS Cloud9, Amazon OpenSearch Service, Amazon EKS, and Reverse-Proxy Instance.
 
 ### AWS Cloud9 (Terminal)
   - Run the following commands on the Cloud9 [terminal] to install the necessary tools and configure environment variables.
@@ -26,62 +26,11 @@ https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-e
  source ~/.bash_profile
  ```
  
- ### You must create the EKS Cluster parameter file.
-  - Run the following command on the Cloud9 [terminal] to create the observability-workshop.yaml file. The command uses the environment variables configured on the last step to fill out the necessary information.
-```
-cat << EOF > observability-workshop.yaml
---- 
-apiVersion: eksctl.io/v1alpha5
-kind: ClusterConfig
-
-metadata:
-  name: observability-workshop-eksctl
-  region: ${AWS_REGION}
-  version: "1.21"
-
-vpc:
-  id: "${MyVPC}" # MyVPC
-  subnets:
-    # must provide 'private' and/or 'public' subnets by availibility zone as shown
-    private:
-      ${AZS[0]}:
-        id: "${PrivateSubnet1}" # PrivateSubnet1
-      ${AZS[1]}:
-        id: "${PrivateSubnet2}" # PrivateSubnet2
-      ${AZS[2]}:
-        id: "${PrivateSubnet3}" # PrivateSubnet3
-    public:
-      ${AZS[0]}:
-        id: "${PublicSubnet1}" # PublicSubnet1
-      ${AZS[1]}:
-        id: "${PublicSubnet2}" # PublicSubnet2
-      ${AZS[2]}:
-        id: "${PublicSubnet3}" # PublicSubnet3
-
-managedNodeGroups:
-- name: nodegroup
-  desiredCapacity: 3
-  instanceType: t3.small
-
-# To enable all of the control plane logs, uncomment below:
-# cloudWatch:
-#  clusterLogging:
-#    enableTypes: ["*"]
-
-secretsEncryption:
-  keyARN: ${MASTER_ARN}
-EOF
-```
-### Now it’s time to create our EKS Cluster with the eksctl tool.
-  - Run the following command on the Cloud9 [terminal] (should take 15 minutes to complete).
-   
- ```eksctl create cluster -f observability-workshop.yaml```
- 
-  - After creating the EKS Cluster, you must build and push the microservices images to the ECR repository (should take 5 minutes to complete).
+  - You must build and push the microservices images to the ECR repository (should take 5 minutes to complete).
  
  ```cd observability-with-amazon-opensearch/scripts/; bash 01-build-push.sh```
   
-  ### You must change credentials and endpoint in DataPrepper.
+ ### You must change credentials and endpoint in DataPrepper.
   - Open the /observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-preper.yaml file via Cloud9 [editor] and replace the following variables with the corresponding values in the ’Outputs’ tab in CloudFormation. (You should only copy the content of the value of CloudFormation -> Output -> AOSDomainEndpoint [Key] instead of using "Copy Link".)
   
   ```
@@ -92,7 +41,7 @@ EOF
   vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml
   ```
  
-  ### As a final step in deploying the microservices, you must apply the Kubernetes manifests. 
+ ### As a final step in deploying the microservices, you must apply the Kubernetes manifests. 
   - Run the following command on the Cloud9 [terminal].
   
   ```bash 02-apply-k8s-manifests.sh```
