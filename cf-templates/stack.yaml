@@ -158,15 +158,15 @@ Mappings:
       Arch: HVM64
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-03ededff12e34e59e
+      HVM64: ami-026b57f3c383c2eec
     us-east-2:
-      HVM64: ami-0c7478fd229861c57
+      HVM64: ami-0f924dc71d44d23e2
     us-west-1:
-      HVM64: ami-06542a822d33e2e40
+      HVM64: ami-09208e69ff3feb1db
     us-west-2:
-      HVM64: ami-0b36cd6786bcfe120
+      HVM64: ami-08e2d37b6a0129927
     sa-east-1:
-      HVM64: ami-00d10ca79f70a302a
+      HVM64: ami-0895310529c333a0c
 
 Metadata:
   AWS::CloudFormation::Interface:
