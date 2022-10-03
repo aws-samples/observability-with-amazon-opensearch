@@ -66,14 +66,9 @@ Parameters:
     Type: String
     Default: "r6g.large.search"
   
-  MasterUserName:
+  OpenSearchMasterUserName:
     Description: Amazon OpenSearch Service - Username
     Default: "aosadmin"
-    Type: String
-
-  MasterUserPassword:
-    Description: Amazon OpenSearch Service - Password
-    Default: "P@ssw0rd!"
     Type: String
   
   # Reverse Proxy Variables
@@ -192,8 +187,7 @@ Metadata:
       - DomainName
       - EngineVersion
       - InstanceType
-      - MasterUserName
-      - MasterUserPassword
+      - OpenSearchMasterUserName
     - Label:
         default: "Reverse Proxy Configuration"
       Parameters:
@@ -583,8 +577,12 @@ Resources:
         Enabled: true
         InternalUserDatabaseEnabled: true
         MasterUserOptions:
-          MasterUserName: !Ref MasterUserName
-          MasterUserPassword: !Ref MasterUserPassword
+          MasterUserName: !Ref OpenSearchMasterUserName
+          MasterUserPassword: !Join
+                                - ""
+                                - - "{{resolve:secretsmanager:"
+                                  - !Ref AOSMasterPasswordSecret
+                                  - ":SecretString:password}}"
       VPCOptions:
         SubnetIds:
           - !Ref PrivateSubnet1
@@ -998,6 +996,119 @@ Resources:
               else:
                 responseData = {'Success': 'Update or delete event'}
                 cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')
+
+################## GENERATE OPENSEARCH PASSWORD ###################
+  AOSMasterPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: This secret has a dynamically generated secret password.
+      GenerateSecretString:
+        SecretStringTemplate: !Join [ '', [ '{"username": "', !Ref OpenSearchMasterUserName, '"}' ] ]
+        GenerateStringKey: "password"
+        PasswordLength: 10
+        ExcludeCharacters: "\" ' ( ) * + , - . / : ; < = > ! # ? @ [ \\ ] ^ _ ` { | } ~"
+
+  RetrieveAOSPasswordLambdaPolicy: 
+    Type: AWS::IAM::ManagedPolicy
+    Properties: 
+      PolicyDocument: 
+        Version: 2012-10-17
+        Statement: 
+          - Action: 
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: arn:aws:logs:*:*:*
+            Sid: AllowCWLogsWrite
+          - Action: 
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: !Ref AOSMasterPasswordSecret
+    
+  RetrieveAOSPasswordLambdaExecutionRole: 
+    Type: AWS::IAM::Role
+    DependsOn: RetrieveAOSPasswordLambdaPolicy
+    Properties:
+      AssumeRolePolicyDocument: 
+        Version: 2012-10-17
+        Statement: 
+          - Action: 
+              - sts:AssumeRole
+            Effect: Allow
+            Principal: 
+              Service: 
+                - lambda.amazonaws.com
+      ManagedPolicyArns: 
+        - !Ref RetrieveAOSPasswordLambdaPolicy
+      Path: /
+
+  RetrieveAOSPasswordLambdaFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: AOSMasterPasswordSecret
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt RetrieveAOSPasswordLambdaExecutionRole.Arn
+      Runtime: python3.9
+      Timeout: 120
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import base64
+          import os
+          import cfnresponse
+          from botocore.exceptions import ClientError
+
+
+          SECRET_ARN = os.getenv('SECRET_ARN')
+          REGION = os.getenv('REGION')
+
+          def lambda_handler(event, context):
+              # Create a Secrets Manager client
+              session = boto3.session.Session()
+              client = session.client(
+                  service_name='secretsmanager',
+                  region_name=REGION
+              )
+              
+              secret = ""
+              
+              try:
+                  get_secret_value_response = client.get_secret_value(
+                      SecretId=SECRET_ARN
+                  )
+              except ClientError as err:
+                  print(err)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, err)
+              else:
+                  # Decrypts secret using the associated KMS key.
+                  # Depending on whether the secret is a string or binary, one of these fields will be populated.
+                  if 'SecretString' in get_secret_value_response:
+                      secret = get_secret_value_response['SecretString']
+                  else:
+                      decoded_binary_secret = base64.b64decode(get_secret_value_response['SecretBinary'])
+
+              password_secret = json.loads(secret)
+              responseData = {"OpenSearchMasterPassword": password_secret["password"]}
+              print(responseData)
+              
+              if responseData:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+              else:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, "Internal Error")
+      Environment:
+        Variables:
+          SECRET_ARN: !Ref AOSMasterPasswordSecret
+          REGION: !Ref AWS::Region
+
+  RetrieveAOSPassword:
+    Type: Custom::RetrieveAOSPassword
+    DependsOn: RetrieveAOSPasswordLambdaFunction
+    Properties:
+        ServiceToken:
+            Fn::GetAtt: RetrieveAOSPasswordLambdaFunction.Arn
+
 ################## SSM BOOTSRAP HANDLER ###############
   C9OutputBucket:
     Type: AWS::S3::Bucket
@@ -1292,7 +1403,6 @@ Resources:
 ## Lambda Get PublicIP Information
   GetEC2PublicIP:
       Type: AWS::Lambda::Function
-      DependsOn: ReverseProxyLaunchConfig
       Properties:
         Code:
           ZipFile: |
@@ -1367,6 +1477,7 @@ Resources:
         Runtime: python3.9
   Lambdatrigger:
      Type: 'Custom::GetEC2PublicIP'
+     DependsOn: ReverseProxyASG
      Properties:
        ServiceToken: !GetAtt 'GetEC2PublicIP.Arn'
        GetPublicIP: !Ref GetEC2PublicIP
@@ -1437,11 +1548,11 @@ Outputs:
     Export:
       Name: AOSDomainEndpoint
   AOSDomainUserName:
-    Value: !Ref MasterUserName
+    Value: !Ref OpenSearchMasterUserName
     Export:
       Name: AOSDomainUserName
   AOSDomainPassword:
-    Value: !Ref MasterUserPassword
+    Value: !GetAtt RetrieveAOSPassword.OpenSearchMasterPassword
     Export:
       Name: AOSDomainPassword
   AOSDashboardsPublicIP:
