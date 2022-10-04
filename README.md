@@ -5,63 +5,10 @@ Amazon OpenSearch Service’s Trace Analytics functionality allows you to go bey
 ## Architecture
 ![architecture](/assets/arch.jpg)
 
-## Instructions (full version):
-Detailed Workshop instructions should be followed in this guide:  
-https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e
+## Instructions 🚀:
+Detailed Workshop instructions should be followed in this [guide](https://catalog.us-east-1.prod.workshops.aws/workshops/1abb648b-2ef8-442c-a731-efbcb69c1e1e).
 
-
-## Instructions (short version): 🚀
-
-### AWS CloudFormation
-- CloudFormation temples are in the /cf-templates/ directory.
-- Launch them from the AWS CloudFormation console.
-
-  - **stack.yaml**: The stack will create all the resources needed to run the workshop. VPC, AWS Cloud9, Amazon OpenSearch Service, Amazon EKS, and Reverse-Proxy Instance.
-
-### AWS Cloud9 (Terminal)
-  - Run the following commands on the Cloud9 [terminal] to install the necessary tools and configure environment variables.
-
- ```
- curl -sSL https://raw.githubusercontent.com/aws-samples/observability-with-amazon-opensearch/main/00-setup.sh | bash -s stable
- source ~/.bash_profile
- ```
- 
-  - You must build and push the microservices images to the ECR repository (should take 5 minutes to complete).
- 
- ```cd observability-with-amazon-opensearch/scripts/; bash 01-build-push.sh```
-  
- ### You must change credentials and endpoint in DataPrepper.
-  - Open the /observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-preper.yaml file via Cloud9 [editor] and replace the following variables with the corresponding values in the ’Outputs’ tab in CloudFormation. (You should only copy the content of the value of CloudFormation -> Output -> AOSDomainEndpoint [Key] instead of using "Copy Link".)
-  
-  ```
-  hosts: [ "https://__AOS_ENDPOINT__" ]
-  username: "__AOS_USERNAME__"
-  password: "__AOS_PASSWORD__"
-            
-  vim /sample-apps/01-data-preper/kubernetes/data-preper.yaml
-  ```
- 
- ### As a final step in deploying the microservices, you must apply the Kubernetes manifests. 
-  - Run the following command on the Cloud9 [terminal].
-  
-  ```bash 02-apply-k8s-manifests.sh```
-  
-  - Check that all created Pods are running, as follows (it may take a few seconds for all of them to start completely).
-
-  ```watch -n 10 kubectl get pods --all-namespaces```
-
-  - To get the Sample APP DNS endpoint.
-  
-  ```kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
-
-### Browser
-  - Validate the Sample App is working by opening the endpoint from the previous step in your browser:
-  ``` kubectl get svc -nclient-service | awk '{print $4}' | tail -n1```
-  
-  - Access OpenSearch Dashboards (URL):
-  ``` CloudFormation->Output->DashBoardPublicIP``` 
-
-### (For Information Only) Manual Instrumentation to collect traces
+## (For Information Only) Manual Instrumentation to collect traces
 
 As our sample microservice application is built using Python and Java, we have used OpenTelemetry Python packages to manually instrument our code.
 
