@@ -25,10 +25,29 @@ Parameters:
   EksClusterName:
     Default: eks-cluster-01
     Type: String
-  EksNodesRole:
-    Default: arn:*
-    Type: String
+
 Resources:
+
+  EKSNodesIAMRole:
+    Type: 'AWS::IAM::Role'
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:  
+          - Effect: Allow
+            Principal:
+              Service:
+                - eks.amazonaws.com
+                - ec2.amazonaws.com      
+            Action:
+              - 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
+        - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
+        - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
+        - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
+        - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+
   EKS:
     Type: 'AWS::EKS::Cluster'
     Properties:
@@ -46,7 +65,7 @@ Resources:
     DependsOn: EKS
     Properties:
       ClusterName: !Ref EksClusterName
-      NodeRole: !Ref EksNodesRole
+      NodeRole: !GetAtt EKSNodesIAMRole.Arn
       CapacityType: ON_DEMAND
       ScalingConfig:
         MinSize: 1
