@@ -12,9 +12,9 @@ export AOS_USERNAME=$(aws cloudformation describe-stacks --stack-name ${STACK_NA
 export AOS_PASSWORD=$(aws cloudformation describe-stacks --stack-name ${STACK_NAME} --query "Stacks[0].Outputs[?OutputKey=='AOSDomainPassword'].OutputValue" --output text)
 
 ##### Replace with OpenSearch details in DataPrepper #####
-sed -i -e "s/__AOS_ENDPOINT__/$AOS_ENDPOINT/g" observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-prepper.yaml
-sed -i -e "s/__AOS_USERNAME__/$AOS_USERNAME/g" observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-prepper.yaml
-sed -i -e "s/__AOS_PASSWORD__/$AOS_PASSWORD/g" observability-with-amazon-opensearch/sample-apps/01-data-preper/kubernetes/data-prepper.yaml
+sed -i -e "s/__AOS_ENDPOINT__/$AOS_ENDPOINT/g" observability-with-amazon-opensearch/sample-apps/01-data-prepper/kubernetes/data-prepper.yaml
+sed -i -e "s/__AOS_USERNAME__/$AOS_USERNAME/g" observability-with-amazon-opensearch/sample-apps/01-data-prepper/kubernetes/data-prepper.yaml
+sed -i -e "s/__AOS_PASSWORD__/$AOS_PASSWORD/g" observability-with-amazon-opensearch/sample-apps/01-data-prepper/kubernetes/data-prepper.yaml
 
 ##### Build and push the microservices images to the ECR repository #####
 cd observability-with-amazon-opensearch/scripts/
