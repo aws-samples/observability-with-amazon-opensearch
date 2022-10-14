@@ -45,7 +45,7 @@ Parameters:
     Default: 172.16.22.0/24
 
   NatGateway: 
-    Description: Create NatGateway (Yes or No)?.
+    Description: Create NatGateway (Yes or No)?
     Default: "Yes"
     Type: String
     AllowedValues: 
@@ -131,6 +131,7 @@ Parameters:
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
+    Default: "observability-with-amazon-opensearch"
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -181,7 +182,7 @@ Resources:
   Base:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/base.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/base.yaml
       Parameters:
         VpcCIDR: !Ref VpcCIDR
         EnvironmentName: !Ref EnvironmentName
@@ -196,7 +197,7 @@ Resources:
   Cloud9:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/cloud9.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/cloud9.yaml
       Parameters:
         EnvironmentNameC9: !Ref EnvironmentNameC9
         C9InstanceType: !Ref C9InstanceType
@@ -210,7 +211,7 @@ Resources:
   EKSCluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/ekscluster.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
       Parameters:
         EKSClusterName: !Ref EKSClusterName
         S3BucketName: !Ref S3BucketName
@@ -228,7 +229,7 @@ Resources:
   OpenSearch:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/opensearch.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/opensearch.yaml
       Parameters:
         DomainName: !Ref DomainName
         EngineVersion: !Ref EngineVersion
