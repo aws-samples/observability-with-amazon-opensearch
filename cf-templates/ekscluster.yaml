@@ -40,7 +40,7 @@ Resources:
         ServiceToken: !GetAtt DeployCloudformationStack.Arn
         cfStackName: "eksDeploy"
         assumeRoleARN: !Ref C9Role
-        templateUrl: !Sub https://${S3BucketName}.s3.amazonaws.com/eks.yaml
+        templateUrl: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/eks.yaml
         stackParameters: 
           - ParameterKey: EksClusterName
             ParameterValue: !Ref EKSClusterName
