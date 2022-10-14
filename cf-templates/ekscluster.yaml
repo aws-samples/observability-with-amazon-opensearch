@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "Template to create the EKS Clsuter resources on the Observability with Amazon workshop."
+Description: "Template to create the EKS Clsuter resources on the Microservice Observability with Amazon OpenSearch Service Workshop."
 
 Parameters: 
   EKSClusterName:
