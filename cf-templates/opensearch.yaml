@@ -61,7 +61,7 @@ Resources:
   AWSServiceRoleForAmazonOpenSearchService:
     Type: 'AWS::IAM::ServiceLinkedRole'
     Properties:
-      AWSServiceName: es.amazonaws.com
+      AWSServiceName: opensearchservice.amazonaws.com
 
   OpenSearchIngressSecurityGroup:
     Type: AWS::EC2::SecurityGroup
