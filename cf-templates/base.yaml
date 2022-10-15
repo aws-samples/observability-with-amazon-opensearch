@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: "This template creates base resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
 
-Parameters: 
+Parameters:
   VpcCIDR:
     Type: String
   EnvironmentName:
@@ -21,11 +21,11 @@ Parameters:
   NatGateway:
     Type: String
 
-Conditions: 
-  CreateNgwResource: !Equals [ !Ref NatGateway, "Yes" ]
+Conditions:
+  CreateNgwResource: !Equals [!Ref NatGateway, "Yes"]
 
-Resources: 
-######## VPC ########
+Resources:
+  ######## VPC ########
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -55,7 +55,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 0, !GetAZs '' ]
+      AvailabilityZone: !Select [0, !GetAZs ""]
       CidrBlock: !Ref PublicSubnet1CIDR
       MapPublicIpOnLaunch: true
       Tags:
@@ -66,7 +66,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      AvailabilityZone: !Select [1, !GetAZs ""]
       CidrBlock: !Ref PublicSubnet2CIDR
       MapPublicIpOnLaunch: true
       Tags:
@@ -77,7 +77,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 2, !GetAZs  '' ]
+      AvailabilityZone: !Select [2, !GetAZs ""]
       CidrBlock: !Ref PublicSubnet3CIDR
       MapPublicIpOnLaunch: true
       Tags:
@@ -88,7 +88,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 0, !GetAZs  '' ]
+      AvailabilityZone: !Select [0, !GetAZs ""]
       CidrBlock: !Ref PrivateSubnet1CIDR
       MapPublicIpOnLaunch: false
       Tags:
@@ -101,7 +101,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 1, !GetAZs  '' ]
+      AvailabilityZone: !Select [1, !GetAZs ""]
       CidrBlock: !Ref PrivateSubnet2CIDR
       MapPublicIpOnLaunch: false
       Tags:
@@ -114,7 +114,7 @@ Resources:
     Type: AWS::EC2::Subnet
     Properties:
       VpcId: !Ref VPC
-      AvailabilityZone: !Select [ 2, !GetAZs  '' ]
+      AvailabilityZone: !Select [2, !GetAZs ""]
       CidrBlock: !Ref PrivateSubnet3CIDR
       MapPublicIpOnLaunch: false
       Tags:
@@ -287,7 +287,7 @@ Resources:
         - Description: Allow all outbound traffic
           IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
-      
+
   CreateVpcEndpointSSM:
     Type: AWS::EC2::VPCEndpoint
     Properties:
@@ -330,7 +330,7 @@ Resources:
       ServiceName: !Sub com.amazonaws.${AWS::Region}.ec2messages
       VpcId: !Ref VPC
 
-######## ECR Repositories ########
+  ######## ECR Repositories ########
   AnalyticsServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
@@ -344,22 +344,22 @@ Resources:
   OrderServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "order-service"     
+      RepositoryName: "order-service"
 
   InventoryServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "inventory-service"            
+      RepositoryName: "inventory-service"
 
   PaymentServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "payment-service"        
+      RepositoryName: "payment-service"
 
   RecommendationServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
-      RepositoryName: "recommendation-service"        
+      RepositoryName: "recommendation-service"
 
   AuthenticationServiceRepository:
     Type: AWS::ECR::Repository
@@ -371,7 +371,12 @@ Resources:
     Properties:
       RepositoryName: "client-service"
 
-### Shared IAM Roles ###
+  ### Shared IAM Roles ###
+
+  AWSServiceRoleForAmazonOpenSearchService:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: opensearchservice.amazonaws.com
 
   DeployCloudformationStackLambdaRole:
     Type: AWS::IAM::Role
@@ -391,31 +396,33 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - 'logs:CreateLogGroup'
-                  - 'logs:CreateLogStream'
-                  - 'logs:PutLogEvents'
-                  - 'iam:PassRole'
-                  - 'iam:GetRole'
-                  - 'cloudformation:CreateStack'
-                  - 'cloudformation:CreateChangeSet'
-                  - 'eks:DescribeCluster'
-                Resource: '*'
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                  - "iam:PassRole"
+                  - "iam:GetRole"
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:CreateChangeSet"
+                  - "cloudformation:DeleteStack"
+                  - "cloudformation:DescribeStacks"
+                  - "eks:DescribeCluster"
+                Resource: "*"
 
   EKSIAMRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
-        Statement:  
+        Statement:
           - Effect: Allow
             Principal:
               Service:
-                - eks.amazonaws.com       
+                - eks.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy
-        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy   
+        - arn:aws:iam::aws:policy/AmazonEKSServicePolicy
 
 Outputs:
   VPC:
