@@ -259,7 +259,7 @@ Resources:
               else:
                 responseData = {'Success': 'Update or delete event'}
                 cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')
-  ################## SSM BOOTSRAP HANDLER ###############
+  ######## SSM BOOTSRAP HANDLER ########
   C9OutputBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain

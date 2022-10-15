@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "This template creates the base resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
+Description: "This template creates the Base resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
 
 Parameters:
   VpcCIDR:
@@ -371,7 +371,7 @@ Resources:
     Properties:
       RepositoryName: "client-service"
 
-  ### Shared IAM Roles ###
+  ######## Shared IAM Roles ########
 
   AWSServiceRoleForAmazonOpenSearchService:
     Type: "AWS::IAM::ServiceLinkedRole"
@@ -402,13 +402,15 @@ Resources:
                   - "iam:PassRole"
                   - "iam:GetRole"
                   - "iam:DetachRolePolicy"
+                  - "iam:DeleteRole"
                   - "cloudformation:CreateStack"
                   - "cloudformation:CreateChangeSet"
                   - "cloudformation:DeleteStack"
                   - "cloudformation:DescribeStacks"
                   - "eks:DescribeCluster"
-                  - "eks:DeleteCluster"
                   - "eks:DescribeNodegroup"
+                  - "eks:DeleteCluster"
+                  - "eks:DeleteNodegroup"
                 Resource: "*"
 
   EKSIAMRole:

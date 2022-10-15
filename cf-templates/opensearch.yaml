@@ -368,7 +368,7 @@ Resources:
           CidrIp: 0.0.0.0/0
       VpcId: !Ref VPC
 
-  ################## Lambda Get PublicIP Information ###################
+  ######## Lambda Get PublicIP Information ########
   GetEC2PublicIP:
     Type: AWS::Lambda::Function
     DependsOn: ReverseProxyLaunchConfig
