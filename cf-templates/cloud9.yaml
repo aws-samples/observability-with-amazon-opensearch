@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "Template to create the Cloud9 resources on the Microservice Observability with Amazon OpenSearch Service Workshop."
+Description: "This template create the AWS Cloud9 resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
 
-Parameters: 
+Parameters:
   EnvironmentNameC9:
     Type: String
   C9InstanceType:
@@ -19,13 +19,13 @@ Parameters:
   EKSIAMRole:
     Type: String
 
-Conditions: 
-  Create3rdPartyResources: !Equals [ !Ref C9EnvType, 3rdParty ]
-  CreateEventEngineResources: !Equals [ !Ref C9EnvType, event-engine ]
-  CreateWorkstudioResources: !Equals [ !Ref C9EnvType, workshop-studio ]
+Conditions:
+  Create3rdPartyResources: !Equals [!Ref C9EnvType, 3rdParty]
+  CreateEventEngineResources: !Equals [!Ref C9EnvType, event-engine]
+  CreateWorkstudioResources: !Equals [!Ref C9EnvType, workshop-studio]
 
-Resources: 
-######## Cloud9 ########
+Resources:
+  ######## AWS Cloud9 ########
   C9Role:
     Type: AWS::IAM::Role
     Properties:
@@ -34,136 +34,136 @@ Resources:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9}
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - ec2.amazonaws.com
-            - ssm.amazonaws.com
-            - eks.amazonaws.com
-            - codebuild.amazonaws.com
-          Action:
-          - sts:AssumeRole
-        - Effect: Allow
-          Principal:
-            AWS: !Ref DeployCloudformationStackLambdaRole
-          Action: sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+                - ssm.amazonaws.com
+                - eks.amazonaws.com
+                - codebuild.amazonaws.com
+            Action:
+              - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              AWS: !Ref DeployCloudformationStackLambdaRole
+            Action: sts:AssumeRole
       ManagedPolicyArns:
-      - arn:aws:iam::aws:policy/AdministratorAccess
-      - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/AdministratorAccess
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
       Path: "/"
       Policies:
-      - PolicyName:
-          Fn::Join:
-          - ''
-          - - C9InstanceDenyPolicy-
-            - Ref: AWS::Region
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Deny
-            Action:
-            - cloud9:UpdateEnvironment
-            Resource: "*"
-      - PolicyName: RunKubeCtlCommands
-        PolicyDocument:
-          Version: 2012-10-17
-          Statement:
-          - Effect: Allow
-            Action:
-              - 'eks:*'
-              - 'cloudformation:CreateStack'
-              - 'cloudformation:CreateChangeSet'
-              - 'serverlessrepo:CreateCloudFormationTemplate'
-              - 'serverlessrepo:GetCloudFormationTemplate'
-              - 's3:GetObject'
-              - 'lambda:PublishLayerVersion'
-              - 'lambda:CreateFunction'
-              - 'lambda:GetLayerVersion'
-              - 'lambda:GetFunction'
-              - 'lambda:InvokeFunction'
-              - 'lambda:GetFunctionConfiguration'
-              - 'iam:PassRole'
-              - 'iam:GetRole'
-              - 'logs:CreateLogGroup'
-              - 'logs:CreateLogStream'
-              - 'logs:PutLogEvents'
-            Resource: '*'
-          - Effect: Allow
-            Action:
-              - 'iam:PassRole'
-              - 'iam:GetRole'
-            Resource: 
-              - !Ref EKSIAMRole
-              - !Ref DeployCloudformationStackLambdaRole
+        - PolicyName:
+            Fn::Join:
+              - ""
+              - - C9InstanceDenyPolicy-
+                - Ref: AWS::Region
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Deny
+                Action:
+                  - cloud9:UpdateEnvironment
+                Resource: "*"
+        - PolicyName: RunKubeCtlCommands
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "eks:*"
+                  - "cloudformation:CreateStack"
+                  - "cloudformation:CreateChangeSet"
+                  - "serverlessrepo:CreateCloudFormationTemplate"
+                  - "serverlessrepo:GetCloudFormationTemplate"
+                  - "s3:GetObject"
+                  - "lambda:PublishLayerVersion"
+                  - "lambda:CreateFunction"
+                  - "lambda:GetLayerVersion"
+                  - "lambda:GetFunction"
+                  - "lambda:InvokeFunction"
+                  - "lambda:GetFunctionConfiguration"
+                  - "iam:PassRole"
+                  - "iam:GetRole"
+                  - "logs:CreateLogGroup"
+                  - "logs:CreateLogStream"
+                  - "logs:PutLogEvents"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - "iam:PassRole"
+                  - "iam:GetRole"
+                Resource:
+                  - !Ref EKSIAMRole
+                  - !Ref DeployCloudformationStackLambdaRole
 
   C9LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
       AssumeRolePolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
-        - Effect: Allow
-          Principal:
-            Service:
-            - lambda.amazonaws.com
-          Action:
-          - sts:AssumeRole
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
       Path: "/"
       ManagedPolicyArns:
         - "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
       Policies:
-      - PolicyName:
-          Fn::Join:
-          - ''
-          - - C9LambdaPolicy-
-            - Ref: AWS::Region
-        PolicyDocument:
-          Version: '2012-10-17'
-          Statement:
-          - Effect: Allow
-            Action:
-            - cloudformation:DescribeStacks
-            - cloudformation:DescribeStackEvents
-            - cloudformation:DescribeStackResource
-            - cloudformation:DescribeStackResources
-            Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*"
-          - Effect: Allow
-            Action:
-            - ec2:AssociateIamInstanceProfile
-            - ec2:ModifyInstanceAttribute
-            - ec2:ReplaceIamInstanceProfileAssociation
-            - ec2:DisassociateIamInstanceProfile
-            Resource: !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
-          - Effect: Allow
-            Action:
-            - ec2:DescribeInstances
-            - ec2:DescribeIamInstanceProfileAssociations
-            Resource: "*"         
-          - Effect: Allow
-            Action:
-            - iam:ListInstanceProfiles
-            Resource: !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
-          - Effect: Allow
-            Action:
-            - iam:PassRole
-            Resource: 
-              Fn::GetAtt:
-                - C9Role
-                - Arn
+        - PolicyName:
+            Fn::Join:
+              - ""
+              - - C9LambdaPolicy-
+                - Ref: AWS::Region
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - cloudformation:DescribeStacks
+                  - cloudformation:DescribeStackEvents
+                  - cloudformation:DescribeStackResource
+                  - cloudformation:DescribeStackResources
+                Resource: !Sub "arn:aws:cloudformation:${AWS::Region}:${AWS::AccountId}:stack/*"
+              - Effect: Allow
+                Action:
+                  - ec2:AssociateIamInstanceProfile
+                  - ec2:ModifyInstanceAttribute
+                  - ec2:ReplaceIamInstanceProfileAssociation
+                  - ec2:DisassociateIamInstanceProfile
+                Resource: !Sub "arn:aws:ec2:${AWS::Region}:${AWS::AccountId}:instance/*"
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeInstances
+                  - ec2:DescribeIamInstanceProfileAssociations
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - iam:ListInstanceProfiles
+                Resource: !Sub arn:aws:iam::${AWS::AccountId}:instance-profile/*
+              - Effect: Allow
+                Action:
+                  - iam:PassRole
+                Resource:
+                  Fn::GetAtt:
+                    - C9Role
+                    - Arn
   C9BootstrapInstanceLambda:
     Type: Custom::C9BootstrapInstanceLambda
     DependsOn:
-    - C9LambdaExecutionRole
+      - C9LambdaExecutionRole
     Properties:
       Tags:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9}
       ServiceToken:
         Fn::GetAtt:
-        - C9BootstrapInstanceLambdaFunction
-        - Arn
+          - C9BootstrapInstanceLambdaFunction
+          - Arn
       REGION:
         Ref: AWS::Region
       StackName:
@@ -174,8 +174,8 @@ Resources:
         Ref: C9InstanceProfile
       LabIdeInstanceProfileArn:
         Fn::GetAtt:
-        - C9InstanceProfile
-        - Arn
+          - C9InstanceProfile
+          - Arn
   C9BootstrapInstanceLambdaFunction:
     Type: AWS::Lambda::Function
     Properties:
@@ -185,8 +185,8 @@ Resources:
       Handler: index.lambda_handler
       Role:
         Fn::GetAtt:
-        - C9LambdaExecutionRole
-        - Arn
+          - C9LambdaExecutionRole
+          - Arn
       Runtime: python3.9
       MemorySize: 256
       Timeout: 600
@@ -203,28 +203,28 @@ Resources:
 
           logger = logging.getLogger(__name__)
           logger.setLevel(logging.INFO)
-          
+
           def lambda_handler(event, context):
               logger.info('event: {}'.format(event))
               logger.info('context: {}'.format(context))
               responseData = {}
-          
+
               if event['RequestType'] == 'Create':
                   try:
                       # Open AWS clients
                       ec2 = boto3.client('ec2')
-          
+
                       # Get the InstanceId of the Cloud9 IDE
                       instance = ec2.describe_instances(Filters=[{'Name': 'tag:Name','Values': ['aws-cloud9-observabilityworkshop'+'-'+event['ResourceProperties']['EnvironmentId']]}])['Reservations'][0]['Instances'][0]
                       logger.info('instance: {}'.format(instance))
-          
+
                       # Create the IamInstanceProfile request object
                       iam_instance_profile = {
                           'Arn': event['ResourceProperties']['LabIdeInstanceProfileArn'],
                           'Name': event['ResourceProperties']['LabIdeInstanceProfileName']
                       }
                       logger.info('iam_instance_profile: {}'.format(iam_instance_profile))
-          
+
                       # Wait for Instance to become ready before adding Role
                       instance_state = instance['State']['Name']
                       logger.info('instance_state: {}'.format(instance_state))
@@ -242,11 +242,11 @@ Resources:
                           disassociation = ec2.disassociate_iam_instance_profile(AssociationId=profile['AssociationId'])
                           logger.info('Disassociated existing instance profile attached to the EC2 instance: {}'.format(disassociation))
                           time.sleep(5)
-          
+
                       # attach instance profile
                       response = ec2.associate_iam_instance_profile(IamInstanceProfile=iam_instance_profile, InstanceId=instance['InstanceId'])
                       logger.info('response - associate_iam_instance_profile: {}'.format(response))
-  
+
                       responseData = {'Success': 'Started bootstrapping for instance: '+instance['InstanceId']}
                       cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')
                       
@@ -259,7 +259,7 @@ Resources:
               else:
                 responseData = {'Success': 'Update or delete event'}
                 cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData, 'CustomResourcePhysicalID')
-################## SSM BOOTSRAP HANDLER ###############
+  ################## SSM BOOTSRAP HANDLER ###############
   C9OutputBucket:
     Type: AWS::S3::Bucket
     DeletionPolicy: Retain
@@ -283,121 +283,121 @@ Resources:
         Version: 2012-10-17
         Statement:
           - Action:
-              - 's3:GetObject'
-              - 's3:PutObject'
-              - 's3:PutObjectAcl'
+              - "s3:GetObject"
+              - "s3:PutObject"
+              - "s3:PutObjectAcl"
             Effect: Allow
             Resource: !Join
-              - ''
-              - - 'arn:aws:s3:::'
+              - ""
+              - - "arn:aws:s3:::"
                 - !Ref C9OutputBucket
                 - /*
             Principal:
-              AWS: 
+              AWS:
                 Fn::GetAtt:
-                - C9LambdaExecutionRole
-                - Arn
-  C9SSMDocument: 
+                  - C9LambdaExecutionRole
+                  - Arn
+  C9SSMDocument:
     Type: AWS::SSM::Document
-    Properties: 
+    Properties:
       Tags:
         - Key: Environment
           Value: !Sub ${EnvironmentNameC9}
       DocumentType: Command
-      Content: 
-        schemaVersion: '2.2'
+      Content:
+        schemaVersion: "2.2"
         description: Bootstrap Cloud9 Instance
         mainSteps:
-        - action: aws:runShellScript
-          name: C9bootstrap
-          inputs:
-            runCommand:
-            - "#!/bin/bash"
-            - date
-            - echo LANG=en_US.utf-8 >> /etc/environment
-            - echo LC_ALL=en_US.UTF-8 >> /etc/environment
-            - . /home/ec2-user/.bashrc
-            - yum -y remove aws-cli; yum -y install sqlite telnet jq strace tree gcc glibc-static python3 python3-pip gettext bash-completion
-            - echo '=== CONFIGURE default python version ==='
-            - PATH=$PATH:/usr/bin
-            - alternatives --set python /usr/bin/python3.9
-            - echo '=== INSTALL and CONFIGURE default software components ==='
-            - sudo -H -u ec2-user bash -c "pip install --user -U boto boto3 botocore awscli aws-sam-cli"
-            - echo '=== INSTALL Kubectl ==='
-            - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/kubectl
-            - sudo chmod +x kubectl && sudo mv kubectl /usr/local/bin/
-            - sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
-            - echo '=== INSTALL eksctl ==='
-            - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
-            - sudo mv /tmp/eksctl /usr/local/bin
-            - echo '=== Resizing the Instance volume'
-            - !Sub SIZE=${C9InstanceVolumeSize}
-            - !Sub REGION=${AWS::Region}
-            - |
-              TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
-              INSTANCEID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
-              VOLUMEID=$(aws ec2 describe-instances \
-                --instance-id $INSTANCEID \
-                --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
-                --output text --region $REGION)
-              aws ec2 modify-volume --volume-id $VOLUMEID --size $SIZE --region $REGION
-              while [ \
-                "$(aws ec2 describe-volumes-modifications \
-                  --volume-id $VOLUMEID \
-                  --filters Name=modification-state,Values="optimizing","completed" \
-                  --query "length(VolumesModifications)"\
-                  --output text --region $REGION)" != "1" ]; do
-              sleep 1
-              done
-              if [ $(readlink -f /dev/xvda) = "/dev/xvda" ]
-              then
-                sudo growpart /dev/xvda 1
-                STR=$(cat /etc/os-release)
-                SUB="VERSION_ID=\"2\""
-                if [[ "$STR" == *"$SUB"* ]]
-                then
-                  sudo xfs_growfs -d /
-                else
-                  sudo resize2fs /dev/xvda1
-                fi
-              else
-                sudo growpart /dev/nvme0n1 1
-                STR=$(cat /etc/os-release)
-                SUB="VERSION_ID=\"2\""
-                if [[ "$STR" == *"$SUB"* ]]
-                then
-                  sudo xfs_growfs -d /
-                else
-                  sudo resize2fs /dev/nvme0n1p1
-                fi
-              fi
-            - echo "Bootstrap completed with return code $?"
+          - action: aws:runShellScript
+            name: C9bootstrap
+            inputs:
+              runCommand:
+                - "#!/bin/bash"
+                - date
+                - echo LANG=en_US.utf-8 >> /etc/environment
+                - echo LC_ALL=en_US.UTF-8 >> /etc/environment
+                - . /home/ec2-user/.bashrc
+                - yum -y remove aws-cli; yum -y install sqlite telnet jq strace tree gcc glibc-static python3 python3-pip gettext bash-completion
+                - echo '=== CONFIGURE default python version ==='
+                - PATH=$PATH:/usr/bin
+                - alternatives --set python /usr/bin/python3.9
+                - echo '=== INSTALL and CONFIGURE default software components ==='
+                - sudo -H -u ec2-user bash -c "pip install --user -U boto boto3 botocore awscli aws-sam-cli"
+                - echo '=== INSTALL Kubectl ==='
+                - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+                - sudo chmod +x kubectl && sudo mv kubectl /usr/local/bin/
+                - sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
+                - echo '=== INSTALL eksctl ==='
+                - curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+                - sudo mv /tmp/eksctl /usr/local/bin
+                - echo '=== Resizing the Instance volume'
+                - !Sub SIZE=${C9InstanceVolumeSize}
+                - !Sub REGION=${AWS::Region}
+                - |
+                  TOKEN=$(curl -X PUT "http://169.254.169.254/latest/api/token" -H "X-aws-ec2-metadata-token-ttl-seconds: 21600")
+                  INSTANCEID=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" http://169.254.169.254/latest/meta-data/instance-id)
+                  VOLUMEID=$(aws ec2 describe-instances \
+                    --instance-id $INSTANCEID \
+                    --query "Reservations[0].Instances[0].BlockDeviceMappings[0].Ebs.VolumeId" \
+                    --output text --region $REGION)
+                  aws ec2 modify-volume --volume-id $VOLUMEID --size $SIZE --region $REGION
+                  while [ \
+                    "$(aws ec2 describe-volumes-modifications \
+                      --volume-id $VOLUMEID \
+                      --filters Name=modification-state,Values="optimizing","completed" \
+                      --query "length(VolumesModifications)"\
+                      --output text --region $REGION)" != "1" ]; do
+                  sleep 1
+                  done
+                  if [ $(readlink -f /dev/xvda) = "/dev/xvda" ]
+                  then
+                    sudo growpart /dev/xvda 1
+                    STR=$(cat /etc/os-release)
+                    SUB="VERSION_ID=\"2\""
+                    if [[ "$STR" == *"$SUB"* ]]
+                    then
+                      sudo xfs_growfs -d /
+                    else
+                      sudo resize2fs /dev/xvda1
+                    fi
+                  else
+                    sudo growpart /dev/nvme0n1 1
+                    STR=$(cat /etc/os-release)
+                    SUB="VERSION_ID=\"2\""
+                    if [[ "$STR" == *"$SUB"* ]]
+                    then
+                      sudo xfs_growfs -d /
+                    else
+                      sudo resize2fs /dev/nvme0n1p1
+                    fi
+                  fi
+                - echo "Bootstrap completed with return code $?"
 
-  C9BootstrapAssociation: 
+  C9BootstrapAssociation:
     Type: AWS::SSM::Association
-    Properties: 
+    Properties:
       Name: !Ref C9SSMDocument
-      OutputLocation: 
+      OutputLocation:
         S3Location:
           OutputS3BucketName: !Ref C9OutputBucket
           OutputS3KeyPrefix: bootstrapoutput
       Targets:
         - Key: tag:SSMBootstrap
           Values:
-          - Active
-  
+            - Active
+
   C9InstanceProfile:
     Type: AWS::IAM::InstanceProfile
     Properties:
       Path: "/"
       Roles:
-      - Ref: C9Role
+        - Ref: C9Role
 
   C9Instance:
     DependsOn: C9BootstrapAssociation
     Type: AWS::Cloud9::EnvironmentEC2
     Properties:
-      Description: !Sub  AWS Cloud9 instance for ${EnvironmentNameC9}
+      Description: !Sub AWS Cloud9 instance for ${EnvironmentNameC9}
       SubnetId: !Ref PublicSubnet1
       #ConnectionType: CONNECT_SSM
 
@@ -405,12 +405,39 @@ Resources:
       InstanceType:
         Ref: C9InstanceType
       Name: observabilityworkshop
-      OwnerArn: !If [Create3rdPartyResources, !Ref OwnerArn, !If [CreateEventEngineResources, !Join ['',['arn:aws:iam::',!Ref 'AWS::AccountId',':assumed-role/TeamRole/MasterKey']],!If [CreateWorkstudioResources, !Join ['',['arn:aws:iam::',!Ref 'AWS::AccountId',':assumed-role/WSParticipantRole/Participant']],!Ref "AWS::NoValue"]]]
-      Tags: 
+      OwnerArn:
+        !If [
+          Create3rdPartyResources,
+          !Ref OwnerArn,
+          !If [
+            CreateEventEngineResources,
+            !Join [
+              "",
+              [
+                "arn:aws:iam::",
+                !Ref "AWS::AccountId",
+                ":assumed-role/TeamRole/MasterKey",
+              ],
+            ],
+            !If [
+              CreateWorkstudioResources,
+              !Join [
+                "",
+                [
+                  "arn:aws:iam::",
+                  !Ref "AWS::AccountId",
+                  ":assumed-role/WSParticipantRole/Participant",
+                ],
+              ],
+              !Ref "AWS::NoValue",
+            ],
+          ],
+        ]
+      Tags:
         - Key: SSMBootstrap
           Value: Active
         - Key: Environment
-          Value: !Sub ${EnvironmentNameC9} 
+          Value: !Sub ${EnvironmentNameC9}
 
 Outputs:
   C9Role:
@@ -418,12 +445,12 @@ Outputs:
   Cloud9IDE:
     Value:
       Fn::Join:
-      - ''
-      - - https://
-        - Ref: AWS::Region
-        - ".console.aws.amazon.com/cloud9/ide/"
-        - Ref: C9Instance
-        - "?region="
-        - Ref: AWS::Region
+        - ""
+        - - https://
+          - Ref: AWS::Region
+          - ".console.aws.amazon.com/cloud9/ide/"
+          - Ref: C9Instance
+          - "?region="
+          - Ref: AWS::Region
     Export:
       Name: Cloud9IDE

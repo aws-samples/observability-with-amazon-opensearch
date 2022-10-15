@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: "This template creates base resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
+Description: "This template creates the base resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
 
 Parameters:
   VpcCIDR:
@@ -25,7 +25,7 @@ Conditions:
   CreateNgwResource: !Equals [!Ref NatGateway, "Yes"]
 
 Resources:
-  ######## VPC ########
+  ######## Amazon VPC ########
   VPC:
     Type: AWS::EC2::VPC
     Properties:
@@ -330,7 +330,7 @@ Resources:
       ServiceName: !Sub com.amazonaws.${AWS::Region}.ec2messages
       VpcId: !Ref VPC
 
-  ######## ECR Repositories ########
+  ######## Amazon ECR Repositories ########
   AnalyticsServiceRepository:
     Type: AWS::ECR::Repository
     Properties:
@@ -401,11 +401,14 @@ Resources:
                   - "logs:PutLogEvents"
                   - "iam:PassRole"
                   - "iam:GetRole"
+                  - "iam:DetachRolePolicy"
                   - "cloudformation:CreateStack"
                   - "cloudformation:CreateChangeSet"
                   - "cloudformation:DeleteStack"
                   - "cloudformation:DescribeStacks"
                   - "eks:DescribeCluster"
+                  - "eks:DeleteCluster"
+                  - "eks:DescribeNodegroup"
                 Resource: "*"
 
   EKSIAMRole:

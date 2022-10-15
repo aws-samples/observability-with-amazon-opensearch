@@ -1,5 +1,7 @@
 AWSTemplateFormatVersion: 2010-09-09
-Transform: 'AWS::Serverless-2016-10-31'
+Description: "This template create the EKS node group resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
+
+Transform: "AWS::Serverless-2016-10-31"
 Parameters:
   EksClusterRole:
     Default: arn:*
@@ -27,20 +29,19 @@ Parameters:
     Type: String
 
 Resources:
-
   EKSNodesIAMRole:
-    Type: 'AWS::IAM::Role'
+    Type: "AWS::IAM::Role"
     Properties:
       AssumeRolePolicyDocument:
         Version: 2012-10-17
-        Statement:  
+        Statement:
           - Effect: Allow
             Principal:
               Service:
                 - eks.amazonaws.com
-                - ec2.amazonaws.com      
+                - ec2.amazonaws.com
             Action:
-              - 'sts:AssumeRole'
+              - "sts:AssumeRole"
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy
         - arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly
@@ -49,19 +50,19 @@ Resources:
         - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
 
   EKS:
-    Type: 'AWS::EKS::Cluster'
+    Type: "AWS::EKS::Cluster"
     Properties:
       Name: !Ref EksClusterName
-      Version: '1.22'
+      Version: "1.22"
       RoleArn: !Ref EksClusterRole
       ResourcesVpcConfig:
         SubnetIds:
-         - !Ref EksSubnet1
-         - !Ref EksSubnet2
-         - !Ref EksSubnet3
-  
+          - !Ref EksSubnet1
+          - !Ref EksSubnet2
+          - !Ref EksSubnet3
+
   EKSNodegroup:
-    Type: 'AWS::EKS::Nodegroup'
+    Type: "AWS::EKS::Nodegroup"
     DependsOn: EKS
     Properties:
       ClusterName: !Ref EksClusterName
