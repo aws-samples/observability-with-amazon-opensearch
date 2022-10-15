@@ -1,9 +1,9 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: This template deploys a VPC, with a pair of public and private subnets spread across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon OpenSearch Service and Reverse-Proxy Instance).
+Description: This template deploys a VPC, with a pair of public and private subnets spread across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon ECR, Amazon EKS, Amazon OpenSearch Service and Reverse-Proxy Instance).
 
 Parameters:
-  # VPC Variables
+  ######## VPC Variables ########
   EnvironmentName:
     Description: An environment name that is prefixed to resource names
     Type: String
@@ -44,41 +44,41 @@ Parameters:
     Type: String
     Default: 172.16.22.0/24
 
-  NatGateway: 
+  NatGateway:
     Description: Create NatGateway (Yes or No)?
     Default: "Yes"
     Type: String
-    AllowedValues: 
+    AllowedValues:
       - "Yes"
 
-  # Amazon OpenSearch Variables
+  ######## Amazon OpenSearch Variables ########
   DomainName:
     Type: String
     Default: "observability-aos"
-  
+
   EngineVersion:
     Description: Amazon OpenSearch Service - Version
     Type: String
     Default: "OpenSearch_1.3"
-  
+
   InstanceType:
     Description: Amazon OpenSearch Service - Instance Type
     Type: String
     Default: "r6g.large.search"
-  
+
   OpenSearchMasterUserName:
     Description: Amazon OpenSearch Service - Username
     Default: "aosadmin"
     Type: String
-  
-  # Reverse Proxy Variables
+
+  ######## Reverse Proxy Variables ########
   ReverseProxyInstanceType:
-   Description: Reverse Proxy EC2 instance type
-   Type: String
-   Default: t2.small
-   AllowedValues:
-    - t2.micro
-    - t2.small
+    Description: Reverse Proxy EC2 instance type
+    Type: String
+    Default: t2.small
+    AllowedValues:
+      - t2.micro
+      - t2.small
 
   ReverseProxySSHLocation:
     Description: Allow SSH into Proxy instance
@@ -86,8 +86,8 @@ Parameters:
     Default: 172.16.0.0/16
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
-  
-  # Cloud9 Variables
+
+  ######## Cloud9 Variables ########
   EnvironmentNameC9:
     Description: An environment name that is prefixed to resource names
     Type: String
@@ -102,32 +102,32 @@ Parameters:
       - t3.small
       - t3.medium
     ConstraintDescription: Must be a valid Cloud9 instance type
-  C9EnvType: 
+  C9EnvType:
     Description: Environment type.
     Default: self
     Type: String
-    AllowedValues: 
+    AllowedValues:
       - self
       - 3rdParty
       - event-engine
       - workshop-studio
     ConstraintDescription: must specify self or 3rdParty.
-  OwnerArn: 
+  OwnerArn:
     Type: String
     Description: The Arn of the Cloud9 Owner to be set if 3rdParty deployment.
     Default: ""
-  C9InstanceVolumeSize: 
+  C9InstanceVolumeSize:
     Type: Number
-    Description: The Size in GB of the Cloud9 Instance Volume. 
+    Description: The Size in GB of the Cloud9 Instance Volume.
     Default: 30
-  
-  # EKS Cluster Variables
+
+  ######## EKS Cluster Variables ########
   EKSClusterName:
-    Description: 'Please enter the EKS Cluster Name'
+    Description: "Please enter the EKS Cluster Name"
     Type: String
     Default: "observability-cluster"
 
-  # General
+  ######## General ########
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
@@ -136,47 +136,46 @@ Parameters:
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
-    - Label:
-        default: "General Information"
-      Parameters:
-      - EnvironmentName
-      - S3BucketName
-    - Label:
-        default: "Network Configuration"
-      Parameters:
-      - VpcCIDR
-      - PublicSubnet1CIDR
-      - PublicSubnet2CIDR
-      - PublicSubnet3CIDR
-      - PrivateSubnet1CIDR
-      - PrivateSubnet2CIDR
-      - PrivateSubnet3CIDR
-      - NatGateway
-    - Label:
-        default: "OpenSearch Configuration"
-      Parameters:
-      - DomainName
-      - EngineVersion
-      - InstanceType
-      - OpenSearchMasterUserName
-    - Label:
-        default: "Reverse Proxy Configuration"
-      Parameters:
-      - ReverseProxyInstanceType
-      - ReverseProxySSHLocation
-    - Label:
-        default: "Cloud9 Configuration"
-      Parameters:
-      - EnvironmentNameC9
-      - C9InstanceType
-      - C9EnvType
-      - OwnerArn
-      - C9InstanceVolumeSize
-    - Label:
-        default: "EKS Configuration"
-      Parameters:
-      - EKSClusterName
-
+      - Label:
+          default: "General Information"
+        Parameters:
+          - EnvironmentName
+          - S3BucketName
+      - Label:
+          default: "Network Configuration"
+        Parameters:
+          - VpcCIDR
+          - PublicSubnet1CIDR
+          - PublicSubnet2CIDR
+          - PublicSubnet3CIDR
+          - PrivateSubnet1CIDR
+          - PrivateSubnet2CIDR
+          - PrivateSubnet3CIDR
+          - NatGateway
+      - Label:
+          default: "OpenSearch Configuration"
+        Parameters:
+          - DomainName
+          - EngineVersion
+          - InstanceType
+          - OpenSearchMasterUserName
+      - Label:
+          default: "Reverse Proxy Configuration"
+        Parameters:
+          - ReverseProxyInstanceType
+          - ReverseProxySSHLocation
+      - Label:
+          default: "Cloud9 Configuration"
+        Parameters:
+          - EnvironmentNameC9
+          - C9InstanceType
+          - C9EnvType
+          - OwnerArn
+          - C9InstanceVolumeSize
+      - Label:
+          default: "EKS Configuration"
+        Parameters:
+          - EKSClusterName
 
 Resources:
   Base:
@@ -189,8 +188,8 @@ Resources:
         PublicSubnet1CIDR: !Ref PublicSubnet1CIDR
         PublicSubnet2CIDR: !Ref PublicSubnet2CIDR
         PublicSubnet3CIDR: !Ref PublicSubnet3CIDR
-        PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR 
-        PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR 
+        PrivateSubnet1CIDR: !Ref PrivateSubnet1CIDR
+        PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
         PrivateSubnet3CIDR: !Ref PrivateSubnet3CIDR
         NatGateway: !Ref NatGateway
 
@@ -240,5 +239,5 @@ Resources:
         VPC: !GetAtt Base.Outputs.VPC
         PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
         PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
-        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1 
+        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
         PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
