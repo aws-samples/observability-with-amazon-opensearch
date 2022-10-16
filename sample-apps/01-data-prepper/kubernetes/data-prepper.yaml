@@ -26,27 +26,27 @@ data:
       source:
         pipeline:
           name: "entry-pipeline"
-      prepper:
-        - otel_trace_raw_prepper:
+      processor:
+        - otel_trace_raw:
       sink:
         - opensearch:
             hosts: [ "https://__AOS_ENDPOINT__" ]
             username: "__AOS_USERNAME__"
             password: "__AOS_PASSWORD__"
-            trace_analytics_raw: true
+            index_type: trace-analytics-raw
     service-map-pipeline:
       delay: "100"
       source:
         pipeline:
           name: "entry-pipeline"
-      prepper:
+      processor:
         - service_map_stateful:
       sink:
         - opensearch:
             hosts: [ "https://__AOS_ENDPOINT__" ]
             username: "__AOS_USERNAME__"
             password: "__AOS_PASSWORD__"
-            trace_analytics_service_map: true
+            index_type: trace-analytics-service-map
     log-pipeline:
       source:
         http:
@@ -64,7 +64,7 @@ data:
             hosts: [ "https://__AOS_ENDPOINT__" ]
             username: "__AOS_USERNAME__"
             password: "__AOS_PASSWORD__"
-            index: sample_app_logs 
+            index: sample_app_logs
   data-prepper-config.yaml: |
     ssl: false
 ---
@@ -127,13 +127,7 @@ spec:
         app: data-prepper
     spec:
       containers:
-        - args:
-            - java
-            - -jar
-            - /usr/share/data-prepper/data-prepper.jar
-            - /etc/data-prepper/pipelines.yaml
-            - /etc/data-prepper/data-prepper-config.yaml
-          image: opensearchproject/data-prepper:latest
+        - image: opensearchproject/data-prepper:latest
           name: data-prepper
           ports:
             - containerPort: 21890
@@ -142,13 +136,29 @@ spec:
               protocol: TCP
           resources: {}
           volumeMounts:
-            - mountPath: /etc/data-prepper
-              name: prepper-configmap-claim0
+            - name: prepper-configmap-config
+              mountPath: /usr/share/data-prepper/config/data-prepper-config.yaml
+              subPath: data-prepper-config.yaml
+
+            - name: prepper-configmap-pipelines
+              mountPath: /usr/share/data-prepper/pipelines/pipelines.yaml
+              subPath: pipelines.yaml
       restartPolicy: Always
       serviceAccountName: ""
       volumes:
-        - name: prepper-configmap-claim0
+        - name: prepper-configmap-config
           configMap:
             name: data-prepper-config
+            items:
+              - key: data-prepper-config.yaml
+                path: data-prepper-config.yaml
+
+        - name: prepper-configmap-pipelines
+          configMap:
+            name: data-prepper-config
+            items:
+              - key: pipelines.yaml
+                path: pipelines.yaml
 status: {}
 ---
+
