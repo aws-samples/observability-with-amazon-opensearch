@@ -255,5 +255,5 @@ Outputs:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword 
   StackRef:
     Value: !Ref Cloud9
-  AOSDomainEndpoint0:
+  Cloud9IDE0:
     Value: !GetAtt Cloud9.Outputs.Cloud9IDE
