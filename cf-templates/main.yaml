@@ -245,15 +245,15 @@ Resources:
 Outputs:
   StackRef1:
     Value: !Ref OpenSearch
-  AOSDashboardsPublicOut:
+  AOSDashboardsPublic0:
     Value: !GetAtt OpenSearch.Outputs.AOSDashboardsPublicIP
-  AOSDomainEndpointOut:
+  AOSDomainEndpoint0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainEndpoint
-  AOSDomainUserNameOut:
+  AOSDomainUserName0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
-  AOSDomainPasswordOut:
+  AOSDomainPassword0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
   StackRef2:
     Value: !Ref Cloud9
-  Cloud9IDEOut:
+  Cloud9IDE0:
     Value: !GetAtt Cloud9.Outputs.Cloud9IDE
