@@ -241,19 +241,19 @@ Resources:
         PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
         PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
         PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
-        
+
 Outputs:
-  StackRef:
+  StackRef1:
     Value: !Ref OpenSearch
-  AOSDashboardsPublic0:
+  AOSDashboardsPublicOutpt:
     Value: !GetAtt OpenSearch.Outputs.AOSDashboardsPublicIP
-  AOSDomainEndpoint0:
+  AOSDomainEndpointOutpt:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainEndpoint
-  AOSDomainUserName0:
+  AOSDomainUserNameOutpt:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
-  AOSDomainPassword0:
-    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword 
-  StackRef:
+  AOSDomainPasswordOutpt:
+    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
+  StackRef2:
     Value: !Ref Cloud9
-  Cloud9IDE0:
+  Cloud9IDEOutpt:
     Value: !GetAtt Cloud9.Outputs.Cloud9IDE
