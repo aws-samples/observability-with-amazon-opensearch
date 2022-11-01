@@ -50,8 +50,6 @@ Mappings:
       HVM64: ami-03ededff12e34e59e
     us-east-2:
       HVM64: ami-0c7478fd229861c57
-    us-west-1:
-      HVM64: ami-06542a822d33e2e40
     us-west-2:
       HVM64: ami-0b36cd6786bcfe120
     sa-east-1:
