@@ -252,7 +252,7 @@ Outputs:
   AOSDomainUserName0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
   AOSDomainPassword0:
-    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
+    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword 
   StackRef2:
     Value: !Ref Cloud9
   Cloud9IDE0:
