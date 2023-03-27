@@ -59,7 +59,7 @@ Parameters:
   EngineVersion:
     Description: Amazon OpenSearch Service - Version
     Type: String
-    Default: "OpenSearch_1.3"
+    Default: "OpenSearch_2.5"
 
   InstanceType:
     Description: Amazon OpenSearch Service - Instance Type
@@ -252,7 +252,7 @@ Outputs:
   AOSDomainUserName0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
   AOSDomainPassword0:
-    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword 
+    Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
   StackRef2:
     Value: !Ref Cloud9
   Cloud9IDE0:
