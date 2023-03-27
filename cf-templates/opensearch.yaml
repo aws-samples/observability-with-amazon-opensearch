@@ -47,13 +47,13 @@ Mappings:
       Arch: HVM64
   AWSRegionArch2AMI:
     us-east-1:
-      HVM64: ami-03ededff12e34e59e
+      HVM64: ami-04581fbf744a7d11f
     us-east-2:
-      HVM64: ami-0c7478fd229861c57
+      HVM64: ami-0533def491c57d991
     us-west-2:
-      HVM64: ami-0b36cd6786bcfe120
+      HVM64: ami-07f3ef11ec14a1ea3
     sa-east-1:
-      HVM64: ami-00d10ca79f70a302a
+      HVM64: ami-00a16e018e54305c6
 
 Resources:
   OpenSearchIngressSecurityGroup:
