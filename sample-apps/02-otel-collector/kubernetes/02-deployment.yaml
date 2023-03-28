@@ -17,7 +17,7 @@ spec:
         app: otel-collector
     spec:
       containers:
-        - image: amazon/aws-otel-collector:v0.27.0
+        - image: amazon/aws-otel-collector:latest
           name: otel-collector
           ports:
             - containerPort: 55680
@@ -28,7 +28,7 @@ spec:
             limits:
               memory: "256Mi"
               cpu: "500m"
-          command: ["/otelcol"]
+          command: ["/awscollector"]
           args: ["--config=/etc/otel-collector-config.yml"]
           volumeMounts:
             - name: config-volume

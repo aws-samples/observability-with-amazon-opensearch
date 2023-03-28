@@ -17,7 +17,6 @@ data:
         tls:
           insecure: true
       
-
     service:
       pipelines:
         traces:
