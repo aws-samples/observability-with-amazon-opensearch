@@ -241,7 +241,7 @@ Resources:
   IAMRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub Linux-SSMRoletoEC2-${AWS::StackName}
+      RoleName: !Sub Linux-SSMRoletoEC2-${AWS::StackId}
       AssumeRolePolicyDocument:
         Version: "2012-10-17"
         Statement:
