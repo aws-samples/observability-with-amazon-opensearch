@@ -30,7 +30,7 @@ RUN apk update \
 RUN mkdir /app
 COPY . /app/
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/spring-boot-application.jar
-COPY --from=build /home/gradle/src/opentelemetry-javaagent.jar /app/opentelemetry-javaagent.jar
+COPY --from=build /home/gradle/src/aws-opentelemetry-agent.jar /app/aws-opentelemetry-agent.jar
 COPY ./script.sh /app/
 RUN chmod +x /app/script.sh
 EXPOSE 8087
