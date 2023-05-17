@@ -1,0 +1,521 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "This template create the Amazon OpenSearch Service Domain resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
+
+Parameters:
+  DomainName:
+    Type: String
+  EngineVersion:
+    Type: String
+  InstanceType:
+    Type: String
+  OpenSearchMasterUserName:
+    Type: String
+  ReverseProxyInstanceType:
+    Type: String
+  ReverseProxySSHLocation:
+    Type: String
+  VPC:
+    Type: String
+  PublicSubnet1:
+    Type: String
+  PublicSubnet2:
+    Type: String
+  PrivateSubnet1:
+    Type: String
+  PrivateSubnet2:
+    Type: String
+
+Mappings:
+  AWSInstanceType2Arch:
+    t1.micro:
+      Arch: HVM64
+    t2.small:
+      Arch: HVM64
+    t2.medium:
+      Arch: HVM64
+    t2.large:
+      Arch: HVM64
+    m1.small:
+      Arch: HVM64
+    m1.medium:
+      Arch: HVM64
+    c1.medium:
+      Arch: HVM64
+    c3.large:
+      Arch: HVM64
+    c3.xlarge:
+      Arch: HVM64
+  AWSRegionArch2AMI:
+    us-east-1:
+      HVM64: ami-04581fbf744a7d11f
+    us-east-2:
+      HVM64: ami-0533def491c57d991
+    us-west-2:
+      HVM64: ami-07f3ef11ec14a1ea3
+    sa-east-1:
+      HVM64: ami-00a16e018e54305c6
+
+Resources:
+  OpenSearchIngressSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: "opensearch-ingress-sg"
+      GroupDescription: "Security group for opensearch ingress rule"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - FromPort: "443"
+          IpProtocol: tcp
+          ToPort: "443"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  OpenSearchServiceDomain:
+    Type: "AWS::OpenSearchService::Domain"
+    DependsOn:
+      - OpenSearchIngressSecurityGroup
+    Properties:
+      DomainName:
+        Ref: DomainName
+      EngineVersion:
+        Ref: EngineVersion
+      ClusterConfig:
+        InstanceCount: "1"
+        InstanceType:
+          Ref: InstanceType
+      DomainEndpointOptions:
+        EnforceHTTPS: true
+      NodeToNodeEncryptionOptions:
+        Enabled: true
+      EncryptionAtRestOptions:
+        Enabled: true
+      EBSOptions:
+        EBSEnabled: true
+        Iops: "0"
+        VolumeSize: "100"
+        VolumeType: "gp2"
+      AccessPolicies:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              AWS: "*"
+            Action: "es:*"
+            Resource: "*"
+      AdvancedOptions:
+        rest.action.multi.allow_explicit_index: true
+      AdvancedSecurityOptions:
+        Enabled: true
+        InternalUserDatabaseEnabled: true
+        MasterUserOptions:
+          MasterUserName: !Ref OpenSearchMasterUserName
+          MasterUserPassword: !Join
+            - ""
+            - - "{{resolve:secretsmanager:"
+              - !Ref AOSMasterPasswordSecret
+              - ":SecretString:password}}"
+      VPCOptions:
+        SubnetIds:
+          - !Ref PrivateSubnet1
+        SecurityGroupIds:
+          - !Ref OpenSearchIngressSecurityGroup
+    UpdatePolicy:
+      EnableVersionUpgrade: true
+
+  ################## GENERATE OPENSEARCH PASSWORD ###################
+  AOSMasterPasswordSecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Description: This secret has a dynamically generated secret password.
+      GenerateSecretString:
+        SecretStringTemplate:
+          !Join ["", ['{"username": "', !Ref OpenSearchMasterUserName, '"}']]
+        GenerateStringKey: "password"
+        PasswordLength: 10
+        ExcludeCharacters: "\" ' ( ) * + , - . / : ; < = > ! # ? @ [ \\ ] ^ _ ` { | } ~"
+
+  RetrieveAOSPasswordLambdaPolicy:
+    Type: AWS::IAM::ManagedPolicy
+    Properties:
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - logs:CreateLogGroup
+              - logs:CreateLogStream
+              - logs:PutLogEvents
+            Effect: Allow
+            Resource: arn:aws:logs:*:*:*
+            Sid: AllowCWLogsWrite
+          - Action:
+              - secretsmanager:GetSecretValue
+            Effect: Allow
+            Resource: !Ref AOSMasterPasswordSecret
+
+  RetrieveAOSPasswordLambdaExecutionRole:
+    Type: AWS::IAM::Role
+    DependsOn: RetrieveAOSPasswordLambdaPolicy
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Action:
+              - sts:AssumeRole
+            Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+      ManagedPolicyArns:
+        - !Ref RetrieveAOSPasswordLambdaPolicy
+      Path: /
+
+  RetrieveAOSPasswordLambdaFunction:
+    Type: AWS::Lambda::Function
+    DependsOn: AOSMasterPasswordSecret
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt RetrieveAOSPasswordLambdaExecutionRole.Arn
+      Runtime: python3.9
+      Timeout: 120
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import base64
+          import os
+          import cfnresponse
+          from botocore.exceptions import ClientError
+
+
+          SECRET_ARN = os.getenv('SECRET_ARN')
+          REGION = os.getenv('REGION')
+
+          def lambda_handler(event, context):
+              # Create a Secrets Manager client
+              session = boto3.session.Session()
+              client = session.client(
+                  service_name='secretsmanager',
+                  region_name=REGION
+              )
+              
+              secret = ""
+              
+              try:
+                  get_secret_value_response = client.get_secret_value(
+                      SecretId=SECRET_ARN
+                  )
+              except ClientError as err:
+                  print(err)
+                  cfnresponse.send(event, context, cfnresponse.FAILED, err)
+              else:
+                  # Decrypts secret using the associated KMS key.
+                  # Depending on whether the secret is a string or binary, one of these fields will be populated.
+                  if 'SecretString' in get_secret_value_response:
+                      secret = get_secret_value_response['SecretString']
+                  else:
+                      decoded_binary_secret = base64.b64decode(get_secret_value_response['SecretBinary'])
+
+              password_secret = json.loads(secret)
+              responseData = {"OpenSearchMasterPassword": password_secret["password"]}
+              print(responseData)
+              
+              if responseData:
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+              else:
+                  cfnresponse.send(event, context, cfnresponse.FAILED, "Internal Error")
+      Environment:
+        Variables:
+          SECRET_ARN: !Ref AOSMasterPasswordSecret
+          REGION: !Ref AWS::Region
+
+  RetrieveAOSPassword:
+    Type: Custom::RetrieveAOSPassword
+    DependsOn: RetrieveAOSPasswordLambdaFunction
+    Properties:
+      ServiceToken:
+        Fn::GetAtt: RetrieveAOSPasswordLambdaFunction.Arn
+
+  ######## Reverse Proxy Template ########
+  IAMRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub Linux-SSMRoletoEC2-${AWS::StackName}
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: ec2.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM
+
+  InstanceProfile:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      Path: "/"
+      Roles:
+        - Ref: IAMRole
+
+  ReverseProxyASG:
+    Type: "AWS::AutoScaling::AutoScalingGroup"
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PublicSubnet1
+        - !Ref PublicSubnet2
+      LaunchConfigurationName: !Ref ReverseProxyLaunchConfig
+      MinSize: "1"
+      MaxSize: "1"
+      Tags:
+        - Key: Environment
+          Value: Poc
+          PropagateAtLaunch: "true"
+        - Key: IsUsedForDeploy
+          Value: True
+          PropagateAtLaunch: "true"
+        - Key: Name
+          Value: ProxyInstance
+          PropagateAtLaunch: "true"
+
+  ReverseProxyLaunchConfig:
+    Type: "AWS::AutoScaling::LaunchConfiguration"
+    Properties:
+      AssociatePublicIpAddress: True
+      IamInstanceProfile: !Ref InstanceProfile
+      ImageId: !FindInMap
+        - AWSRegionArch2AMI
+        - !Ref "AWS::Region"
+        - !FindInMap
+          - AWSInstanceType2Arch
+          - !Ref ReverseProxyInstanceType
+          - Arch
+      UserData:
+        Fn::Base64: !Sub |
+          #!/bin/bash
+          yum update -y
+          yum install jq -y
+          amazon-linux-extras install nginx1.12
+          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+
+          cat << EOF > /etc/nginx/conf.d/nginx_opensearch.conf
+          server {
+              listen 443;
+              server_name \$host;
+              rewrite ^/$ https://\$host/_dashboards redirect;
+
+              # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+              ssl_certificate           /etc/nginx/cert.crt;
+              ssl_certificate_key       /etc/nginx/cert.key;
+
+              ssl on;
+              ssl_session_cache  builtin:1000  shared:SSL:10m;
+              ssl_protocols  TLSv1 TLSv1.1 TLSv1.2;
+              ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
+              ssl_prefer_server_ciphers on;
+
+
+              location ^~ /_dashboards {
+                  # Forward requests to OpenSearch Dashboards
+                  proxy_pass https://DOMAIN_ENDPOINT/_dashboards;
+
+                  # Update cookie domain and path
+                  proxy_cookie_domain DOMAIN_ENDPOINT \$host;
+
+                  proxy_set_header Accept-Encoding "";
+                  sub_filter_types *;
+                  sub_filter DOMAIN_ENDPOINT \$host;
+                  sub_filter_once off;
+
+                  # Response buffer settings
+                  proxy_buffer_size 128k;
+                  proxy_buffers 4 256k;
+                  proxy_busy_buffers_size 256k;
+              }
+          }          
+          EOF
+          sed -i -e "s/DOMAIN_ENDPOINT/${OpenSearchServiceDomain.DomainEndpoint}/g" /etc/nginx/conf.d/nginx_opensearch.conf
+          systemctl restart nginx.service
+          systemctl enable nginx.service
+      SecurityGroups:
+        - !Ref ReverseProxyInstanceSecurityGroup
+      InstanceType: !Ref ReverseProxyInstanceType
+
+  ReverseProxyInstanceSecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: Enable SSH access
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: "22"
+          ToPort: "22"
+          CidrIp: !Ref ReverseProxySSHLocation
+        - IpProtocol: tcp
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: !Ref ReverseProxySSHLocation
+        - IpProtocol: tcp
+          FromPort: "443"
+          ToPort: "443"
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+      VpcId: !Ref VPC
+
+  ######## Lambda Get PublicIP Information ########
+  GetEC2PublicIP:
+    Type: AWS::Lambda::Function
+    DependsOn: ReverseProxyLaunchConfig
+    Properties:
+      Code:
+        ZipFile: |
+          import json
+          import boto3
+          import logging
+          import urllib3
+          import time
+          http = urllib3.PoolManager()
+
+          logger = logging.getLogger(__name__)
+          logging.getLogger().setLevel(logging.INFO)
+
+          SUCCESS = "SUCCESS"
+          FAILED = "FAILED"
+          time.sleep(15)
+
+          def lambda_handler(event, context):
+              global arn
+              logger.info('Event: %s' % json.dumps(event))
+              responseData={}
+              try:
+                  if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                      print("Request Type:",event['RequestType'])
+                      GetPublicIP=event['ResourceProperties']['GetPublicIP']
+                      client = boto3.client('ec2')
+                      response = client.describe_instances(
+                          Filters=[ {
+                                  'Name': 'tag:IsUsedForDeploy',
+                                  'Values': ['true']}
+                          ]
+                      )
+                      for r in response['Reservations']:
+                          for i in r['Instances']:
+                              PublicIpAddress = (i['PublicIpAddress'])
+                              print (PublicIpAddress)
+
+                      responseData={'PublicIpAddress':PublicIpAddress}
+                      print("Sending CFN")
+                  responseStatus = 'SUCCESS'
+              except Exception as e:
+                  print('Failed to process:', e)
+                  responseStatus = 'FAILURE'
+                  responseData = {'Failure': 'Check Logs.'}
+              send(event, context, responseStatus, responseData)
+
+          def send(event, context, responseStatus, responseData, physicalResourceId=None, noEcho=False):
+              responseUrl = event['ResponseURL']
+              print(responseUrl)
+              responseBody = {'Status': responseStatus,
+                              'Reason': 'See the details in CloudWatch Log Stream: ' + context.log_stream_name,
+                              'PhysicalResourceId': physicalResourceId or context.log_stream_name,
+                              'StackId': event['StackId'],
+                              'RequestId': event['RequestId'],
+                              'LogicalResourceId': event['LogicalResourceId'],
+                              'Data': responseData}
+              json_responseBody = json.dumps(responseBody)
+              print("Response body:\n" + json_responseBody)
+              headers = {
+                  'content-type' : '',
+                  'content-length' : str(len(json_responseBody))
+              }
+              try:
+                  response = http.request('PUT', responseUrl, headers=headers, body=json_responseBody)
+                  print("Status code:", response.status)
+              except Exception as e:
+                  print("send(..) failed executing http.request(..):", e)
+      FunctionName: "EC2ASG-GetPublicIpAddress"
+      Handler: "index.lambda_handler"
+      Timeout: 30
+      Role: !GetAtt "LambdaRole.Arn"
+      Runtime: python3.9
+  Lambdatrigger:
+    Type: "Custom::GetEC2PublicIP"
+    DependsOn: ReverseProxyASG
+    Properties:
+      ServiceToken: !GetAtt "GetEC2PublicIP.Arn"
+      GetPublicIP: !Ref GetEC2PublicIP
+  LambdaRole:
+    Type: AWS::IAM::Role
+    Metadata:
+      cfn_nag:
+        rules_to_suppress:
+          - id: F3
+            reason: "Required for GetPublicIP"
+          - id: W11
+            reason: "Required for GetPublicIP"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /
+      Policies:
+        - PolicyName: "lambda-logs"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "ec2:Describe*"
+                  - "ec2:List*"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - "arn:aws:logs:*:*:*"
+
+Outputs:
+  AOSDomainArn:
+    Value:
+      "Fn::GetAtt":
+        - OpenSearchServiceDomain
+        - Arn
+    Export:
+      Name: AOSDomainArn
+  AOSDomainEndpoint:
+    Value:
+      "Fn::GetAtt":
+        - OpenSearchServiceDomain
+        - DomainEndpoint
+    Export:
+      Name: AOSDomainEndpoint
+  AOSDomainUserName:
+    Value: !Ref OpenSearchMasterUserName
+    Export:
+      Name: AOSDomainUserName
+  AOSDomainPassword:
+    Value: !GetAtt RetrieveAOSPassword.OpenSearchMasterPassword
+    Export:
+      Name: AOSDomainPassword
+  AOSDashboardsPublicIP:
+    Description: Proxy (Public IP) for Amazon Opensearch Dashboards
+    Value:
+      Fn::Join:
+        - ""
+        - - https://
+          - !GetAtt Lambdatrigger.PublicIpAddress
+          - /_dashboards
+    Export:
+      Name: AOSDashboardsPublicIP

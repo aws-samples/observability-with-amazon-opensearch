@@ -12,7 +12,7 @@ apply_manifests() {
 }
 
 apply_manifests '00-fluentBit'
-apply_manifests '01-data-preper'
+apply_manifests '01-data-prepper'
 apply_manifests '02-otel-collector'
 apply_manifests '03-mysql'
 apply_manifests '04-analytics-service'

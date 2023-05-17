@@ -48,16 +48,11 @@ echo "export PublicSubnet1=${PublicSubnet1}" | tee -a ~/.bash_profile
 echo "export PublicSubnet2=${PublicSubnet2}" | tee -a ~/.bash_profile
 echo "export PublicSubnet3=${PublicSubnet3}" | tee -a ~/.bash_profile
 
-# Create a CMK for the EKS cluster to use when encrypting your Kubernetes secrets
-aws kms create-alias --alias-name alias/observability-workshop --target-key-id $(aws kms create-key --query KeyMetadata.Arn --output text)
-export MASTER_ARN=$(aws kms describe-key --key-id alias/observability-workshop --query KeyMetadata.Arn --output text)
-echo "export MASTER_ARN=${MASTER_ARN}" | tee -a ~/.bash_profile
-
 # Configure EKS Cluster kubeconfig
 aws eks list-clusters --output text |
 awk '{print $2}' |                                                                                                                                                                                                           
 while read line;
-do aws eks --region us-east-1 update-kubeconfig --name $line;                                                                                                                                                               
+do aws eks --region $AWS_REGION update-kubeconfig --name $line;                                                                                                                                                               
 done
 
 # Reload bash_profile

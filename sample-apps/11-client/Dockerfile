@@ -2,6 +2,7 @@
 FROM node:16-alpine as build-step
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
+RUN npm install npm@latest --location=global
 COPY *.json ./
 COPY ./src ./src
 COPY ./public ./public
