@@ -11,7 +11,8 @@ COPY . /home/gradle/src/
 WORKDIR /home/gradle/src
 RUN gradle bootJar --daemon
 
-RUN wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.12.0/opentelemetry-javaagent.jar
+#RUN wget https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/v1.12.0/opentelemetry-javaagent.jar
+RUN wget https://github.com/aws-observability/aws-otel-java-instrumentation/releases/download/v1.24.0/aws-opentelemetry-agent.jar
 
 FROM alpine:3.8.5
 
