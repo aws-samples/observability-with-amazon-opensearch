@@ -1,3 +1,3 @@
 #!/bin/bash
 
-java -javaagent:/app/opentelemetry-javaagent.jar -jar /app/spring-boot-application.jar
+java -javaagent:/app/aws-opentelemetry-agent.jar -jar /app/spring-boot-application.jar
