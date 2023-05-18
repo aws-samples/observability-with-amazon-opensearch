@@ -1,11 +1,11 @@
-FROM gradle:jdk11 as cache
+FROM gradle:6.5.0-jdk8 as cache
 RUN mkdir -p /home/gradle/cache_home
 ENV GRADLE_USER_HOME /home/gradle/cache_home
-COPY build.gradle /home/gradle/src/
+COPY ./build.gradle /home/gradle/src/
 WORKDIR /home/gradle/src
 RUN gradle clean build --daemon
 
-FROM gradle:jdk11 AS build
+FROM gradle:6.5.0-jdk8 AS build
 COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
 COPY . /home/gradle/src/
 WORKDIR /home/gradle/src
@@ -26,9 +26,12 @@ RUN apk update \
 && apk add --no-cache curl \
 && apk add --no-cache openjdk8-jre
 
-FROM openjdk:8-jdk-alpine
-EXPOSE 8087
 RUN mkdir /app
+COPY . /app/
 COPY --from=build /home/gradle/src/build/libs/*.jar /app/spring-boot-application.jar
 COPY --from=build /home/gradle/src/aws-opentelemetry-agent.jar /app/aws-opentelemetry-agent.jar
-ENTRYPOINT ["java","-javaagent:/app/aws-opentelemetry-agent.jar","-jar","/app/spring-boot-application.jar"]
+COPY ./script.sh /app/
+RUN chmod +x /app/script.sh
+EXPOSE 8087
+
+ENTRYPOINT ["/app/script.sh"]
