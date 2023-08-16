@@ -40,6 +40,8 @@ Resources:
               Service:
                 - eks.amazonaws.com
                 - ec2.amazonaws.com
+                - osis.amazonaws.com
+                - osis-pipelines.amazonaws.com
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
@@ -76,3 +78,8 @@ Resources:
         - !Ref EksNodeSubnet1
         - !Ref EksNodeSubnet2
         - !Ref EksNodeSubnet3
+
+Outputs:
+  EKSSecurityGroup:
+    Value: !GetAtt EKS.ClusterSecurityGroupId
+

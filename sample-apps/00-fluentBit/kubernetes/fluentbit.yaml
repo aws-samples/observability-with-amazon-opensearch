@@ -95,8 +95,8 @@ data:
     [OUTPUT]
         Name              http
         Match             *
-        Host              data-prepper.data-prepper.svc.cluster.local
-        Port              2021
+        Host.             otel-collector.otel-collector.svc.cluster.local
+        Port.             4318
         tls               Off
         tls.verify        Off
         Format            json

@@ -127,11 +127,18 @@ Parameters:
     Type: String
     Default: "observability-cluster"
 
+  ######## OSI Variables ########
+  OSIPipelineBaseName:
+    Description: "Please enter the Base name for OSI pipelines "
+    Type: String
+    Default: "osi-pipeline"
+
+
   ######## General ########
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
-    Default: "observability-with-amazon-opensearch"
+    Default: "observability-with-amazon-opensearch-3009027744554"
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -207,23 +214,43 @@ Resources:
         DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
         EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
 
+#  EKSCluster:
+#    Type: AWS::CloudFormation::Stack
+#    Properties:
+#      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
+#      Parameters:
+#        EKSClusterName: !Ref EKSClusterName
+#        S3BucketName: !Ref S3BucketName
+#        VPC: !GetAtt Base.Outputs.VPC
+#        PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
+#        PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
+#        PublicSubnet3: !GetAtt Base.Outputs.PublicSubnet3
+#        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
+#        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+#        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
+#        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
+#        EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
+#        C9Role: !GetAtt Cloud9.Outputs.C9Role
+
+#  ClusterControlPlaneSecurityGroup:
+#    Type: AWS::EC2::SecurityGroup
+#    Properties:
+#      GroupDescription: Cluster communication with worker nodes
+#      VpcId: !GetAtt Base.Outputs.VPC
+
   EKSCluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/eks.yaml
       Parameters:
-        EKSClusterName: !Ref EKSClusterName
-        S3BucketName: !Ref S3BucketName
-        VPC: !GetAtt Base.Outputs.VPC
-        PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
-        PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
-        PublicSubnet3: !GetAtt Base.Outputs.PublicSubnet3
-        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
-        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
-        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
-        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
-        EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
-        C9Role: !GetAtt Cloud9.Outputs.C9Role
+        EksClusterRole: !GetAtt Base.Outputs.EKSIAMRole
+        EksSubnet1: !GetAtt Base.Outputs.PublicSubnet1
+        EksSubnet2: !GetAtt Base.Outputs.PublicSubnet2
+        EksSubnet3: !GetAtt Base.Outputs.PublicSubnet3
+        EksNodeSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
+        EksNodeSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+        EksNodeSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
+        EksClusterName: !Ref EKSClusterName
 
   OpenSearch:
     Type: AWS::CloudFormation::Stack
@@ -241,6 +268,22 @@ Resources:
         PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
         PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
         PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+  
+  OpenSearchIngest:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/osi.yaml
+      Parameters:
+        AOSDomainEndpoint: !GetAtt OpenSearch.Outputs.AOSDomainEndpoint
+        VPC: !GetAtt Base.Outputs.VPC
+        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
+        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
+        AOSDomainUserName: !GetAtt OpenSearch.Outputs.AOSDomainUserName
+        AOSMasterPasswordSecretARN: !GetAtt OpenSearch.Outputs.AOSMasterPasswordSecretArn
+        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup
+        EKSClusterSecurityGroup: !GetAtt EKSCluster.Outputs.EKSSecurityGroup
+        PipelineName: !Ref OSIPipelineBaseName
 
 Outputs:
   StackRef1:
@@ -253,6 +296,12 @@ Outputs:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
   AOSDomainPassword0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
+  OtelMetrics:
+    Value: !GetAtt OpenSearchIngest.Outputs.OtelMetrics
+  OtelLogs:
+    Value: !GetAtt OpenSearchIngest.Outputs.OtelLogs
+  OtelTraces:
+    Value: !GetAtt OpenSearchIngest.Outputs.OtelTraces
   StackRef2:
     Value: !Ref Cloud9
   Cloud9IDE0:

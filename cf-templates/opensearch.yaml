@@ -412,7 +412,7 @@ Resources:
                   responseStatus = 'SUCCESS'
               except Exception as e:
                   print('Failed to process:', e)
-                  responseStatus = 'FAILURE'
+                  responseStatus = 'FAILED'
                   responseData = {'Failure': 'Check Logs.'}
               send(event, context, responseStatus, responseData)
 
@@ -519,3 +519,11 @@ Outputs:
           - /_dashboards
     Export:
       Name: AOSDashboardsPublicIP
+  AOSMasterPasswordSecretArn:
+    Value: !Ref AOSMasterPasswordSecret
+    Export:
+      Name: AOSMasterPasswordSecretArn
+  OpenSearchIngressSecurityGroup:
+    Value: !Ref OpenSearchIngressSecurityGroup
+    Export:
+      Name: OpenSearchIngressSecurityGroup
