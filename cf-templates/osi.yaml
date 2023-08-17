@@ -78,7 +78,7 @@ Resources:
     Properties:
       Handler: index.lambda_handler      
       Runtime: python3.9
-      Timeout: 120
+      Timeout: 240
       Role: !GetAtt  UpdateAOSRoleMappingLambdaRole.Arn
       FunctionName: !Sub osi-oss-role-mapping-update-${AWS::StackName}
       Code:
@@ -175,8 +175,8 @@ Resources:
               try:
                   if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
                     password = RetrieveAOSPassword (event, context)              
-                    create_role_url = AOSURL + '/_plugins/_security/api/roles/'+ROLE_NAME
-                    create_role_mapping_url = AOSURL + '/_plugins/_security/api/rolesmapping/'+ROLE_NAME
+                    create_role_url = 'https://' + AOSURL + '/_plugins/_security/api/roles/'+ROLE_NAME
+                    create_role_mapping_url = 'https://' + AOSURL + '/_plugins/_security/api/rolesmapping/'+ROLE_NAME
 
                     #Create a role
                     http = urllib3.PoolManager()
