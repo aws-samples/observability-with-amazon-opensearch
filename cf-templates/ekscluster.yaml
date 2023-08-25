@@ -103,6 +103,7 @@ Resources:
               )
               response = client.create_stack(StackName=input['cfStackName'], TemplateURL=input['templateUrl'],Parameters=input['stackParameters'], TimeoutInMinutes=60, Capabilities=['CAPABILITY_IAM','CAPABILITY_NAMED_IAM','CAPABILITY_AUTO_EXPAND'])
 
+              
 
           def deleteStack(input):
 

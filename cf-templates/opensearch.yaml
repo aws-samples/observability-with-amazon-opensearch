@@ -412,7 +412,7 @@ Resources:
                   responseStatus = 'SUCCESS'
               except Exception as e:
                   print('Failed to process:', e)
-                  responseStatus = 'FAILED'
+                  responseStatus = 'FAILURE'
                   responseData = {'Failure': 'Check Logs.'}
               send(event, context, responseStatus, responseData)
 

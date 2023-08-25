@@ -79,7 +79,10 @@ Resources:
         - !Ref EksNodeSubnet2
         - !Ref EksNodeSubnet3
 
-Outputs:
-  EKSSecurityGroup:
-    Value: !GetAtt EKS.ClusterSecurityGroupId
+#Outputs:
+#  EKSSecurityGroup:
+#    Value: !GetAtt EKS.ClusterSecurityGroupId
+#    Export:
+#      Name:
+#        Fn::Sub: "${AWS::StackName}-EKSSecurityGroup"
 

@@ -95,8 +95,8 @@ data:
     [OUTPUT]
         Name              http
         Match             *
-        Host.             otel-collector.otel-collector.svc.cluster.local
-        Port.             4318
+        Host              otel-collector.otel-collector.svc.cluster.local
+        Port              4318
         tls               Off
         tls.verify        Off
         Format            json

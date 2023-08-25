@@ -214,43 +214,23 @@ Resources:
         DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
         EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
 
-#  EKSCluster:
-#    Type: AWS::CloudFormation::Stack
-#    Properties:
-#      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
-#      Parameters:
-#        EKSClusterName: !Ref EKSClusterName
-#        S3BucketName: !Ref S3BucketName
-#        VPC: !GetAtt Base.Outputs.VPC
-#        PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
-#        PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
-#        PublicSubnet3: !GetAtt Base.Outputs.PublicSubnet3
-#        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
-#        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
-#        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
-#        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
-#        EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
-#        C9Role: !GetAtt Cloud9.Outputs.C9Role
-
-#  ClusterControlPlaneSecurityGroup:
-#    Type: AWS::EC2::SecurityGroup
-#    Properties:
-#      GroupDescription: Cluster communication with worker nodes
-#      VpcId: !GetAtt Base.Outputs.VPC
-
   EKSCluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/eks.yaml
+      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
       Parameters:
-        EksClusterRole: !GetAtt Base.Outputs.EKSIAMRole
-        EksSubnet1: !GetAtt Base.Outputs.PublicSubnet1
-        EksSubnet2: !GetAtt Base.Outputs.PublicSubnet2
-        EksSubnet3: !GetAtt Base.Outputs.PublicSubnet3
-        EksNodeSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
-        EksNodeSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
-        EksNodeSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
-        EksClusterName: !Ref EKSClusterName
+        EKSClusterName: !Ref EKSClusterName
+        S3BucketName: !Ref S3BucketName
+        VPC: !GetAtt Base.Outputs.VPC
+        PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
+        PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
+        PublicSubnet3: !GetAtt Base.Outputs.PublicSubnet3
+        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
+        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
+        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
+        EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
+        C9Role: !GetAtt Cloud9.Outputs.C9Role
 
   OpenSearch:
     Type: AWS::CloudFormation::Stack
@@ -281,8 +261,8 @@ Resources:
         PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
         AOSDomainUserName: !GetAtt OpenSearch.Outputs.AOSDomainUserName
         AOSMasterPasswordSecretARN: !GetAtt OpenSearch.Outputs.AOSMasterPasswordSecretArn
-        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup
-        EKSClusterSecurityGroup: !GetAtt EKSCluster.Outputs.EKSSecurityGroup
+        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup                
+ #       EKSClusterSecurityGroup: !GetAtt EKSCluster.Outputs.EKSSecurityGroup
         PipelineName: !Ref OSIPipelineBaseName
 
 Outputs:
