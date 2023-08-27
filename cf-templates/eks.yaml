@@ -42,6 +42,7 @@ Resources:
                 - ec2.amazonaws.com
                 - osis.amazonaws.com
                 - osis-pipelines.amazonaws.com
+                - opensearchservice.amazonaws.com
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
@@ -50,6 +51,15 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+      Policies:
+        - PolicyName: osis
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 'osis:*'
+                Resource: '*'
+      
 
   EKS:
     Type: "AWS::EKS::Cluster"

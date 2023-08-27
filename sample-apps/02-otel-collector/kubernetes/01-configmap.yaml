@@ -7,10 +7,8 @@ data:
   otel-collector-config.yml: |
     extensions:
       sigv4auth:
-        region: "us-east-2"
+        region: "__replace-region__"
         service: "osis"
-        assume_role:
-          sts_region: "us-east-2"
 
     receivers:
       otlp:
@@ -33,18 +31,18 @@ data:
       otlphttp/traces:
         traces_endpoint: "https://__REPLACE WITH OtelTraces ADDRESS__/v1/traces"
         auth:
-          authenticator: "sigv4auth"
+          authenticator: sigv4auth
         compression: none
       otlphttp/logs:
         logs_endpoint: "https://__REPLACE WITH OtelLogs ADDRESS__/v1/logs"
         auth:
-          authenticator: "sigv4auth"
+          authenticator: sigv4auth
         compression: none        
       otlphttp/metrics:
         metrics_endpoint: "https://__REPLACE OtelMetrics WITH ADDRESS__/v1/metrics"
         auth:
-          authenticator: "sigv4auth"
-        compression: "none"
+          authenticator: sigv4auth
+        compression: none
       
     service:
       extensions: [sigv4auth]
