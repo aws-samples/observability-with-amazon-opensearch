@@ -14,8 +14,6 @@ Parameters:
     Type: String
   VPC:
     Type: String
-#  EKSClusterSecurityGroup:
-#    Type: String
   AOSDomainUserName:
     Type: String
   AOSMasterPasswordSecretARN:
