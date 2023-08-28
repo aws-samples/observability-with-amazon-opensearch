@@ -293,7 +293,7 @@ Resources:
             sink:
               - opensearch:
                   index_type: "trace-analytics-raw"
-                  hosts: !Sub ["https://${AOSDomainEndpoint}"]
+                  hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
                     region: ${AWS::Region}
@@ -307,7 +307,7 @@ Resources:
             sink:
               - opensearch:
                   index_type: "trace-analytics-service-map"
-                  hosts: !Sub ["https://${AOSDomainEndpoint}"]
+                  hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
                     region: ${AWS::Region}
@@ -343,7 +343,7 @@ Resources:
             sink:
               - opensearch:                  
                   index: "sample_app_logs"
-                  hosts: !Sub ["https://${AOSDomainEndpoint}"]
+                  hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
                     region: ${AWS::Region}                
@@ -381,7 +381,7 @@ Resources:
             sink:
               - opensearch:
                   index: "metrics"
-                  hosts: !Sub ["https://${AOSDomainEndpoint}"]
+                  hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
                     region: ${AWS::Region}                                  

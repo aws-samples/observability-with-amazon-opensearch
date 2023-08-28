@@ -92,15 +92,14 @@ data:
         Preserve_Key      On
   
   output-data-prepper.conf: |
-    [OUTPUT]
-        Name              http
-        Match             *
-        Host              otel-collector.otel-collector.svc.cluster.local
-        Port              4318
-        tls               Off
-        tls.verify        Off
-        Format            json
-        URI               /log/ingest
+      [OUTPUT]
+        Name                 opentelemetry
+        Match                *
+        Host                 otel-collector.otel-collector.svc.cluster.local
+        Port                 4318
+        Logs_uri             /v1/logs
+        tls                  off
+        tls.verify           off
 
   parsers.conf: |
     [PARSER]
@@ -182,7 +181,7 @@ spec:
     spec:
       containers:
       - name: fluent-bit
-        image: amazon/aws-for-fluent-bit:stable
+        image: fluent/fluent-bit
         imagePullPolicy: Always
         ports:
           - containerPort: 2020
