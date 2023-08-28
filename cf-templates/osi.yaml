@@ -342,7 +342,7 @@ Resources:
                 path: "/v1/logs"
             sink:
               - opensearch:                  
-                  index: "logs"
+                  index: "sample_app_logs"
                   hosts: !Sub ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
