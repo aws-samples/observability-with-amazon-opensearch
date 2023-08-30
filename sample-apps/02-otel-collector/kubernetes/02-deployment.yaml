@@ -21,7 +21,7 @@ spec:
           name: otel-collector
           ports:
             - containerPort: 55680
-            - containerPort: 4318
+            - containerPort: 55681
           resources: # Verify the amount of requests
             requests:
               memory: "128Mi"

@@ -338,6 +338,24 @@ Resources:
             source:
               otel_logs_source:
                 path: "/v1/logs"
+            processor:
+              - parse_json:
+                  source: "body"
+                  parse_when: "/traceId ==\"\""
+              - parse_json:
+                  source: "kubernetes"
+                  parse_when: "/traceId ==\"\""
+              - parse_json:
+                  source: "annotations"
+                  parse_when: "/traceId ==\"\""
+              - parse_json:
+                  source: "labels"
+                  parse_when: "/traceId ==\"\""
+              - delete_entries:
+                  with_keys: ["body", "kubernetes", "annotations","labels"]
+              - date:
+                  from_time_received: true
+                  destination: "@timestamp"           
             sink:
               - opensearch:                  
                   index: "sample_app_logs"

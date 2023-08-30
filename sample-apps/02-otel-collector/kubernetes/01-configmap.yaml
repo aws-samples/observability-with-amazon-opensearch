@@ -16,7 +16,7 @@ data:
           grpc:
             endpoint: 0.0.0.0:55680
           http:
-            endpoint: 0.0.0.0:4318
+            endpoint: 0.0.0.0:55681
             
     processors:
       memory_limiter:

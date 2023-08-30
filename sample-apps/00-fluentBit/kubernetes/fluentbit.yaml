@@ -96,8 +96,7 @@ data:
         Name                 opentelemetry
         Match                *
         Host                 otel-collector.otel-collector.svc.cluster.local
-        Port                 4318
-        Logs_uri             /v1/logs
+        Port                 55681
         tls                  off
         tls.verify           off
 
