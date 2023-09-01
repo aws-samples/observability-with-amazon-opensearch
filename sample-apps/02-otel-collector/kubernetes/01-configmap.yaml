@@ -24,8 +24,8 @@ data:
         limit_percentage: 80
         spike_limit_percentage: 30
       batch:
-        send_batch_size: 1000
-        timeout: 10s
+        send_batch_size: 10
+        timeout: 5s
     
     exporters:
       otlphttp/traces:
