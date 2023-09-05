@@ -246,7 +246,7 @@ Resources:
       GroupDescription: "Security group for osis in ingest"
       VpcId: !Ref VPC
       SecurityGroupIngress:
-        - FromPort: "-1"
+        - FromPort: "443"
           IpProtocol: "-1"          
           CidrIp: 0.0.0.0/0
 #          SourceSecurityGroupId: !Ref EKSClusterSecurityGroup        
