@@ -249,7 +249,6 @@ Resources:
         - FromPort: "443"
           IpProtocol: "-1"          
           CidrIp: 0.0.0.0/0
-#          SourceSecurityGroupId: !Ref EKSClusterSecurityGroup        
       SecurityGroupEgress:
         - Description: Allow all outbound traffic
           IpProtocol: "-1"
