@@ -396,7 +396,7 @@ Resources:
               - otel_metrics:
             sink:
               - opensearch:
-                  index: "metrics"
+                  index: "sample_app_metrics"
                   hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
