@@ -52,8 +52,7 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-<<<<<<< HEAD
-        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy        
       Policies:
         - PolicyName: osis
           PolicyDocument:
@@ -63,8 +62,6 @@ Resources:
                 Action: 'osis:*'
                 Resource: '*'
       
-=======
->>>>>>> f4f7cf3164dd0d3d63157e26b0ad4cf70e856a1c
 
   EKS:
     Type: "AWS::EKS::Cluster"
