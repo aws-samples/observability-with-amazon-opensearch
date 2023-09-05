@@ -51,6 +51,8 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonS3ReadOnlyAccess
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
+        - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy
       Policies:
         - PolicyName: osis
           PolicyDocument:
