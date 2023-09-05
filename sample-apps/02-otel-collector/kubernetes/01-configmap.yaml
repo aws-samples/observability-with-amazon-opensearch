@@ -29,17 +29,17 @@ data:
     
     exporters:
       otlphttp/traces:
-        traces_endpoint: "https://__REPLACE WITH OtelTraces ADDRESS__/v1/traces"
+        traces_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/traces"
         auth:
           authenticator: sigv4auth
         compression: none
       otlphttp/logs:
-        logs_endpoint: "https://__REPLACE WITH OtelLogs ADDRESS__/v1/logs"
+        logs_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/logs"
         auth:
           authenticator: sigv4auth
         compression: none        
       otlphttp/metrics:
-        metrics_endpoint: "https://__REPLACE OtelMetrics WITH ADDRESS__/v1/metrics"
+        metrics_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/metrics"
         auth:
           authenticator: sigv4auth
         compression: none
