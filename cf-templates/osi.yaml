@@ -245,6 +245,7 @@ Resources:
                   - "es:*"
                 Resource:
                   - !Ref AOSDomainArn
+  
   OpenSearchIngestionPipelineLogGroup:  
     Type: 'AWS::Logs::LogGroup'
     Properties:
