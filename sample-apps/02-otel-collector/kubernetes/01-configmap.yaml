@@ -7,7 +7,7 @@ data:
   otel-collector-config.yml: |
     extensions:
       sigv4auth:
-        region: "__replace-region__"
+        region: "__AWS_REGION__"
         service: "osis"
 
     receivers:
