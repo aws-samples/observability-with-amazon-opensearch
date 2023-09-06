@@ -277,12 +277,6 @@ Outputs:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
   AOSDomainPassword0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
-  OtelMetrics:
-    Value: !GetAtt OpenSearchIngest.Outputs.OtelMetrics
-  OtelLogs:
-    Value: !GetAtt OpenSearchIngest.Outputs.OtelLogs
-  OtelTraces:
-    Value: !GetAtt OpenSearchIngest.Outputs.OtelTraces
   StackRef2:
     Value: !Ref Cloud9
   Cloud9IDE0:
