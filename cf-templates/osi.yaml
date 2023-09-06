@@ -321,7 +321,7 @@ Resources:
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
                     region: ${AWS::Region}
-      PipelineName: !Sub ${PipelineName}-traces
+      PipelineName: !Sub ${PipelineName}-oteltraces
       VpcOptions: 
         SecurityGroupIds:
           - !Ref OpenSearchIngestionPipelineSecurityGroup

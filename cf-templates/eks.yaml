@@ -65,8 +65,6 @@ Resources:
                 Action: "osis:Ingest"
                 Resource: !Sub "arn:aws:osis:${AWS::Region}:${AWS::AccountId}:pipeline/${PipelineName}*"  
                                
-      
-
   EKS:
     Type: "AWS::EKS::Cluster"
     Properties:

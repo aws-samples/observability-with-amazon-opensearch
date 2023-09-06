@@ -34,12 +34,12 @@ data:
           authenticator: sigv4auth
         compression: none
       otlphttp/logs:
-        logs_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/logs"
+        logs_endpoint: "https://__REPLACE_WITH_OtelLogs_ENDPOINT__/v1/logs"
         auth:
           authenticator: sigv4auth
         compression: none        
       otlphttp/metrics:
-        metrics_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/metrics"
+        metrics_endpoint: "https://__REPLACE_WITH_OtelMetrics_ENDPOINT__/v1/metrics"
         auth:
           authenticator: sigv4auth
         compression: none
