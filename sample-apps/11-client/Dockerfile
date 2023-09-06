@@ -2,7 +2,7 @@
 FROM node:16-alpine as build-step
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
-RUN npm install npm@latest --location=global
+RUN npm install npm@9.8.1 --location=global
 COPY *.json ./
 COPY ./src ./src
 COPY ./public ./public
@@ -10,7 +10,7 @@ RUN npm install --loglevel "silent"
 RUN npm run build
 
 # Build step #2: build the API with the client as static files
-FROM python:3.7-slim
+FROM python:3.9-slim
 WORKDIR /app
 COPY --from=build-step /app/build ./build
 
