@@ -262,10 +262,10 @@ Resources:
         PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
         AOSDomainUserName: !GetAtt OpenSearch.Outputs.AOSDomainUserName
         AOSMasterPasswordSecretARN: !GetAtt OpenSearch.Outputs.AOSMasterPasswordSecretArn
-        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup                
-        AOSDomainArn: !GetAttr OpenSearch.Outputs.AOSDomainArn
+        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup
+        AOSDomainArn: !GetAtt OpenSearch.Outputs.AOSDomainArn
         PipelineName: !Ref OSIPipelineBaseName
-
+        
 Outputs:
   StackRef1:
     Value: !Ref OpenSearch
