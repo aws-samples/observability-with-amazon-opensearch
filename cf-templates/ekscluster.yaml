@@ -26,6 +26,8 @@ Parameters:
     Type: String
   DeployCloudformationStackLambdaRole:
     Type: String
+  PipelineName:
+    Type: String
 
 Resources:
   ClusterControlPlaneSecurityGroup:
@@ -58,6 +60,8 @@ Resources:
           ParameterValue: !Ref PrivateSubnet2
         - ParameterKey: EksNodeSubnet3
           ParameterValue: !Ref PrivateSubnet3
+        - ParameterKey: PipelineName
+          ParameterValue: !Ref PipelineName
 
   DeployCloudformationStack:
     Type: AWS::Lambda::Function

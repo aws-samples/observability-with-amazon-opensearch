@@ -20,6 +20,8 @@ Parameters:
     Type: String
   AOSDomainSecurityGroup:
     Type: String
+  AOSDomainArn:
+    Type: String
 
 Resources:
   Lambdatrigger:
@@ -42,14 +44,17 @@ Resources:
                 - opensearchservice.amazonaws.com
             Action:
               - sts:AssumeRole
-      Path: /
-      ManagedPolicyArns:
-        - arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess            
+      Path: /      
       Policies:
-        - PolicyName: "lambda-logs"
+        - PolicyName: "lambda-logs-opensearch"
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
+              - Effect: Allow
+                Action:
+                  - "es:*"
+                Resource:
+                  - !Ref AOSDomainArn
               - Effect: Allow
                 Action:
                   - "ec2:Describe*"
@@ -230,9 +235,17 @@ Resources:
                 - osis-pipelines.amazonaws.com
             Action: sts:AssumeRole
       Path: "/"
-      ManagedPolicyArns:        
-        - arn:aws:iam::aws:policy/AmazonOpenSearchServiceFullAccess        
-
+      Policies:
+        - PolicyName: "osi-opensearch"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "es:*"
+                Resource:
+                  - !Ref AOSDomainArn
+                  
   OpenSearchIngestionPipelineLogGroup:  
     Type: 'AWS::Logs::LogGroup'
     Properties:

@@ -231,6 +231,7 @@ Resources:
         DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
         EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
         C9Role: !GetAtt Cloud9.Outputs.C9Role
+        PipelineName: !Ref OSIPipelineBaseName
 
   OpenSearch:
     Type: AWS::CloudFormation::Stack
@@ -262,6 +263,7 @@ Resources:
         AOSDomainUserName: !GetAtt OpenSearch.Outputs.AOSDomainUserName
         AOSMasterPasswordSecretARN: !GetAtt OpenSearch.Outputs.AOSMasterPasswordSecretArn
         AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup                
+        AOSDomainArn: !GetAttr OpenSearch.Outputs.AOSDomainArn
         PipelineName: !Ref OSIPipelineBaseName
 
 Outputs:
