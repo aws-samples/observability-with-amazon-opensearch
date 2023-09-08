@@ -68,7 +68,7 @@ Resources:
                   - logs:CreateLogStream
                   - logs:PutLogEvents
                 Resource:
-                  - "arn:aws:logs:*:*:*"
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
               - Effect: Allow
                 Action:
                   - secretsmanager:GetSecretValue
