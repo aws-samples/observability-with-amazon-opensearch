@@ -52,7 +52,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "es:*"
+                  - "es:DescribeDomain"
+                  - "es:ESHttp*"
                 Resource:
                   - !Ref AOSDomainArn
               - Effect: Allow
@@ -242,7 +243,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - "es:*"
+                  - "es:DescribeDomain"
+                  - "es:ESHttp*"
                 Resource:
                   - !Ref AOSDomainArn
   
