@@ -58,8 +58,6 @@ Resources:
                   - !Ref AOSDomainArn
               - Effect: Allow
                 Action:
-                  - "ec2:Describe*"
-                  - "ec2:List*"
                   - "ec2:CreateNetworkInterface"
                   - "ec2:DeleteNetworkInterface"
                   - "ec2:DescribeNetworkInterfaces"
