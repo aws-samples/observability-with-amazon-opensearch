@@ -352,17 +352,13 @@ Resources:
                 path: "/v1/logs"
             processor:
               - parse_json:
-                  source: "body"
-                  parse_when: "/traceId ==\"\""
+                  source: "body"                  
               - parse_json:
-                  source: "kubernetes"
-                  parse_when: "/traceId ==\"\""
+                  source: "kubernetes"                  
               - parse_json:
-                  source: "annotations"
-                  parse_when: "/traceId ==\"\""
+                  source: "annotations"                  
               - parse_json:
-                  source: "labels"
-                  parse_when: "/traceId ==\"\""
+                  source: "labels"              
               - delete_entries:
                   with_keys: ["body", "kubernetes", "annotations","labels"]
               - date:
