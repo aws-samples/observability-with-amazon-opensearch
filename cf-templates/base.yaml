@@ -373,11 +373,6 @@ Resources:
 
   ######## Shared IAM Roles ########
 
-  AWSServiceRoleForAmazonOpenSearchService:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: opensearchservice.amazonaws.com
-
   DeployCloudformationStackLambdaRole:
     Type: AWS::IAM::Role
     Properties:
@@ -403,6 +398,7 @@ Resources:
                   - "iam:GetRole"
                   - "iam:DetachRolePolicy"
                   - "iam:DeleteRole"
+                  - "iam:DeleteRolePolicy"
                   - "cloudformation:CreateStack"
                   - "cloudformation:CreateChangeSet"
                   - "cloudformation:DeleteStack"
