@@ -306,8 +306,7 @@ Resources:
                   hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
-                    region: ${AWS::Region}
-
+                    region: "${AWS::Region}"
           service-map-pipeline:
             source:
               pipeline:
@@ -320,7 +319,7 @@ Resources:
                   hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
-                    region: ${AWS::Region}
+                    region: "${AWS::Region}"
       PipelineName: !Sub ${PipelineName}-oteltraces
       VpcOptions: 
         SecurityGroupIds:
@@ -333,6 +332,7 @@ Resources:
   OtelLogsPipeline:
     Type: "AWS::OSIS::Pipeline"
     DependsOn:
+#      - TracesPipeline
       - OpenSearchIngestionPipelineRole
       - OpenSearchIngestionPipelineLogGroup
       - OpenSearchIngestionPipelineSecurityGroup
@@ -370,7 +370,7 @@ Resources:
                   hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
-                    region: ${AWS::Region}                
+                    region: "${AWS::Region}"
       PipelineName: !Sub ${PipelineName}-otellogs
       VpcOptions: 
         SecurityGroupIds:
@@ -383,6 +383,7 @@ Resources:
   OtelMetricsPipeline:
     Type: "AWS::OSIS::Pipeline"
     DependsOn:
+#      - OtelLogsPipeline 
       - OpenSearchIngestionPipelineRole
       - OpenSearchIngestionPipelineLogGroup
       - OpenSearchIngestionPipelineSecurityGroup
@@ -408,7 +409,7 @@ Resources:
                   hosts: ["https://${AOSDomainEndpoint}"]
                   aws:                  
                     sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
-                    region: ${AWS::Region}                                  
+                    region: "${AWS::Region}"
       PipelineName: !Sub ${PipelineName}-otelmetrics
       VpcOptions: 
         SecurityGroupIds:
