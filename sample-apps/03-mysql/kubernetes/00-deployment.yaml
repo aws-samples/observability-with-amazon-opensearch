@@ -19,14 +19,14 @@ spec:
         app: mysql
     spec:
       containers:
-      - image: mysql:5.6
-        name: mysql
-        ports:
-        - containerPort: 3306
+        - image: mysql:8.1.0
           name: mysql
-        env:
-        - name: MYSQL_ALLOW_EMPTY_PASSWORD
-          value: "yes"
+          ports:
+            - containerPort: 3306
+              name: mysql
+          env:
+            - name: MYSQL_ALLOW_EMPTY_PASSWORD
+              value: "yes"
 ---
 apiVersion: v1
 kind: Service
@@ -35,7 +35,7 @@ metadata:
   namespace: mysql
 spec:
   ports:
-  - port: 3306
-    targetPort: 3306
+    - port: 3306
+      targetPort: 3306
   selector:
     app: mysql
