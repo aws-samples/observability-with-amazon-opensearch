@@ -1,4 +1,4 @@
-FROM python:3.9-slim as base
+FROM python:3.11-slim as base
 
 # ---- compile image -----------------------------------------------
 FROM base AS compile-image

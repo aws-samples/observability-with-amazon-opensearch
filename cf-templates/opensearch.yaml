@@ -177,7 +177,7 @@ Resources:
     Properties:
       Handler: index.lambda_handler
       Role: !GetAtt RetrieveAOSPasswordLambdaExecutionRole.Arn
-      Runtime: python3.9
+      Runtime: python3.11
       Timeout: 120
       Code:
         ZipFile: |
@@ -441,7 +441,7 @@ Resources:
       Handler: "index.lambda_handler"
       Timeout: 30
       Role: !GetAtt "LambdaRole.Arn"
-      Runtime: python3.9
+      Runtime: python3.11
   Lambdatrigger:
     Type: "Custom::GetEC2PublicIP"
     DependsOn: ReverseProxyASG
