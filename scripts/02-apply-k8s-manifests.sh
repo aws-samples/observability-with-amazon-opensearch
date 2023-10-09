@@ -23,3 +23,13 @@ apply_manifests '08-paymentService'
 apply_manifests '09-recommendationService'
 apply_manifests '10-authenticationService'
 apply_manifests '11-client'
+
+sleep 2
+echo -ne '#####                      (25%)\r'
+sleep 3
+echo -ne '#############              (50%)\r'
+sleep 3
+echo -ne '##################         (75%)\r'
+sleep 3
+echo -ne '#########################  (100%)\r'
+echo -ne '\n'
