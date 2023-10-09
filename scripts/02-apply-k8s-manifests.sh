@@ -17,19 +17,27 @@ apply_manifests '02-otel-collector'
 apply_manifests '03-mysql'
 apply_manifests '04-analytics-service'
 apply_manifests '05-databaseService'
+sleep 0.2
 apply_manifests '06-orderService'
+sleep 0.2
 apply_manifests '07-inventoryService'
+sleep 0.2
 apply_manifests '08-paymentService'
+sleep 0.2
 apply_manifests '09-recommendationService'
+sleep 0.2
 apply_manifests '10-authenticationService'
+sleep 0.2
 apply_manifests '11-client'
 
 sleep 2
-echo -ne '#####                      (25%)\r'
+echo -ne '##                            (15%)\r'
+sleep 2
+echo -ne '#####                         (25%)\r'
 sleep 3
-echo -ne '#############              (50%)\r'
-sleep 3
-echo -ne '##################         (75%)\r'
-sleep 3
-echo -ne '#########################  (100%)\r'
+echo -ne '#############                 (50%)\r'
+sleep 5
+echo -ne '#####################         (75%)\r'
+sleep 5
+echo -ne '############################# (100%)\r'
 echo -ne '\n'
