@@ -16,24 +16,33 @@ spec:
         app: database-service
     spec:
       containers:
-      - image: __ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/database-service
-        name: database-service
-        ports:
-        - containerPort: 5000
-        resources: # Verify the amount of requests
-          requests:
-            memory: "64Mi"
-            cpu: "250m"
-          limits:
-            memory: "128Mi"
-            cpu: "500m"
-        env:
-        - name: OTLP
-          value: "otel-collector.otel-collector.svc.cluster.local"
-        - name: MYSQL_HOST
-          value: "mysql.mysql.svc.cluster.local"
-        - name: MYSQL_PORT
-          value: "3306"
+        - image: __ACCOUNT_ID__.dkr.ecr.__AWS_REGION__.amazonaws.com/database-service
+          name: database-service
+          ports:
+            - containerPort: 5000
+          resources: # Verify the amount of requests
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "128Mi"
+              cpu: "500m"
+          env:
+            - name: OTLP
+              value: "otel-collector.otel-collector.svc.cluster.local"
+            - name: MYSQL_HOST
+              value: "mysql.mysql.svc.cluster.local"
+            - name: MYSQL_PORT
+              value: "3306"
+      initContainers:
+        - name: init-mydb
+          image: busybox:latest
+          command:
+            [
+              "sh",
+              "-c",
+              "sleep 22; until nslookup mysql.mysql.svc.cluster.local; do echo waiting for mydb; done",
+            ]
 ---
 apiVersion: v1
 kind: Service
@@ -42,7 +51,7 @@ metadata:
   namespace: database-service
 spec:
   ports:
-  - port: 80
-    targetPort: 5000
+    - port: 80
+      targetPort: 5000
   selector:
     app: database-service
