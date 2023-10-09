@@ -324,7 +324,7 @@ Resources:
                 - echo '=== INSTALL and CONFIGURE default software components ==='
                 - sudo -H -u ec2-user bash -c "pip install --user -U boto boto3 botocore awscli aws-sam-cli"
                 - echo '=== INSTALL Kubectl ==='
-                - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.21.2/2021-07-05/bin/linux/amd64/kubectl
+                - curl -o kubectl https://s3.us-west-2.amazonaws.com/amazon-eks/1.28.1/2023-09-14/bin/linux/amd64/kubectl
                 - sudo chmod +x kubectl && sudo mv kubectl /usr/local/bin/
                 - sudo echo "source <(kubectl completion bash)" >> ~/.bashrc
                 - echo '=== INSTALL eksctl ==='
