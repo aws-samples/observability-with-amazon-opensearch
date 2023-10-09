@@ -41,7 +41,7 @@ spec:
             [
               "sh",
               "-c",
-              "sleep 30; until nslookup mysql.mysql.svc.cluster.local; do echo waiting for mydb; done",
+              "until nslookup mysql.mysql.svc.cluster.local; do echo waiting for mydb; sleep 35; done",
             ]
 ---
 apiVersion: v1
