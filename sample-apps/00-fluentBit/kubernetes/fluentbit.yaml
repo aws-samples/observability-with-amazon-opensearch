@@ -8,11 +8,11 @@ kind: ClusterRole
 metadata:
   name: fluent-bit-read
 rules:
-- apiGroups: [""]
-  resources:
-  - namespaces
-  - pods
-  verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+    verbs: ["get", "list", "watch"]
 ---
 apiVersion: v1
 kind: ServiceAccount
@@ -29,9 +29,9 @@ roleRef:
   kind: ClusterRole
   name: fluent-bit-read
 subjects:
-- kind: ServiceAccount
-  name: fluent-bit
-  namespace: logging
+  - kind: ServiceAccount
+    name: fluent-bit
+    namespace: logging
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -62,10 +62,10 @@ data:
     [INPUT]
         Name              tail
         Tag               kube.*
+        multiline.parser  cri
         Path              /var/log/containers/*.log
-        Parser            docker
-        DB                /var/log/flb_kube.db
-        Mem_Buf_Limit     50MB
+        DB                /var/log/flb_kube_myservice.db
+        Mem_Buf_Limit     5MB
         Skip_Long_Lines   On
         Refresh_Interval  10
 
@@ -90,7 +90,7 @@ data:
         Parser            traceInfo
         Reserve_Data      On
         Preserve_Key      On
-  
+
   output-data-prepper.conf: |
     [OUTPUT]
         Name              http
@@ -104,36 +104,10 @@ data:
 
   parsers.conf: |
     [PARSER]
-        Name   apache
-        Format regex
-        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
-        Name   apache2
-        Format regex
-        Regex  ^(?<host>[^ ]*) [^ ]* (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^ ]*) +\S*)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
-        Name   apache_error
-        Format regex
-        Regex  ^\[[^ ]* (?<time>[^\]]*)\] \[(?<level>[^\]]*)\](?: \[pid (?<pid>[^\]]*)\])?( \[client (?<client>[^\]]*)\])? (?<message>.*)$
-
-    [PARSER]
-        Name   nginx
-        Format regex
-        Regex ^(?<remote>[^ ]*) (?<host>[^ ]*) (?<user>[^ ]*) \[(?<time>[^\]]*)\] "(?<method>\S+)(?: +(?<path>[^\"]*?)(?: +\S*)?)?" (?<code>[^ ]*) (?<size>[^ ]*)(?: "(?<referer>[^\"]*)" "(?<agent>[^\"]*)")?$
-        Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
-
-    [PARSER]
         Name   json
         Format json
         Time_Key time
-        Time_Format %d/%b/%Y:%H:%M:%S %z
+        Time_Format %Y-%m-%dT%H:%M:%S.%L
 
     [PARSER]
         Name        docker
@@ -143,17 +117,10 @@ data:
         Time_Keep   On
 
     [PARSER]
-        Name        syslog
-        Format      regex
-        Regex       ^\<(?<pri>[0-9]+)\>(?<time>[^ ]* {1,2}[^ ]* [^ ]*) (?<host>[^ ]*) (?<ident>[a-zA-Z0-9_\/\.\-]*)(?:\[(?<pid>[0-9]+)\])?(?:[^\:]*\:)? *(?<message>.*)$
-        Time_Key    time
-        Time_Format %b %d %H:%M:%S
-        
-    [PARSER]
         Name        traceInfo
         Format      regex
-        Regex       trace_id=(?<traceId>[^ ]+) span_id=(?<spanId>[^ ]+) resource.service.name=(?<serviceName>[^]]+)
-        
+        Regex       trace_id=(?<traceId>[^ ]+) span_id=(?<spanId>[^ ]+) resource.service.name=(?<serviceName>[^]]+) trace_sampled=(?<traceSampled>[^]]+)
+
 ---
 apiVersion: apps/v1
 kind: DaemonSet
@@ -181,28 +148,28 @@ spec:
         prometheus.io/path: /api/v1/metrics/prometheus
     spec:
       containers:
-      - name: fluent-bit
-        image: amazon/aws-for-fluent-bit:stable
-        imagePullPolicy: Always
-        ports:
-          - containerPort: 2020
-        volumeMounts:
-        - name: varlog
-          mountPath: /var/log
-        - name: varlibdockercontainers
-          mountPath: /var/lib/docker/containers
-          readOnly: true
-        - name: fluent-bit-config
-          mountPath: /fluent-bit/etc/
+        - name: fluent-bit
+          image: fluent/fluent-bit:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 2020
+          volumeMounts:
+            - name: varlog
+              mountPath: /var/log
+            - name: varlibdockercontainers
+              mountPath: /var/lib/docker/containers
+              readOnly: true
+            - name: fluent-bit-config
+              mountPath: /fluent-bit/etc/
       terminationGracePeriodSeconds: 10
       volumes:
-      - name: varlog
-        hostPath:
-          path: /var/log
-      - name: varlibdockercontainers
-        hostPath:
-          path: /var/lib/docker/containers
-      - name: fluent-bit-config
-        configMap:
-          name: fluent-bit-config
+        - name: varlog
+          hostPath:
+            path: /var/log
+        - name: varlibdockercontainers
+          hostPath:
+            path: /var/lib/docker/containers
+        - name: fluent-bit-config
+          configMap:
+            name: fluent-bit-config
       serviceAccountName: fluent-bit
