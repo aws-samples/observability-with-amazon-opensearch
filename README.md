@@ -16,11 +16,12 @@ In manual instrumentation, developers need to add trace capture code to the appl
 
 Following are dependencies installed using pip. This could be found in the requirement.txt within each microservice under sample-apps.
 ```
-opentelemetry-exporter-otlp==1.9.1
-opentelemetry-instrumentation-flask==0.28b1
-opentelemetry-instrumentation-mysql==0.28b1
-opentelemetry-instrumentation-requests==0.28b1
-opentelemetry-instrumentation-logging==0.28b1
+opentelemetry-exporter-otlp==1.20.0
+opentelemetry-instrumentation-flask==0.41b0
+opentelemetry-instrumentation-mysql==0.41b0
+opentelemetry-instrumentation-requests==0.41b0
+opentelemetry-instrumentation-logging==0.41b0
+opentelemetry-sdk==1.20.0
 ```
 Lets take a sample microservice ```sample-apps/08-paymentservice/paymentService.py``` and try to understand the instrumentation specific code.
 
