@@ -27,6 +27,9 @@ Parameters:
   EksClusterName:
     Default: eks-cluster-01
     Type: String
+  PipelineName:
+    Default: "osi-pipeline"
+    Type: String
 
 Resources:
   EKSNodesIAMRole:
@@ -40,6 +43,9 @@ Resources:
               Service:
                 - eks.amazonaws.com
                 - ec2.amazonaws.com
+                - osis.amazonaws.com
+                - osis-pipelines.amazonaws.com
+                - opensearchservice.amazonaws.com
             Action:
               - "sts:AssumeRole"
       ManagedPolicyArns:
@@ -49,7 +55,16 @@ Resources:
         - arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy
         - arn:aws:iam::aws:policy/ElasticLoadBalancingFullAccess
         - arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore
-
+        - arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy        
+      Policies:
+        - PolicyName: osis
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: "osis:Ingest"
+                Resource: !Sub "arn:aws:osis:${AWS::Region}:${AWS::AccountId}:pipeline/${PipelineName}*"  
+                               
   EKS:
     Type: "AWS::EKS::Cluster"
     Properties:
@@ -77,3 +92,4 @@ Resources:
         - !Ref EksNodeSubnet1
         - !Ref EksNodeSubnet2
         - !Ref EksNodeSubnet3
+

@@ -5,20 +5,55 @@ metadata:
   namespace: otel-collector
 data:
   otel-collector-config.yml: |
+    extensions:
+      sigv4auth:
+        region: "__AWS_REGION__"
+        service: "osis"
+
     receivers:
       otlp:
         protocols:
           grpc:
             endpoint: 0.0.0.0:55680
+          http:
+            endpoint: 0.0.0.0:55681
             
+    processors:
+      memory_limiter:
+        check_interval: 1s
+        limit_percentage: 80
+        spike_limit_percentage: 30
+      batch:
+        send_batch_size: 10
+        timeout: 5s
+    
     exporters:
-      otlp/data-prepper:
-        endpoint: data-prepper.data-prepper.svc.cluster.local:21890
-        tls:
-          insecure: true
+      otlphttp/traces:
+        traces_endpoint: "https://__REPLACE_WITH_OtelTraces_ENDPOINT__/v1/traces"
+        auth:
+          authenticator: sigv4auth
+        compression: none
+      otlphttp/logs:
+        logs_endpoint: "https://__REPLACE_WITH_OtelLogs_ENDPOINT__/v1/logs"
+        auth:
+          authenticator: sigv4auth
+        compression: none        
+      otlphttp/metrics:
+        metrics_endpoint: "https://__REPLACE_WITH_OtelMetrics_ENDPOINT__/v1/metrics"
+        auth:
+          authenticator: sigv4auth
+        compression: none
       
     service:
+      extensions: [sigv4auth]
       pipelines:
         traces:
           receivers: [otlp]
-          exporters: [otlp/data-prepper]
+          exporters: [otlphttp/traces]
+        logs:
+          receivers: [otlp]
+          processors: [memory_limiter, batch]
+          exporters: [otlphttp/logs]
+        metrics:
+          receivers: [otlp]
+          exporters: [otlphttp/metrics]

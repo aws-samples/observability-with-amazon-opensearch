@@ -377,6 +377,11 @@ Resources:
     Type: "AWS::IAM::ServiceLinkedRole"
     Properties:
       AWSServiceName: opensearchservice.amazonaws.com
+  
+  AWSServiceRoleForAmazonOpenSearchIngestionService:
+    Type: "AWS::IAM::ServiceLinkedRole"
+    Properties:
+      AWSServiceName: osis.amazonaws.com
 
   DeployCloudformationStackLambdaRole:
     Type: AWS::IAM::Role
@@ -403,6 +408,7 @@ Resources:
                   - "iam:GetRole"
                   - "iam:DetachRolePolicy"
                   - "iam:DeleteRole"
+                  - "iam:DeleteRolePolicy"
                   - "cloudformation:CreateStack"
                   - "cloudformation:CreateChangeSet"
                   - "cloudformation:DeleteStack"

@@ -7,7 +7,12 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 55680
+    - name: "55680"
+      port: 55680
       targetPort: 55680
+    - name: "55681"
+      port: 55681
+      targetPort: 55681
   selector:
     app: otel-collector
+  

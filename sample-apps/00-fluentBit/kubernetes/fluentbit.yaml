@@ -92,15 +92,13 @@ data:
         Preserve_Key      On
 
   output-data-prepper.conf: |
-    [OUTPUT]
-        Name              http
-        Match             *
-        Host              data-prepper.data-prepper.svc.cluster.local
-        Port              2021
-        tls               Off
-        tls.verify        Off
-        Format            json
-        URI               /log/ingest
+      [OUTPUT]
+        Name                 opentelemetry
+        Match                *
+        Host                 otel-collector.otel-collector.svc.cluster.local
+        Port                 55681
+        tls                  off
+        tls.verify           off
 
   parsers.conf: |
     [PARSER]

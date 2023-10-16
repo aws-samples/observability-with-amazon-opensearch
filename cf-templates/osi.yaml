@@ -1,0 +1,420 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: "This template create the Amazon OpenSearch Service Ingestion Pipeline resources for the Microservice Observability with Amazon OpenSearch Service Workshop."
+
+Parameters:
+  PipelineName: 
+    Type: String    
+  AOSDomainEndpoint:
+    Type: String
+  PrivateSubnet1:
+    Type: String
+  PrivateSubnet2:
+    Type: String
+  PrivateSubnet3:
+    Type: String
+  VPC:
+    Type: String
+  AOSDomainUserName:
+    Type: String
+  AOSMasterPasswordSecretARN:
+    Type: String
+  AOSDomainSecurityGroup:
+    Type: String
+  AOSDomainArn:
+    Type: String
+
+Resources:
+  Lambdatrigger:
+    Type: "Custom::UpdateAOSRoleMapping"
+    DependsOn: UpdateAOSRoleMapping      
+    Properties:
+      ServiceToken: !GetAtt "UpdateAOSRoleMapping.Arn"      
+
+  UpdateAOSRoleMappingLambdaRole:
+    Type: AWS::IAM::Role
+    DependsOn: OpenSearchIngestionPipelineRole
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+                - opensearchservice.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Path: /      
+      Policies:
+        - PolicyName: "lambda-logs-opensearch"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "es:DescribeDomain"
+                  - "es:ESHttp*"
+                Resource:
+                  - !Ref AOSDomainArn
+              - Effect: Allow
+                Action:
+                  - "ec2:CreateNetworkInterface"
+                  - "ec2:DeleteNetworkInterface"
+                  - "ec2:DescribeNetworkInterfaces"
+                Resource: "*"
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource:
+                  - !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:*"
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                Resource:
+                  - !Ref AOSMasterPasswordSecretARN
+  UpdateAOSRoleMapping:
+    Type: AWS::Lambda::Function    
+    DependsOn: UpdateAOSRoleMappingLambdaRole
+    Properties:
+      Handler: index.lambda_handler      
+      Runtime: python3.9
+      Timeout: 240
+      Role: !GetAtt  UpdateAOSRoleMappingLambdaRole.Arn
+      FunctionName: !Sub osi-oss-role-mapping-update-${AWS::StackName}
+      Code:
+        ZipFile: |
+          import boto3
+          import botocore
+          import urllib3
+          import json
+          import cfnresponse
+          import os
+          from botocore.vendored import requests
+          from botocore.exceptions import ClientError
+
+          SECRET_ARN = os.getenv('SECRET_ARN')
+          REGION = os.getenv('REGION')
+          AOSUSER = os.getenv('AOSUSER')
+          AOSURL = os.getenv('AOSURL')
+          ROLE_NAME = os.getenv('ROLE_NAME')
+          OSI_ROLE_ARN = os.getenv('OSI_ROLE_ARN')
+
+          def RetrieveAOSPassword(event, context):
+            
+            # Create a Secrets Manager client
+            session = boto3.session.Session()
+            client = session.client(
+                service_name='secretsmanager',
+                region_name=REGION
+            )
+              
+            secret = ""
+            
+            try:
+                get_secret_value_response = client.get_secret_value(
+                    SecretId=SECRET_ARN
+                )
+            except ClientError as err:
+                print(err)
+                cfnresponse.send(event, context, cfnresponse.FAILED, {})
+            else:
+                # Decrypts secret using the associated KMS key.
+                # Depending on whether the secret is a string or binary, one of these fields will be populated.
+                if 'SecretString' in get_secret_value_response:
+                    secret = get_secret_value_response['SecretString']
+                else:
+                    decoded_binary_secret = base64.b64decode(get_secret_value_response['SecretBinary'])
+
+            password_secret = json.loads(secret)
+            
+            responseData = password_secret["password"]
+
+            if password_secret:
+              cfnresponse.send(event, context, cfnresponse.SUCCESS, {"OpenSearchMasterPassword": "===="})
+            else:
+              cfnresponse.send(event, context, cfnresponse.FAILED, {"OpenSearchMasterPassword": "Failed to retrieve password"})
+            
+            return responseData
+
+          def lambda_handler(event, context):                                          
+              # The query you want to send to OpenSearch
+              permissions_query = {
+                  "cluster_permissions": [
+                      "cluster_monitor",
+                        "cluster_composite_ops",
+                        "indices:admin/template/get",
+                        "indices:admin/template/put",
+                        "cluster:admin/ingest/pipeline/put",
+                        "cluster:admin/opendistro/ism/policy/write",
+                        "cluster_all"
+                    ],
+                    "index_permissions":  [
+                        {
+                          "index_patterns": [
+                            "*"
+                          ],
+                          "dls": "",
+                          "fls": [],
+                          "masked_fields": [],
+                          "allowed_actions": [
+                            "indices_all",
+                            "manage_aliases"
+                          ]
+                        }
+                      ],
+                      "tenant_permissions": []
+                  }
+              
+              back_end_role_mapping_query = {
+                  "backend_roles" : [ OSI_ROLE_ARN],
+                  "hosts" : [],
+                  "users" : []
+                }
+              
+              
+              try:
+                  if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
+                    password = RetrieveAOSPassword (event, context)              
+                    create_role_url = 'https://' + AOSURL + '/_plugins/_security/api/roles/'+ROLE_NAME
+                    create_role_mapping_url = 'https://' + AOSURL + '/_plugins/_security/api/rolesmapping/'+ROLE_NAME
+
+                    #Create a role
+                    http = urllib3.PoolManager()
+                    headers = {'Content-Type': 'application/json'}
+                    headers.update(urllib3.make_headers(basic_auth=AOSUSER+':'+password))
+                    
+                    role_creation_response = http.request("PUT",
+                                    create_role_url,
+                                    body = json.dumps(permissions_query),
+                                    headers = headers,
+                                    retries = False)
+                                    
+
+                    #Create aws role to opensearch role mapping
+                    role_mapping_response = http.request("PUT",
+                                    create_role_mapping_url,
+                                    body = json.dumps(back_end_role_mapping_query),
+                                    headers = headers,
+                                    retries = False)
+
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {"RoleAndMapping": "updated"})
+                  print ("Success!")
+              except Exception as e:
+                  print(e)
+                  print ("Internal Error!")
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {"error",e})
+      Environment:
+        Variables:  
+          REGION: !Ref AWS::Region
+          SECRET_ARN: !Ref AOSMasterPasswordSecretARN
+          ROLE_NAME: !Sub ${PipelineName}-role
+          AOSUSER: !Ref AOSDomainUserName
+          AOSURL: !Ref AOSDomainEndpoint    
+          OSI_ROLE_ARN: !GetAtt OpenSearchIngestionPipelineRole.Arn
+      VpcConfig:
+          SecurityGroupIds:
+            - !Ref AOSDomainSecurityGroup
+          SubnetIds:
+            - !Ref PrivateSubnet1
+            - !Ref PrivateSubnet2
+            - !Ref PrivateSubnet3     
+
+  OpenSearchIngestionPipelineRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${PipelineName}-role
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: 
+                - osis-pipelines.amazonaws.com
+            Action: sts:AssumeRole
+      Path: "/"
+      Policies:
+        - PolicyName: "osi-opensearch"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - "es:DescribeDomain"
+                  - "es:ESHttp*"
+                Resource:
+                  - !Ref AOSDomainArn
+  
+  OpenSearchIngestionPipelineLogGroup:  
+    Type: 'AWS::Logs::LogGroup'
+    Properties:
+      LogGroupName: !Sub /aws/vendedlogs/OpenSearchIngestion/${PipelineName}/audit-logs
+      RetentionInDays: 7
+
+  OpenSearchIngestionPipelineSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${PipelineName}-sg
+      GroupDescription: "Security group for osis in ingest"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - FromPort: "443"
+          IpProtocol: "-1"          
+          CidrIp: 0.0.0.0/0
+      SecurityGroupEgress:
+        - Description: Allow all outbound traffic
+          IpProtocol: "-1"
+          CidrIp: 0.0.0.0/0
+
+  TracesPipeline:
+    Type: "AWS::OSIS::Pipeline"
+    DependsOn:
+      - OpenSearchIngestionPipelineRole
+      - OpenSearchIngestionPipelineLogGroup
+      - OpenSearchIngestionPipelineSecurityGroup
+    Properties:
+      LogPublishingOptions:        
+        IsLoggingEnabled: True
+        CloudWatchLogDestination:
+          LogGroup: !Ref OpenSearchIngestionPipelineLogGroup
+      MaxUnits: 4
+      MinUnits: 1
+      PipelineConfigurationBody:
+        !Sub |
+          version: "2"
+          entry-pipeline:
+            source:
+              otel_trace_source:
+                path: "/v1/traces"
+            processor:
+              - trace_peer_forwarder:
+            sink:
+              - pipeline:
+                  name: "span-pipeline"
+              - pipeline:
+                  name: "service-map-pipeline"
+          span-pipeline:
+            source:
+              pipeline:
+                name: "entry-pipeline"
+            processor:
+              - otel_traces:
+            sink:
+              - opensearch:
+                  index_type: "trace-analytics-raw"
+                  hosts: ["https://${AOSDomainEndpoint}"]
+                  aws:                  
+                    sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
+                    region: "${AWS::Region}"
+          service-map-pipeline:
+            source:
+              pipeline:
+                name: "entry-pipeline"
+            processor:
+              - service_map:
+            sink:
+              - opensearch:
+                  index_type: "trace-analytics-service-map"
+                  hosts: ["https://${AOSDomainEndpoint}"]
+                  aws:                  
+                    sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
+                    region: "${AWS::Region}"
+      PipelineName: !Sub ${PipelineName}-oteltraces
+      VpcOptions: 
+        SecurityGroupIds:
+          - !Ref OpenSearchIngestionPipelineSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+          - !Ref PrivateSubnet3
+
+  OtelLogsPipeline:
+    Type: "AWS::OSIS::Pipeline"
+    DependsOn:
+#      - TracesPipeline
+      - OpenSearchIngestionPipelineRole
+      - OpenSearchIngestionPipelineLogGroup
+      - OpenSearchIngestionPipelineSecurityGroup
+    Properties:
+      LogPublishingOptions:        
+        IsLoggingEnabled: True
+        CloudWatchLogDestination:
+          LogGroup: !Ref OpenSearchIngestionPipelineLogGroup
+      MaxUnits: 4
+      MinUnits: 1
+      PipelineConfigurationBody:
+        !Sub |
+          version: "2"
+          otel-logs-pipeline:
+            source:
+              otel_logs_source:
+                path: "/v1/logs"
+            processor:
+              - parse_json:
+                  source: "body"                  
+              - parse_json:
+                  source: "kubernetes"                  
+              - parse_json:
+                  source: "annotations"                  
+              - parse_json:
+                  source: "labels"              
+              - delete_entries:
+                  with_keys: ["body", "kubernetes", "annotations","labels"]
+              - date:
+                  from_time_received: true
+                  destination: "@timestamp"           
+            sink:
+              - opensearch:                  
+                  index: "sample_app_logs"
+                  hosts: ["https://${AOSDomainEndpoint}"]
+                  aws:                  
+                    sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
+                    region: "${AWS::Region}"
+      PipelineName: !Sub ${PipelineName}-otellogs
+      VpcOptions: 
+        SecurityGroupIds:
+          - !Ref OpenSearchIngestionPipelineSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+          - !Ref PrivateSubnet3
+
+  OtelMetricsPipeline:
+    Type: "AWS::OSIS::Pipeline"
+    DependsOn:
+#      - OtelLogsPipeline 
+      - OpenSearchIngestionPipelineRole
+      - OpenSearchIngestionPipelineLogGroup
+      - OpenSearchIngestionPipelineSecurityGroup
+    Properties:
+      LogPublishingOptions:        
+        IsLoggingEnabled: True
+        CloudWatchLogDestination:
+          LogGroup: !Ref OpenSearchIngestionPipelineLogGroup
+      MaxUnits: 4
+      MinUnits: 1
+      PipelineConfigurationBody:
+        !Sub |
+          version: "2"
+          otel-metrics-pipeline:
+            source:
+              otel_metrics_source:
+                path: "/v1/metrics"
+            processor:
+              - otel_metrics:
+            sink:
+              - opensearch:
+                  index: "sample_app_metrics"
+                  hosts: ["https://${AOSDomainEndpoint}"]
+                  aws:                  
+                    sts_role_arn: "${OpenSearchIngestionPipelineRole.Arn}"
+                    region: "${AWS::Region}"
+      PipelineName: !Sub ${PipelineName}-otelmetrics
+      VpcOptions: 
+        SecurityGroupIds:
+          - !Ref OpenSearchIngestionPipelineSecurityGroup
+        SubnetIds:
+          - !Ref PrivateSubnet1
+          - !Ref PrivateSubnet2
+          - !Ref PrivateSubnet3

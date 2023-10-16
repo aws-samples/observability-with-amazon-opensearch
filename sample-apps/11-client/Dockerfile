@@ -1,5 +1,5 @@
 # Build step #1: build the React front end
-FROM node:16-alpine as build-step
+FROM node:18-alpine as build-step
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 RUN npm install npm@9.8.1 --location=global

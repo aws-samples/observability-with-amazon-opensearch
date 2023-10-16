@@ -12,7 +12,7 @@ apply_manifests() {
 }
 
 apply_manifests '00-fluentBit'
-apply_manifests '01-data-prepper'
+#apply_manifests '01-data-prepper'
 apply_manifests '02-otel-collector'
 apply_manifests '03-mysql'
 apply_manifests '04-analytics-service'
@@ -23,6 +23,7 @@ apply_manifests '08-paymentService'
 apply_manifests '09-recommendationService'
 apply_manifests '10-authenticationService'
 apply_manifests '11-client'
+
 
 sleep 2.5
 echo -ne '##                            (15%)\r'

@@ -7,8 +7,19 @@ export AWS_REGION=$(curl -H "X-aws-ec2-metadata-token: $TOKEN" -s 169.254.169.25
 
 aws ecr get-login-password --region ${AWS_REGION} | docker login --username AWS --password-stdin ${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com
 
+# obtain OSIS endpoints
+export OSIS_TRACES_URL=$(aws osis get-pipeline --pipeline-name osi-pipeline-oteltraces | jq -r '.Pipeline.IngestEndpointUrls[0]')
+export OSIS_LOGS_URL=$(aws osis get-pipeline --pipeline-name osi-pipeline-otellogs | jq -r '.Pipeline.IngestEndpointUrls[0]')
+export OSIS_METRICS_URL=$(aws osis get-pipeline --pipeline-name osi-pipeline-otelmetrics | jq -r '.Pipeline.IngestEndpointUrls[0]')
+
 # Changing directory to build inside the application folders
 cd ..
+
+#configure OSIS endpoints and region
+sed -i -e "s/__REPLACE_WITH_OtelTraces_ENDPOINT__/${OSIS_TRACES_URL}/g" sample-apps/02-otel-collector/kubernetes/01-configmap.yaml
+sed -i -e "s/__REPLACE_WITH_OtelLogs_ENDPOINT__/${OSIS_LOGS_URL}/g" sample-apps/02-otel-collector/kubernetes/01-configmap.yaml
+sed -i -e "s/__REPLACE_WITH_OtelMetrics_ENDPOINT__/${OSIS_METRICS_URL}/g" sample-apps/02-otel-collector/kubernetes/01-configmap.yaml
+sed -i -e "s/__AWS_REGION__/${AWS_REGION}/g" sample-apps/02-otel-collector/kubernetes/01-configmap.yaml
 
 push_images_ecr() {
     echo "Building ${2} ..."
@@ -33,3 +44,4 @@ push_images_ecr '08-paymentService' 'payment-service'
 push_images_ecr '09-recommendationService' 'recommendation-service'
 push_images_ecr '10-authenticationService' 'authentication-service'
 push_images_ecr '11-client' 'client-service'
+

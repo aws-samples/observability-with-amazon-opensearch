@@ -127,11 +127,18 @@ Parameters:
     Type: String
     Default: "observability-cluster"
 
+  ######## OSI Variables ########
+  OSIPipelineBaseName:
+    Description: "Please enter the Base name for OSI pipelines "
+    Type: String
+    Default: "osi-pipeline"
+
+
   ######## General ########
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
-    Default: "observability-with-amazon-opensearch"
+    Default: "ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/1abb648b-2ef8-442c-a731-efbcb69c1e1e"
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -181,7 +188,7 @@ Resources:
   Base:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/base.yaml
+      TemplateURL: !Sub https://${S3BucketName}/base.yaml
       Parameters:
         VpcCIDR: !Ref VpcCIDR
         EnvironmentName: !Ref EnvironmentName
@@ -196,7 +203,7 @@ Resources:
   Cloud9:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/cloud9.yaml
+      TemplateURL: !Sub https://${S3BucketName}/cloud9.yaml
       Parameters:
         EnvironmentNameC9: !Ref EnvironmentNameC9
         C9InstanceType: !Ref C9InstanceType
@@ -210,7 +217,7 @@ Resources:
   EKSCluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/ekscluster.yaml
+      TemplateURL: !Sub https://${S3BucketName}/ekscluster.yaml
       Parameters:
         EKSClusterName: !Ref EKSClusterName
         S3BucketName: !Ref S3BucketName
@@ -224,11 +231,12 @@ Resources:
         DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
         EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
         C9Role: !GetAtt Cloud9.Outputs.C9Role
+        PipelineName: !Ref OSIPipelineBaseName
 
   OpenSearch:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}.s3.amazonaws.com/assets/opensearch.yaml
+      TemplateURL: !Sub https://${S3BucketName}/opensearch.yaml
       Parameters:
         DomainName: !Ref DomainName
         EngineVersion: !Ref EngineVersion
@@ -241,7 +249,23 @@ Resources:
         PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
         PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
         PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
-
+  
+  OpenSearchIngest:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${S3BucketName}/osi.yaml
+      Parameters:
+        AOSDomainEndpoint: !GetAtt OpenSearch.Outputs.AOSDomainEndpoint
+        VPC: !GetAtt Base.Outputs.VPC
+        PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
+        PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
+        PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
+        AOSDomainUserName: !GetAtt OpenSearch.Outputs.AOSDomainUserName
+        AOSMasterPasswordSecretARN: !GetAtt OpenSearch.Outputs.AOSMasterPasswordSecretArn
+        AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup
+        AOSDomainArn: !GetAtt OpenSearch.Outputs.AOSDomainArn
+        PipelineName: !Ref OSIPipelineBaseName
+        
 Outputs:
   StackRef1:
     Value: !Ref OpenSearch
