@@ -1,11 +1,12 @@
 # Build step #1: build the React front end
-FROM node:18-alpine as build-step
+FROM node:20-alpine as build-step
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
-RUN npm install npm@9.8.1 --location=global
+RUN npm install npm@10.1.0 --location=global
 COPY *.json ./
 COPY ./src ./src
 COPY ./public ./public
+RUN npx browserslist@latest --update-db
 RUN npm install --loglevel "silent"
 RUN npm run build
 
@@ -19,7 +20,6 @@ ENV PATH="/app/env/bin:$PATH"
 
 COPY api/requirements.txt api/api.py api/.flaskenv ./
 RUN pip install -r requirements.txt
-
 
 EXPOSE 5000
 ENTRYPOINT [ "python3", "api.py" ]
