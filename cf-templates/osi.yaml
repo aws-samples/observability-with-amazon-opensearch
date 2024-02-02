@@ -82,7 +82,7 @@ Resources:
       Runtime: python3.9
       Timeout: 240
       Role: !GetAtt  UpdateAOSRoleMappingLambdaRole.Arn
-      FunctionName: !Sub osi-oss-role-mapping-update-${AWS::StackName}
+      FunctionName: !Sub osi-oss-role-map-${AWS::StackName}
       Code:
         ZipFile: |
           import boto3

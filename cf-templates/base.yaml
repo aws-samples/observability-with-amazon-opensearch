@@ -372,16 +372,100 @@ Resources:
       RepositoryName: "client-service"
 
   ######## Shared IAM Roles ########
+  CheckServiceRolesFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt 'LambdaExecutionRole.Arn'
+      FunctionName: CheckServiceRolesFunction
+      Runtime: python3.11
+      Timeout: 30
+      Code:
+        ZipFile: |
+          import boto3
+          import cfnresponse
 
-  AWSServiceRoleForAmazonOpenSearchService:
-    Type: "AWS::IAM::ServiceLinkedRole"
+          def lambda_handler(event, context):
+              try:
+                  print("Received event:", event)
+                  # Get the roles to check
+                  roles_to_check = ["opensearchservice.amazonaws.com", "osis.amazonaws.com"]
+
+                  # Initialize IAM client
+                  iam_client = boto3.client('iam')
+
+                  # Check if the roles exist
+                  for role_name in roles_to_check:
+                      try:
+                          iam_client.get_role(RoleName=role_name)
+                          print(f"Role {role_name} already exists.")
+                      except iam_client.exceptions.NoSuchEntityException:
+                          # Role doesn't exist, create ServiceLinkedRole
+                          create_service_linked_role(role_name)
+
+                  # Send a success response to CloudFormation
+                  cfnresponse.send(event, context, cfnresponse.SUCCESS, {}, "CustomResourcePhysicalID")
+
+              except Exception as e:
+                  # Send a failure response to CloudFormation
+                  cfnresponse.send(event, context, cfnresponse.FAILED, {"Error": str(e)}, "CustomResourcePhysicalID")
+
+          def create_service_linked_role(role_name):
+              try:
+                  # Initialize IAM client
+                  iam_client = boto3.client('iam')
+
+                  # Create ServiceLinkedRole
+                  response = iam_client.create_service_linked_role(
+                      AWSServiceName=role_name
+                  )
+
+                  # Log the created role ARN
+                  print(f"ServiceLinkedRole {role_name} created with ARN: {response['Role']['Arn']}")
+
+              except Exception as e:
+                  print(f"Error creating ServiceLinkedRole {role_name}: {str(e)}")
+  LambdaExecutionRole:
+    Type: AWS::IAM::Role
     Properties:
-      AWSServiceName: opensearchservice.amazonaws.com
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: lambda.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: LambdaExecutionPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - iam:GetRole
+                  - iam:CreateServiceLinkedRole
+                Resource: '*'
+
+  CustomResourceForCondition:
+    Type: Custom::ConditionResource
+    Properties:
+      ServiceToken: !GetAtt 'CheckServiceRolesFunction.Arn'
+
+  # AWSServiceRoleForAmazonOpenSearchService:
+  #   Type: "AWS::IAM::ServiceLinkedRole"
+  #   Properties:
+  #     AWSServiceName: opensearchservice.amazonaws.com
   
-  AWSServiceRoleForAmazonOpenSearchIngestionService:
-    Type: "AWS::IAM::ServiceLinkedRole"
-    Properties:
-      AWSServiceName: osis.amazonaws.com
+  # AWSServiceRoleForAmazonOpenSearchIngestionService:
+  #   Type: "AWS::IAM::ServiceLinkedRole"
+  #   Properties:
+  #     AWSServiceName: osis.amazonaws.com
 
   DeployCloudformationStackLambdaRole:
     Type: AWS::IAM::Role

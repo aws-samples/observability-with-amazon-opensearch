@@ -138,7 +138,7 @@ Parameters:
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
-    Default: "ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/1abb648b-2ef8-442c-a731-efbcb69c1e1e"
+    Default: "bralab-templates.s3.sa-east-1.amazonaws.com"
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -188,7 +188,7 @@ Resources:
   Base:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}/base.yaml
+      TemplateURL: !Sub https://${S3BucketName}/observability/base.yaml
       Parameters:
         VpcCIDR: !Ref VpcCIDR
         EnvironmentName: !Ref EnvironmentName
@@ -203,7 +203,7 @@ Resources:
   Cloud9:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}/cloud9.yaml
+      TemplateURL: !Sub https://${S3BucketName}/observability/cloud9.yaml
       Parameters:
         EnvironmentNameC9: !Ref EnvironmentNameC9
         C9InstanceType: !Ref C9InstanceType
@@ -217,7 +217,7 @@ Resources:
   EKSCluster:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}/ekscluster.yaml
+      TemplateURL: !Sub https://${S3BucketName}/observability/ekscluster.yaml
       Parameters:
         EKSClusterName: !Ref EKSClusterName
         S3BucketName: !Ref S3BucketName
@@ -236,7 +236,7 @@ Resources:
   OpenSearch:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}/opensearch.yaml
+      TemplateURL: !Sub https://${S3BucketName}/observability/opensearch.yaml
       Parameters:
         DomainName: !Ref DomainName
         EngineVersion: !Ref EngineVersion
@@ -253,7 +253,7 @@ Resources:
   OpenSearchIngest:
     Type: AWS::CloudFormation::Stack
     Properties:
-      TemplateURL: !Sub https://${S3BucketName}/osi.yaml
+      TemplateURL: !Sub https://${S3BucketName}/observability/osi.yaml
       Parameters:
         AOSDomainEndpoint: !GetAtt OpenSearch.Outputs.AOSDomainEndpoint
         VPC: !GetAtt Base.Outputs.VPC
@@ -281,3 +281,4 @@ Outputs:
     Value: !Ref Cloud9
   Cloud9IDE0:
     Value: !GetAtt Cloud9.Outputs.Cloud9IDE
+
