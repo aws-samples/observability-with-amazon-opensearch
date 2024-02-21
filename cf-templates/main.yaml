@@ -281,3 +281,4 @@ Outputs:
     Value: !Ref Cloud9
   Cloud9IDE0:
     Value: !GetAtt Cloud9.Outputs.Cloud9IDE
+

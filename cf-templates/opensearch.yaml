@@ -376,70 +376,53 @@ Resources:
           import json
           import boto3
           import logging
-          import urllib3
           import time
-          http = urllib3.PoolManager()
+          import cfnresponse
 
           logger = logging.getLogger(__name__)
           logging.getLogger().setLevel(logging.INFO)
 
-          SUCCESS = "SUCCESS"
-          FAILED = "FAILED"
-          time.sleep(15)
-
           def lambda_handler(event, context):
-              global arn
               logger.info('Event: %s' % json.dumps(event))
-              responseData={}
+              responseData = {}
+
               try:
                   if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
-                      print("Request Type:",event['RequestType'])
-                      GetPublicIP=event['ResourceProperties']['GetPublicIP']
+                      print("Request Type:", event['RequestType'])
+                      GetPublicIP = event['ResourceProperties']['GetPublicIP']
                       client = boto3.client('ec2')
+                      time.sleep(60)
                       response = client.describe_instances(
-                          Filters=[ {
-                                  'Name': 'tag:IsUsedForDeploy',
-                                  'Values': ['true']}
-                          ]
+                          Filters=[{
+                              'Name': 'tag:IsUsedForDeploy',
+                              'Values': ['true']
+                          }]
                       )
-                      for r in response['Reservations']:
-                          for i in r['Instances']:
-                              PublicIpAddress = (i['PublicIpAddress'])
-                              print (PublicIpAddress)
 
-                      responseData={'PublicIpAddress':PublicIpAddress}
+                      for reservation in response['Reservations']:
+                          for instance in reservation['Instances']:
+                              public_ip_address = instance.get('PublicIpAddress')
+                              if public_ip_address is not None:
+                                  print(public_ip_address)
+                              else:
+                                  print("Public IP Address not found.")
+
+
+                      responseData = {'PublicIpAddress': public_ip_address}
                       print("Sending CFN")
-                  responseStatus = 'SUCCESS'
+                      responseStatus = cfnresponse.SUCCESS
+                  else:
+                      # This is a Delete request, so just acknowledge it
+                      responseStatus = cfnresponse.SUCCESS
               except Exception as e:
                   print('Failed to process:', e)
-                  responseStatus = 'FAILURE'
+                  responseStatus = cfnresponse.FAILED
                   responseData = {'Failure': 'Check Logs.'}
-              send(event, context, responseStatus, responseData)
 
-          def send(event, context, responseStatus, responseData, physicalResourceId=None, noEcho=False):
-              responseUrl = event['ResponseURL']
-              print(responseUrl)
-              responseBody = {'Status': responseStatus,
-                              'Reason': 'See the details in CloudWatch Log Stream: ' + context.log_stream_name,
-                              'PhysicalResourceId': physicalResourceId or context.log_stream_name,
-                              'StackId': event['StackId'],
-                              'RequestId': event['RequestId'],
-                              'LogicalResourceId': event['LogicalResourceId'],
-                              'Data': responseData}
-              json_responseBody = json.dumps(responseBody)
-              print("Response body:\n" + json_responseBody)
-              headers = {
-                  'content-type' : '',
-                  'content-length' : str(len(json_responseBody))
-              }
-              try:
-                  response = http.request('PUT', responseUrl, headers=headers, body=json_responseBody)
-                  print("Status code:", response.status)
-              except Exception as e:
-                  print("send(..) failed executing http.request(..):", e)
+              cfnresponse.send(event, context, responseStatus, responseData, "CustomResourcePhysicalID", noEcho=False)
       FunctionName: "EC2ASG-GetPublicIpAddress"
       Handler: "index.lambda_handler"
-      Timeout: 30
+      Timeout: 120
       Role: !GetAtt "LambdaRole.Arn"
       Runtime: python3.11
   Lambdatrigger:
