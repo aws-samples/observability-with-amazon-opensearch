@@ -92,6 +92,16 @@ data:
         Reserve_Data      On
         Preserve_Key      On
 
+    [FILTER]
+        Name                     grep
+        Match                    *
+        Regex                    traceId [^ ]+
+    
+    [FILTER]
+        Name    grep
+        Match   *
+        Exclude traceId 0
+
   output-data-prepper.conf: |
     [OUTPUT]
         Name                 opentelemetry
