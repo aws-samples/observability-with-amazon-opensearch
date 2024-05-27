@@ -65,9 +65,10 @@ data:
         multiline.parser  cri
         Path              /var/log/containers/*.log
         DB                /var/log/flb_kube_myservice.db
-        Mem_Buf_Limit     5MB
+        Mem_Buf_Limit     50MB
         Skip_Long_Lines   On
         Refresh_Interval  10
+        Read_from_Head    True
 
   filter-kubernetes.conf: |
     [FILTER]
@@ -91,8 +92,18 @@ data:
         Reserve_Data      On
         Preserve_Key      On
 
+    [FILTER]
+        Name                     grep
+        Match                    *
+        Regex                    traceId [^ ]+
+    
+    [FILTER]
+        Name    grep
+        Match   *
+        Exclude traceId 0
+
   output-data-prepper.conf: |
-      [OUTPUT]
+    [OUTPUT]
         Name                 opentelemetry
         Match                *
         Host                 otel-collector.otel-collector.svc.cluster.local
@@ -147,7 +158,7 @@ spec:
     spec:
       containers:
         - name: fluent-bit
-          image: fluent/fluent-bit:latest
+          image: fluent/fluent-bit:2.2.2
           imagePullPolicy: Always
           ports:
             - containerPort: 2020
