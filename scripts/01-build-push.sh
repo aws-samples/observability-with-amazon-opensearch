@@ -27,9 +27,10 @@ push_images_s3() {
     repo_name=$2
     cd sample-apps/$service_folder/
     echo $PWD # Check Directory
-    zip -r $repo_name.zip *
+    zip -rq $repo_name.zip *
     aws s3 cp $repo_name.zip s3://codebuild-assets-$AWS_REGION-$ACCOUNT_ID/
     rm $repo_name.zip
+    aws codebuild start-build --project-name $repo_name
     cd ../..
 }
 
