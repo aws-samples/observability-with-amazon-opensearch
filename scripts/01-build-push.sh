@@ -34,11 +34,11 @@ push_images_s3() {
     cd ../..
 }
 
-push_images_s3 '04-analytics-service' 'analyticsService'
-push_images_s3 '05-databaseService' 'databaseService'
-push_images_s3 '06-orderService' 'orderService'
-push_images_s3 '07-inventoryService' 'inventoryService'
-push_images_s3 '08-paymentService' 'paymentService'
-push_images_s3 '09-recommendationService' 'recommendationService'
-push_images_s3 '10-authenticationService' 'authenticationService'
+push_images_s3 '04-analytics-service' 'analytics-service'
+push_images_s3 '05-databaseService' 'database-service'
+push_images_s3 '06-orderService' 'order-service'
+push_images_s3 '07-inventoryService' 'inventory-service'
+push_images_s3 '08-paymentService' 'payment-service'
+push_images_s3 '09-recommendationService' 'recommendation-service'
+push_images_s3 '10-authenticationService' 'authentication-service'
 push_images_s3 '11-client' 'client'
