@@ -457,16 +457,6 @@ Resources:
     Properties:
       ServiceToken: !GetAtt 'CheckServiceRolesFunction.Arn'
 
-  # AWSServiceRoleForAmazonOpenSearchService:
-  #   Type: "AWS::IAM::ServiceLinkedRole"
-  #   Properties:
-  #     AWSServiceName: opensearchservice.amazonaws.com
-  
-  # AWSServiceRoleForAmazonOpenSearchIngestionService:
-  #   Type: "AWS::IAM::ServiceLinkedRole"
-  #   Properties:
-  #     AWSServiceName: osis.amazonaws.com
-
   DeployCloudformationStackLambdaRole:
     Type: AWS::IAM::Role
     Properties:

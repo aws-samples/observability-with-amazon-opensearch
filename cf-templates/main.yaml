@@ -87,40 +87,6 @@ Parameters:
     AllowedPattern: '(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})/(\d{1,2})'
     ConstraintDescription: must be a valid IP CIDR range of the form x.x.x.x/x.
 
-  ######## Cloud9 Variables ########
-  EnvironmentNameC9:
-    Description: An environment name that is prefixed to resource names
-    Type: String
-    Default: "observability"
-  C9InstanceType:
-    Description: AWS Cloud9 instance type
-    Type: String
-    Default: t3.medium
-    AllowedValues:
-      - t2.micro
-      - t3.micro
-      - t3.small
-      - t3.medium
-    ConstraintDescription: Must be a valid Cloud9 instance type
-  C9EnvType:
-    Description: Environment type.
-    Default: self
-    Type: String
-    AllowedValues:
-      - self
-      - 3rdParty
-      - event-engine
-      - workshop-studio
-    ConstraintDescription: must specify self or 3rdParty.
-  OwnerArn:
-    Type: String
-    Description: The Arn of the Cloud9 Owner to be set if 3rdParty deployment.
-    Default: ""
-  C9InstanceVolumeSize:
-    Type: Number
-    Description: The Size in GB of the Cloud9 Instance Volume.
-    Default: 30
-
   ######## EKS Cluster Variables ########
   EKSClusterName:
     Description: "Please enter the EKS Cluster Name"
@@ -172,14 +138,6 @@ Metadata:
           - ReverseProxyInstanceType
           - ReverseProxySSHLocation
       - Label:
-          default: "Cloud9 Configuration"
-        Parameters:
-          - EnvironmentNameC9
-          - C9InstanceType
-          - C9EnvType
-          - OwnerArn
-          - C9InstanceVolumeSize
-      - Label:
           default: "EKS Configuration"
         Parameters:
           - EKSClusterName
@@ -199,20 +157,6 @@ Resources:
         PrivateSubnet2CIDR: !Ref PrivateSubnet2CIDR
         PrivateSubnet3CIDR: !Ref PrivateSubnet3CIDR
         NatGateway: !Ref NatGateway
-
-  Cloud9:
-    Type: AWS::CloudFormation::Stack
-    Properties:
-      TemplateURL: !Sub https://${S3BucketName}/cloud9.yaml
-      Parameters:
-        EnvironmentNameC9: !Ref EnvironmentNameC9
-        C9InstanceType: !Ref C9InstanceType
-        C9EnvType: !Ref C9EnvType
-        OwnerArn: !Ref OwnerArn
-        C9InstanceVolumeSize: !Ref C9InstanceVolumeSize
-        PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
-        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
-        EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
 
   EKSCluster:
     Type: AWS::CloudFormation::Stack
@@ -277,8 +221,4 @@ Outputs:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainUserName
   AOSDomainPassword0:
     Value: !GetAtt OpenSearch.Outputs.AOSDomainPassword
-  StackRef2:
-    Value: !Ref Cloud9
-  Cloud9IDE0:
-    Value: !GetAtt Cloud9.Outputs.Cloud9IDE
 

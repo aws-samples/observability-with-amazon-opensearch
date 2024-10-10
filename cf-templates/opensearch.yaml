@@ -24,6 +24,9 @@ Parameters:
     Type: String
   PrivateSubnet2:
     Type: String
+  LatestAmiId:
+    Type: 'AWS::SSM::Parameter::Value<AWS::EC2::Image::Id>'
+    Default: '/aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2'
 
 Mappings:
   AWSInstanceType2Arch:
@@ -45,15 +48,6 @@ Mappings:
       Arch: HVM64
     c3.xlarge:
       Arch: HVM64
-  AWSRegionArch2AMI:
-    us-east-1:
-      HVM64: ami-067d1e60475437da2
-    us-east-2:
-      HVM64: ami-036f5574583e16426
-    us-west-2:
-      HVM64: ami-00b7cc7d7a9f548ea
-    sa-east-1:
-      HVM64: ami-0c9a3a14d80ebcf8e
 
 Resources:
   OpenSearchIngressSecurityGroup:
@@ -260,88 +254,108 @@ Resources:
       Roles:
         - Ref: IAMRole
 
-  ReverseProxyASG:
-    Type: "AWS::AutoScaling::AutoScalingGroup"
+  ReverseProxyTargetGroup:
+    Type: AWS::ElasticLoadBalancingV2::TargetGroup
     Properties:
-      VPCZoneIdentifier:
+      Name: ReverseProxyTargetGroup
+      Port: 443
+      Protocol: TCP
+      TargetType: instance
+      HealthCheckPort: 443
+      HealthCheckProtocol: TCP
+      VpcId: !Ref VPC
+
+  NetworkLoadBalancer:
+    Type: AWS::ElasticLoadBalancingV2::LoadBalancer
+    Properties:
+      Scheme: internet-facing
+      SecurityGroups:
+        - !Ref ReverseProxyInstanceSecurityGroup
+      Subnets:
         - !Ref PublicSubnet1
         - !Ref PublicSubnet2
-      LaunchConfigurationName: !Ref ReverseProxyLaunchConfig
-      MinSize: "1"
-      MaxSize: "1"
-      Tags:
-        - Key: Environment
-          Value: Poc
-          PropagateAtLaunch: "true"
-        - Key: IsUsedForDeploy
-          Value: True
-          PropagateAtLaunch: "true"
-        - Key: Name
-          Value: ProxyInstance
-          PropagateAtLaunch: "true"
+      Type: network
 
-  ReverseProxyLaunchConfig:
-    Type: "AWS::AutoScaling::LaunchConfiguration"
+  ALBListener:
+    Type: AWS::ElasticLoadBalancingV2::Listener
     Properties:
-      AssociatePublicIpAddress: True
-      IamInstanceProfile: !Ref InstanceProfile
-      ImageId: !FindInMap
-        - AWSRegionArch2AMI
-        - !Ref "AWS::Region"
-        - !FindInMap
-          - AWSInstanceType2Arch
-          - !Ref ReverseProxyInstanceType
-          - Arch
-      UserData:
-        Fn::Base64: !Sub |
-          #!/bin/bash
-          yum update -y
-          yum install jq -y
-          yum install nginx.x86_64 -y
-          openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+      DefaultActions:
+        - Type: forward
+          TargetGroupArn: !Ref ReverseProxyTargetGroup
+      LoadBalancerArn: !Ref NetworkLoadBalancer
+      Port: 443
+      Protocol: TCP
 
-          cat << EOF > /etc/nginx/conf.d/nginx_opensearch.conf
-          server {
-              listen 443;
-              server_name \$host;
-              rewrite ^/$ https://\$host/_dashboards redirect;
+  ReverseProxyAutoScalingGroup:
+    Type: AWS::AutoScaling::AutoScalingGroup
+    DependsOn: OpenSearchServiceDomain
+    Properties:
+      VPCZoneIdentifier:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+      LaunchTemplate:
+        LaunchTemplateId: !Ref ReverseProxyLaunchTemplate
+        Version: !GetAtt ReverseProxyLaunchTemplate.LatestVersionNumber
+      MinSize: '1'
+      MaxSize: '3'
+      DesiredCapacity: '2'
+      TargetGroupARNs:
+        - !Ref ReverseProxyTargetGroup
 
-              # openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.\n
+  ReverseProxyLaunchTemplate:
+    Type: AWS::EC2::LaunchTemplate
+    Properties:
+      LaunchTemplateData:
+        ImageId: !Ref LatestAmiId
+        InstanceType: !Ref ReverseProxyInstanceType
+        IamInstanceProfile: 
+          Name: !Ref InstanceProfile
+        SecurityGroupIds:
+          - !Ref ReverseProxyInstanceSecurityGroup
+        TagSpecifications:
+          - ResourceType: "instance"
+            Tags:
+            - Key: "IsUsedForDeploy"
+              Value: "true"
+        UserData:
+          Fn::Base64: !Sub |
+            #!/bin/bash
+            yum update -y
+            yum install jq -y
+            amazon-linux-extras install nginx1 -y
+            openssl req -x509 -nodes -days 365 -newkey rsa:2048 -keyout /etc/nginx/cert.key -out /etc/nginx/cert.crt -subj /C=US/ST=./L=./O=./CN=.
+
+            host='${NetworkLoadBalancer.DNSName}'
+
+            cat << EOF > /etc/nginx/conf.d/nginx_opensearch.conf
+            server {
+              listen 443 ssl;
+              server_name $host;
+              rewrite ^/$ https://$host/_dashboards redirect;
+
               ssl_certificate           /etc/nginx/cert.crt;
               ssl_certificate_key       /etc/nginx/cert.key;
 
-              ssl on;
               ssl_session_cache  builtin:1000  shared:SSL:10m;
-              ssl_protocols TLSv1 TLSv1.1 TLSv1.2 TLSv1.3;
+              ssl_protocols TLSv1.2 TLSv1.3;
               ssl_ciphers HIGH:!aNULL:!eNULL:!EXPORT:!CAMELLIA:!DES:!MD5:!PSK:!RC4;
               ssl_prefer_server_ciphers on;
 
-
               location ^~ /_dashboards {
-                  # Forward requests to OpenSearch Dashboards
-                  proxy_pass https://DOMAIN_ENDPOINT/_dashboards;
-
-                  # Update cookie domain and path
-                  proxy_cookie_domain DOMAIN_ENDPOINT \$host;
-
+                  proxy_pass https://${OpenSearchServiceDomain.DomainEndpoint}/_dashboards;
+                  proxy_cookie_domain ${OpenSearchServiceDomain.DomainEndpoint} $host;
                   proxy_set_header Accept-Encoding "";
                   sub_filter_types *;
-                  sub_filter DOMAIN_ENDPOINT \$host;
+                  sub_filter ${OpenSearchServiceDomain.DomainEndpoint} $host;
                   sub_filter_once off;
-
-                  # Response buffer settings
                   proxy_buffer_size 128k;
                   proxy_buffers 4 256k;
                   proxy_busy_buffers_size 256k;
               }
-          }          
-          EOF
-          sed -i -e "s/DOMAIN_ENDPOINT/${OpenSearchServiceDomain.DomainEndpoint}/g" /etc/nginx/conf.d/nginx_opensearch.conf
-          systemctl restart nginx.service
-          systemctl enable nginx.service
-      SecurityGroups:
-        - !Ref ReverseProxyInstanceSecurityGroup
-      InstanceType: !Ref ReverseProxyInstanceType
+            }          
+            EOF
+            systemctl restart nginx.service
+            systemctl enable nginx.service
 
   ReverseProxyInstanceSecurityGroup:
     Type: "AWS::EC2::SecurityGroup"
@@ -364,110 +378,7 @@ Resources:
         - Description: Allow all outbound traffic
           IpProtocol: "-1"
           CidrIp: 0.0.0.0/0
-      VpcId: !Ref VPC
-
-  ######## Lambda Get PublicIP Information ########
-  GetEC2PublicIP:
-    Type: AWS::Lambda::Function
-    DependsOn: ReverseProxyLaunchConfig
-    Properties:
-      Code:
-        ZipFile: |
-          import json
-          import boto3
-          import logging
-          import time
-          import cfnresponse
-
-          logger = logging.getLogger(__name__)
-          logging.getLogger().setLevel(logging.INFO)
-
-          def lambda_handler(event, context):
-              logger.info('Event: %s' % json.dumps(event))
-              responseData = {}
-
-              try:
-                  if event['RequestType'] == 'Create' or event['RequestType'] == 'Update':
-                      print("Request Type:", event['RequestType'])
-                      GetPublicIP = event['ResourceProperties']['GetPublicIP']
-                      client = boto3.client('ec2')
-                      time.sleep(60)
-                      response = client.describe_instances(
-                          Filters=[{
-                              'Name': 'tag:IsUsedForDeploy',
-                              'Values': ['true']
-                          }]
-                      )
-
-                      for reservation in response['Reservations']:
-                          for instance in reservation['Instances']:
-                              public_ip_address = instance.get('PublicIpAddress')
-                              if public_ip_address is not None:
-                                  print(public_ip_address)
-                              else:
-                                  print("Public IP Address not found.")
-
-
-                      responseData = {'PublicIpAddress': public_ip_address}
-                      print("Sending CFN")
-                      responseStatus = cfnresponse.SUCCESS
-                  else:
-                      # This is a Delete request, so just acknowledge it
-                      responseStatus = cfnresponse.SUCCESS
-              except Exception as e:
-                  print('Failed to process:', e)
-                  responseStatus = cfnresponse.FAILED
-                  responseData = {'Failure': 'Check Logs.'}
-
-              cfnresponse.send(event, context, responseStatus, responseData, "CustomResourcePhysicalID", noEcho=False)
-      FunctionName: "EC2ASG-GetPublicIpAddress"
-      Handler: "index.lambda_handler"
-      Timeout: 120
-      Role: !GetAtt "LambdaRole.Arn"
-      Runtime: python3.11
-  Lambdatrigger:
-    Type: "Custom::GetEC2PublicIP"
-    DependsOn: ReverseProxyASG
-    Properties:
-      ServiceToken: !GetAtt "GetEC2PublicIP.Arn"
-      GetPublicIP: !Ref GetEC2PublicIP
-  LambdaRole:
-    Type: AWS::IAM::Role
-    Metadata:
-      cfn_nag:
-        rules_to_suppress:
-          - id: F3
-            reason: "Required for GetPublicIP"
-          - id: W11
-            reason: "Required for GetPublicIP"
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service:
-                - lambda.amazonaws.com
-            Action:
-              - sts:AssumeRole
-      Path: /
-      Policies:
-        - PolicyName: "lambda-logs"
-          PolicyDocument:
-            Version: "2012-10-17"
-            Statement:
-              - Effect: Allow
-                Action:
-                  - "ec2:Describe*"
-                  - "ec2:List*"
-                Resource: "*"
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource:
-                  - "arn:aws:logs:*:*:*"
+      VpcId: !Ref VPC 
 
 Outputs:
   AOSDomainArn:
@@ -494,12 +405,7 @@ Outputs:
       Name: AOSDomainPassword
   AOSDashboardsPublicIP:
     Description: Proxy (Public IP) for Amazon Opensearch Dashboards
-    Value:
-      Fn::Join:
-        - ""
-        - - https://
-          - !GetAtt Lambdatrigger.PublicIpAddress
-          - /_dashboards
+    Value: !GetAtt NetworkLoadBalancer.DNSName
     Export:
       Name: AOSDashboardsPublicIP
   AOSMasterPasswordSecretArn:
