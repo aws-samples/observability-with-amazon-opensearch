@@ -4,25 +4,25 @@ Description: "This template create the Amazon CodeBuild resources for the Micros
 Parameters:
   Analytics:
     Type: String
-    Default: analyticsService
+    Default: analytics-service
   Database:
     Type: String
-    Default: databaseService
+    Default: database-service
   Order:
     Type: String
-    Default: orderService
+    Default: order-service
   Inventory:
     Type: String
-    Default: inventoryService
+    Default: inventory-service
   Payment:
     Type: String
-    Default: paymentService
+    Default: payment-service
   Recommendation:
     Type: String
-    Default: recommendationService
+    Default: recommendation-service
   Authentication:
     Type: String
-    Default: authenticationService
+    Default: authentication-service
   Client:
     Type: String
     Default: client

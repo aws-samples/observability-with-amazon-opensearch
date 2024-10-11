@@ -30,6 +30,7 @@ push_images_s3() {
     zip -rq $repo_name.zip *
     aws s3 cp $repo_name.zip s3://codebuild-assets-$AWS_REGION-$ACCOUNT_ID/
     rm $repo_name.zip
+    sleep 5
     aws codebuild start-build --project-name $repo_name
     cd ../..
 }
