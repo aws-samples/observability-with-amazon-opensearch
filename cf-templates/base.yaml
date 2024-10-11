@@ -330,47 +330,6 @@ Resources:
       ServiceName: !Sub com.amazonaws.${AWS::Region}.ec2messages
       VpcId: !Ref VPC
 
-  ######## Amazon ECR Repositories ########
-  AnalyticsServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "analytics-service"
-
-  DatabaseServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "database-service"
-
-  OrderServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "order-service"
-
-  InventoryServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "inventory-service"
-
-  PaymentServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "payment-service"
-
-  RecommendationServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "recommendation-service"
-
-  AuthenticationServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "authentication-service"
-
-  ClientServiceRepository:
-    Type: AWS::ECR::Repository
-    Properties:
-      RepositoryName: "client-service"
-
   ######## Shared IAM Roles ########
   CheckServiceRolesFunction:
     Type: AWS::Lambda::Function

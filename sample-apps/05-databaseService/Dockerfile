@@ -1,4 +1,4 @@
-FROM python:3.11-slim as base
+FROM public.ecr.aws/docker/library/python:3.11-slim as base
 
 # ---- compile image -----------------------------------------------
 FROM base AS compile-image

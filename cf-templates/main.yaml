@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: 2010-09-09
 
-Description: This template deploys a VPC, with a pair of public and private subnets spread across three Availability Zones. In addition to the network components, the following will also be created (AWS Cloud9, Amazon ECR, Amazon EKS, Amazon OpenSearch Service and Reverse-Proxy Instance).
+Description: This template deploys a VPC, with a pair of public and private subnets spread across three Availability Zones. In addition to the network components, the following will also be created (Amazon ECR, Amazon EKS, Amazon OpenSearch Service and Reverse-Proxy Instance).
 
 Parameters:
   ######## VPC Variables ########
@@ -59,7 +59,7 @@ Parameters:
   EngineVersion:
     Description: Amazon OpenSearch Service - Version
     Type: String
-    Default: "OpenSearch_2.5"
+    Default: "OpenSearch_2.15"
 
   InstanceType:
     Description: Amazon OpenSearch Service - Instance Type
@@ -104,7 +104,7 @@ Parameters:
   S3BucketName:
     Description: "Please enter the bucket name for the dependencies CloudFormation templates"
     Type: String
-    Default: "ws-assets-prod-iad-r-iad-ed304a55c2ca1aee.s3.us-east-1.amazonaws.com/1abb648b-2ef8-442c-a731-efbcb69c1e1e"
+    Default: "assets.trollingers.com.s3.us-east-1.amazonaws.com"
 
 Metadata:
   AWS::CloudFormation::Interface:
@@ -164,7 +164,6 @@ Resources:
       TemplateURL: !Sub https://${S3BucketName}/ekscluster.yaml
       Parameters:
         EKSClusterName: !Ref EKSClusterName
-        S3BucketName: !Ref S3BucketName
         VPC: !GetAtt Base.Outputs.VPC
         PublicSubnet1: !GetAtt Base.Outputs.PublicSubnet1
         PublicSubnet2: !GetAtt Base.Outputs.PublicSubnet2
@@ -172,9 +171,7 @@ Resources:
         PrivateSubnet1: !GetAtt Base.Outputs.PrivateSubnet1
         PrivateSubnet2: !GetAtt Base.Outputs.PrivateSubnet2
         PrivateSubnet3: !GetAtt Base.Outputs.PrivateSubnet3
-        DeployCloudformationStackLambdaRole: !GetAtt Base.Outputs.DeployCloudformationStackLambdaRole
         EKSIAMRole: !GetAtt Base.Outputs.EKSIAMRole
-        C9Role: !GetAtt Cloud9.Outputs.C9Role
         PipelineName: !Ref OSIPipelineBaseName
 
   OpenSearch:
@@ -209,6 +206,12 @@ Resources:
         AOSDomainSecurityGroup: !GetAtt OpenSearch.Outputs.OpenSearchIngressSecurityGroup
         AOSDomainArn: !GetAtt OpenSearch.Outputs.AOSDomainArn
         PipelineName: !Ref OSIPipelineBaseName
+
+  CodeBuild:
+    Type: AWS::CloudFormation::Stack
+    Properties:
+      TemplateURL: !Sub https://${S3BucketName}/codebuild.yaml
+      
         
 Outputs:
   StackRef1:

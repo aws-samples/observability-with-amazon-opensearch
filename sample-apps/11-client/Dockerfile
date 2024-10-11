@@ -1,5 +1,5 @@
 # Build step #1: build the React front end
-FROM node:20-alpine as build-step
+FROM public.ecr.aws/docker/library/node:20-alpine3.20 as build-step
 WORKDIR /app
 ENV PATH /app/node_modules/.bin:$PATH
 RUN npm install npm@10.1.0 --location=global

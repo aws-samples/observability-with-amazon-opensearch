@@ -1,14 +1,7 @@
 #!/bin/bash
 
-# Disable Cloud9 AWS Manage Temporary Credentials
-aws cloud9 update-environment  --environment-id $C9_PID --managed-credentials-action DISABLE
-rm -vf ${HOME}/.aws/credentials
-
 # Install jq
 sudo yum -y -q install jq
-
-# Update awscli
-pip install --user --upgrade awscli
 
 # Install awscli v2
 curl -O "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" 

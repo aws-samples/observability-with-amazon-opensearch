@@ -301,3 +301,44 @@ Resources:
       Source:
         Type: S3
         Location: !Sub ${CodeBuildAssetsBucket}/${Client}.zip
+        
+  AnalyticRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Analytics
+  DatabaseRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Database
+  OrderRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Order
+  InventoryRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Inventory
+  PaymentRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Payment
+  RecommendationRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Recommendation
+  AuthenticationRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Authentication
+  ClientRepository:
+    Type: AWS::ECR::Repository
+    Properties:
+      EmptyOnDelete: true
+      RepositoryName: !Ref Client

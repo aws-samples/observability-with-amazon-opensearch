@@ -1,4 +1,4 @@
-FROM gradle:6.5.0-jdk8 as cache
+FROM public.ecr.aws/docker/library/gradle:jdk8-focal as cache
 RUN mkdir -p /home/gradle/cache_home
 ENV GRADLE_USER_HOME /home/gradle/cache_home
 COPY ./build.gradle /home/gradle/src/

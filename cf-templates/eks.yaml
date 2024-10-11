@@ -69,7 +69,7 @@ Resources:
     Type: "AWS::EKS::Cluster"
     Properties:
       Name: !Ref EksClusterName
-      Version: "1.28"
+      Version: "1.30"
       RoleArn: !Ref EksClusterRole
       ResourcesVpcConfig:
         SubnetIds:
