@@ -48,6 +48,13 @@ while read line;
 do aws eks --region $AWS_REGION update-kubeconfig --name $line;                                                                                                                                                               
 done
 
+# Enable IMDSv1 on EKS worker nodes
+idvals=`aws ec2 describe-instances --filters "Name=tag:eks:cluster-name,Values=observability-cluster" --query "Reservations[*].Instances[*].InstanceId" --output text`
+for id in $idvals
+do
+  aws ec2 modify-instance-metadata-options --instance-id $id --http-tokens optional --http-endpoint enabled
+done
+
 # Reload bash_profile
 source ~/.bash_profile
 
