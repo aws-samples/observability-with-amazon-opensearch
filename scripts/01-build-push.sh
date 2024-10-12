@@ -30,7 +30,10 @@ push_images_s3() {
     zip -rq $repo_name.zip *
     aws s3 cp $repo_name.zip s3://codebuild-assets-$AWS_REGION-$ACCOUNT_ID/
     rm $repo_name.zip
-    sleep 5
+    sed -i -e "s/__ACCOUNT_ID__/${ACCOUNT_ID}/g" kubernetes/01-deployment.yaml
+    sed -i -e "s/__AWS_REGION__/${AWS_REGION}/g" kubernetes/01-deployment.yaml
+    rm -rf kubernetes/01-deployment.yaml-e
+    sleep 10
     aws codebuild start-build --project-name $repo_name
     cd ../..
 }
@@ -42,4 +45,4 @@ push_images_s3 '07-inventoryService' 'inventory-service'
 push_images_s3 '08-paymentService' 'payment-service'
 push_images_s3 '09-recommendationService' 'recommendation-service'
 push_images_s3 '10-authenticationService' 'authentication-service'
-push_images_s3 '11-client' 'client'
+push_images_s3 '11-client' 'client-service'

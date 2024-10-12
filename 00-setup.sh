@@ -10,7 +10,7 @@ sudo ./aws/install
 rm awscli-exe-linux-x86_64.zip
 
 # Install bash-completion
-sudo yum -y install jq gettext bash-completion moreutils
+sudo yum -y install jq gettext bash-completion
 
 # Configure AWS CLI
 export ACCOUNT_ID=$(aws sts get-caller-identity --output text --query Account)

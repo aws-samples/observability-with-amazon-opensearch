@@ -25,7 +25,7 @@ Parameters:
     Default: authentication-service
   Client:
     Type: String
-    Default: client
+    Default: client-service
 
 Resources:
   CodeBuildAssetsBucket:
@@ -234,7 +234,7 @@ Resources:
         PrivilegedMode: true
       Source:
         Type: S3
-        Location: !Sub ${CodeBuildAssetsBucket}/${Analytics}.zip
+        Location: !Sub ${CodeBuildAssetsBucket}/${Payment}.zip
   RecommendationCodeBuildProject:
     Type: AWS::CodeBuild::Project
     Properties:

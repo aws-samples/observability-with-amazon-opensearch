@@ -5,7 +5,7 @@ COPY ./build.gradle /home/gradle/src/
 WORKDIR /home/gradle/src
 RUN gradle clean build --daemon
 
-FROM gradle:6.5.0-jdk8 AS build
+FROM public.ecr.aws/docker/library/gradle:jdk8-focal AS build
 COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
 COPY . /home/gradle/src/
 WORKDIR /home/gradle/src
@@ -13,7 +13,7 @@ RUN gradle bootJar --daemon
 
 RUN wget https://github.com/aws-observability/aws-otel-java-instrumentation/releases/download/v1.24.0/aws-opentelemetry-agent.jar
 
-FROM alpine:3.8.5
+FROM public.ecr.aws/docker/library/alpine:3.20
 
 RUN apk update \
 && apk upgrade \
