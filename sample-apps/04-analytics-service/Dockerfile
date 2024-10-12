@@ -1,11 +1,11 @@
-FROM public.ecr.aws/docker/library/gradle:jdk8-focal as cache
+FROM public.ecr.aws/docker/library/gradle:6.9-jdk8-focal as cache
 RUN mkdir -p /home/gradle/cache_home
 ENV GRADLE_USER_HOME /home/gradle/cache_home
 COPY ./build.gradle /home/gradle/src/
 WORKDIR /home/gradle/src
 RUN gradle clean build --daemon
 
-FROM public.ecr.aws/docker/library/gradle:jdk8-focal AS build
+FROM public.ecr.aws/docker/library/gradle:6.9-jdk8-focal AS build
 COPY --from=cache /home/gradle/cache_home /home/gradle/.gradle
 COPY . /home/gradle/src/
 WORKDIR /home/gradle/src
