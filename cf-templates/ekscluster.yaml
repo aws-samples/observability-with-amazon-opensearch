@@ -30,6 +30,31 @@ Resources:
       GroupDescription: Cluster communication with worker nodes
       VpcId: !Ref VPC
 
+  EKSPodOTELPodRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - pods.eks.amazonaws.com
+            Action:
+              - sts:AssumeRole
+              - sts:TagSession
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEKSClusterPolicy    
+      Policies:
+        - PolicyName: osis
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action: 
+                  - ec2:DescribeInstances
+                Resource: "*"
+
   EKSNodesIAMRole:
     Type: "AWS::IAM::Role"
     Properties:
@@ -61,8 +86,8 @@ Resources:
             Statement:
               - Effect: Allow
                 Action: "osis:Ingest"
-                Resource: !Sub "arn:aws:osis:${AWS::Region}:${AWS::AccountId}:pipeline/${PipelineName}*"  
-                               
+                Resource: !Sub "arn:aws:osis:${AWS::Region}:${AWS::AccountId}:pipeline/${PipelineName}*"
+                  
   EKS:
     Type: "AWS::EKS::Cluster"
     Properties:
@@ -90,3 +115,22 @@ Resources:
         - !Ref PrivateSubnet1
         - !Ref PrivateSubnet2
         - !Ref PrivateSubnet3
+
+  OTELCollectorIdentityAssociation:
+    DependsOn: 
+      - EKS
+      - EKSPodOTELPodRole
+    Type: AWS::EKS::PodIdentityAssociation
+    Properties:
+      ClusterName: !Ref EKSClusterName
+      Namespace: otel-collector
+      RoleArn: !GetAtt EKSPodOTELPodRole.Arn
+      ServiceAccount: default
+
+  PodIdentityAgentAddOn:
+    DependsOn: 
+      - EKS
+    Type: "AWS::EKS::Addon"
+    Properties:
+      AddonName: "eks-pod-identity-agent"
+      ClusterName: !Ref EKSClusterName
